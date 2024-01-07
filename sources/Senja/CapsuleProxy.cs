@@ -5,10 +5,13 @@ namespace Senja;
 public class CapsuleProxy : ICapsuleProxy
 {
     private readonly ChannelWriter<Func<Task>> _writer;
+    
+    private readonly Type _capsuleType;
 
-    public CapsuleProxy(ChannelWriter<Func<Task>> writer)
+    public CapsuleProxy(ChannelWriter<Func<Task>> writer, Type capsuleType)
     {
         _writer = writer;
+        _capsuleType = capsuleType;
     }
 
     public async Task EnqueueAwaitResult(Func<Task> impl)
@@ -37,7 +40,7 @@ public class CapsuleProxy : ICapsuleProxy
             }
         }
 
-        _writer.TryWrite(Func);
+        Write(Func);
 
         return await tcs.Task;
     }
@@ -52,18 +55,28 @@ public class CapsuleProxy : ICapsuleProxy
             await impl();
         }
 
-        _writer.TryWrite(Func);
+        Write(Func);
 
         await tcs.Task;
     }
 
     public void EnqueueReturn(Func<Task> impl)
     {
-        _writer.TryWrite(impl);
+        Write(impl);
     }
 
     public T PassThrough<T>(Func<T> impl)
     {
         return impl();
+    }
+
+    private void Write(Func<Task> func)
+    {
+        var success = _writer.TryWrite(func);
+
+        if (!success)
+        {
+            throw new CapsuleProxyingException($"Unable to enqueue function call for capsule of type {_capsuleType}");
+        }
     }
 }

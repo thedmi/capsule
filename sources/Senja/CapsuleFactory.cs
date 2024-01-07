@@ -13,15 +13,18 @@ public abstract class CapsuleFactory<T, TImpl> : ICapsuleFactory<T> where TImpl 
     
     public T CreateCapsule()
     {
-        var channel = Channel.CreateBounded<Func<Task>>(1);
+        var channel = Channel.CreateBounded<Func<Task>>(new BoundedChannelOptions(1023)
+            { SingleReader = true, SingleWriter = false, FullMode = BoundedChannelFullMode.Wait });
 
         var implementation = CreateImplementation();
 
-        // Ensure the event loop first calls InitializeAsync
-        channel.Writer.TryWrite(implementation.InitializeAsync);
+        var capsuleProxy = new CapsuleProxy(channel.Writer, typeof(TImpl));
+        
+        // Ensure the first item in the event loop is a call to InitializeAsync
+        capsuleProxy.EnqueueReturn(implementation.InitializeAsync);
         
         _capsuleHost.RegisterAsync(new CapsuleEventLoop(channel.Reader));
-        return CreateFacade(implementation, new CapsuleProxy(channel.Writer));
+        return CreateFacade(implementation, capsuleProxy);
     }
 
     protected abstract TImpl CreateImplementation();

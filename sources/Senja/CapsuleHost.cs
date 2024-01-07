@@ -75,6 +75,6 @@ public class CapsuleHost : BackgroundService, ICapsuleHost
 
     public async Task RegisterAsync(ICapsuleEventLoop capsuleEventLoop)
     {
-        _taskChannel.Writer.TryWrite(Task.Run(async () => await capsuleEventLoop.RunAsync(_shutdownCts.Token)));
+        _taskChannel.Writer.TryWrite(capsuleEventLoop.RunAsync(_shutdownCts.Token));
     }
 }
