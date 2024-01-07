@@ -2,5 +2,5 @@
 
 public interface IDeviceRepository
 {
-    Task<IReadOnlyList<IDevice>> GetDevicesAsync();
+    Task<IReadOnlyList<IWagoDevice>> GetDevicesAsync();
 }

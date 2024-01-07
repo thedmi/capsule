@@ -2,11 +2,11 @@ using System.Threading.Channels;
 
 namespace Senja;
 
-public class ActorEventLoop : IActorEventLoop
+public class CapsuleEventLoop : ICapsuleEventLoop
 {
     private readonly ChannelReader<Func<Task>> _messageReader;
 
-    public ActorEventLoop(ChannelReader<Func<Task>> messageReader)
+    public CapsuleEventLoop(ChannelReader<Func<Task>> messageReader)
     {
         _messageReader = messageReader;
     }

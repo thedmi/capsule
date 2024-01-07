@@ -5,9 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Senja;
 
-public class ActorHost : BackgroundService, IActorHost
+public class CapsuleHost : BackgroundService, ICapsuleHost
 {
-    private readonly ILogger<ActorHost> _logger;
+    private readonly ILogger<CapsuleHost> _logger;
     
     private ImmutableList<Task> _eventLoopTasks = ImmutableList<Task>.Empty;
 
@@ -15,7 +15,7 @@ public class ActorHost : BackgroundService, IActorHost
 
     private readonly Channel<Task> _taskChannel;
 
-    public ActorHost(ILogger<ActorHost> logger)
+    public CapsuleHost(ILogger<CapsuleHost> logger)
     {
         _logger = logger;
         
@@ -30,7 +30,7 @@ public class ActorHost : BackgroundService, IActorHost
         {
             var anyEventLoopTask = _eventLoopTasks.Any() ? Task.WhenAny(_eventLoopTasks) : Task.Delay(-1, stoppingToken);
 
-            _logger.LogDebug("Actor host awaiting event loop termination or new event loop task...");
+            _logger.LogDebug("Capsule host awaiting event loop termination or new event loop task...");
             await Task.WhenAny(_taskChannel.Reader.WaitToReadAsync(stoppingToken).AsTask(), anyEventLoopTask);
 
             if (anyEventLoopTask.IsCompleted)
@@ -68,13 +68,13 @@ public class ActorHost : BackgroundService, IActorHost
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Exception during actor event loop processing");
+                _logger.LogError(e, "Exception during capsule event loop processing");
             }
         }
     }
 
-    public async Task RegisterAsync(IActorEventLoop actorEventLoop)
+    public async Task RegisterAsync(ICapsuleEventLoop capsuleEventLoop)
     {
-        _taskChannel.Writer.TryWrite(Task.Run(async () => await actorEventLoop.RunAsync(_shutdownCts.Token)));
+        _taskChannel.Writer.TryWrite(Task.Run(async () => await capsuleEventLoop.RunAsync(_shutdownCts.Token)));
     }
 }

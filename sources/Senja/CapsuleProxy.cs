@@ -2,13 +2,22 @@
 
 namespace Senja;
 
-public class ActorProxy : IActorProxy
+public class CapsuleProxy : ICapsuleProxy
 {
     private readonly ChannelWriter<Func<Task>> _writer;
 
-    public ActorProxy(ChannelWriter<Func<Task>> writer)
+    public CapsuleProxy(ChannelWriter<Func<Task>> writer)
     {
         _writer = writer;
+    }
+
+    public async Task EnqueueAwaitResult(Func<Task> impl)
+    {
+        await EnqueueAwaitResult<object?>(async () =>
+        {
+            await impl();
+            return null;
+        });
     }
 
     public async Task<TResult> EnqueueAwaitResult<TResult>(Func<Task<TResult>> impl)

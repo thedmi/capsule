@@ -3,7 +3,7 @@ using Senja.Test.Sample.Impl;
 
 namespace Senja.Test.Sample;
 
-public class ActorExample
+public class CapsuleExample
 {
     [Test]
     public async Task RunAsync()
@@ -15,33 +15,33 @@ public class ActorExample
                 c.SetMinimumLevel(LogLevel.Debug);
             });
         
-        var host = new ActorHost(loggerFactory.CreateLogger<ActorHost>());
+        var host = new CapsuleHost(loggerFactory.CreateLogger<CapsuleHost>());
 
         await host.StartAsync(CancellationToken.None);
 
-        var stateTrackerFactory = new StateTrackerActorFactory(
-            () => new StateTrackerActor(loggerFactory.CreateLogger<StateTrackerActor>()),
+        var stateTrackerFactory = new StateTrackerCapsuleFactory(
+            () => new StateTracker(loggerFactory.CreateLogger<StateTracker>()),
             host);
 
-        var stateTracker = stateTrackerFactory.CreateActor();
+        var stateTracker = stateTrackerFactory.CreateCapsule();
 
-        var wago1Factory = new WagoDeviceActorFactory(
-            () => new WagoDeviceActor(
+        var wago1Factory = new WagoDeviceCapsuleFactory(
+            () => new WagoDevice(
                 new DeviceId("wago-1"),
                 stateTracker,
-                loggerFactory.CreateLogger<WagoDeviceActor>()),
+                loggerFactory.CreateLogger<WagoDevice>()),
             host);
 
-        var wago2Factory = new WagoDeviceActorFactory(
-            () => new WagoDeviceActor(
+        var wago2Factory = new WagoDeviceCapsuleFactory(
+            () => new WagoDevice(
                 new DeviceId("wago-2"),
                 stateTracker,
-                loggerFactory.CreateLogger<WagoDeviceActor>()),
+                loggerFactory.CreateLogger<WagoDevice>()),
             host);
 
-        var coordinator = new DeviceLifecycleCoordinatorActorFactory(
-            () => new DeviceLifecycleCoordinatorActor([wago1Factory, wago2Factory]),
-            host).CreateActor();
+        var coordinator = new DeviceLifecycleCoordinatorCapsuleFactory(
+            () => new DeviceLifecycleCoordinator([wago1Factory, wago2Factory]),
+            host).CreateCapsule();
 
         var controller = new ListDevicesController(coordinator);
         

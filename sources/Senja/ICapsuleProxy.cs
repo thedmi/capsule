@@ -1,7 +1,8 @@
 namespace Senja;
 
-public interface IActorProxy
+public interface ICapsuleProxy
 {
+    Task EnqueueAwaitResult(Func<Task> impl);
     Task<TResult> EnqueueAwaitResult<TResult>(Func<Task<TResult>> impl);
 
     Task EnqueueAwaitReception(Func<Task> impl);

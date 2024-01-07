@@ -1,6 +1,6 @@
 ﻿namespace Senja;
 
-public interface IActor
+public interface ICapsule
 {
     Task InitializeAsync();
 }

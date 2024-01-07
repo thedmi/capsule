@@ -2,9 +2,9 @@
 
 public class ListDevicesController
 {
-    private readonly IDeviceRepository _repository;
+    private readonly IDeviceLifecycleCoordinator _repository;
 
-    public ListDevicesController(IDeviceRepository repository)
+    public ListDevicesController(IDeviceLifecycleCoordinator repository)
     {
         _repository = repository;
     }

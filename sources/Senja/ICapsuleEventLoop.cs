@@ -1,6 +1,6 @@
 namespace Senja;
 
-public interface IActorEventLoop
+public interface ICapsuleEventLoop
 {
     Task RunAsync(CancellationToken cancellationToken);
 }
