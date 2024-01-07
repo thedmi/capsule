@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.2.2" />
+    <PackageReference Include="JunitXml.TestLogger" Version="3.0.134" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
@@ -38,6 +39,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Capsule\Capsule.csproj" />
     <ProjectReference Include="..\CapsuleGen\CapsuleGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="AutomatedTests\" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
 ﻿using Capsule.Generated;
 using CommunityToolkit.Diagnostics;
 
-namespace Capsule.Test.Sample.Impl;
+namespace Capsule.Test.AutomatedTests.Sample.Impl;
 
 [Capsule]
 public class DeviceLifecycleCoordinator : IDeviceRepository, ICapsule

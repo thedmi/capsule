@@ -1,7 +1,7 @@
 ﻿using Capsule.Generated;
 using Microsoft.Extensions.Logging;
 
-namespace Capsule.Test.Sample.Impl;
+namespace Capsule.Test.AutomatedTests.Sample.Impl;
 
 [Capsule]
 public class StateTracker : ICapsule

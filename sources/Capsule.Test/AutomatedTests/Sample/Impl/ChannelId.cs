@@ -1,4 +1,4 @@
-﻿namespace Capsule.Test.Sample.Impl;
+﻿namespace Capsule.Test.AutomatedTests.Sample.Impl;
 
 public record ChannelId(string Value);
 

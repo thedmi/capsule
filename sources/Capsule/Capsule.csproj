@@ -9,6 +9,11 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
     <RootNamespace>Capsule</RootNamespace>
+    
+    <PackageId>Capsule</PackageId>
+    <Authors>Dani Michel</Authors>
+    <Description>Automatic thread-safe objects</Description>
+    <AssemblyTitle>Capsule</AssemblyTitle>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -22,6 +27,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CapsuleGen\CapsuleGen.csproj" />
   </ItemGroup>
 
 </Project>

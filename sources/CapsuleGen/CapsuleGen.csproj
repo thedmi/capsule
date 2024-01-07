@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <IsPackable>false</IsPackable>
+    <IsPackable>true</IsPackable>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -13,7 +13,20 @@
     <IsRoslynComponent>true</IsRoslynComponent>
 
     <RootNamespace>CapsuleGen</RootNamespace>
+    
     <PackageId>CapsuleGen</PackageId>
+    <Authors>Dani Michel</Authors>
+    <Description>Automatic thread-safe objects</Description>
+    <AssemblyTitle>Capsule</AssemblyTitle>
+    <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Do not include the generator as a lib dependency -->
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <NoWarn>1701;1702;NU5128</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <NoWarn>1701;1702;NU5128</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +37,9 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0"/>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.3.0"/>
   </ItemGroup>
-
-
+  
+  <ItemGroup>
+    <!-- Package the generator in the analyzer directory of the nuget package -->
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
 </Project>

@@ -1,7 +1,7 @@
-﻿using Capsule.Test.Sample.Impl;
+﻿using Capsule.Test.AutomatedTests.Sample.Impl;
 using Microsoft.Extensions.Logging;
 
-namespace Capsule.Test.Sample;
+namespace Capsule.Test.AutomatedTests.Sample;
 
 public class CapsuleExample
 {
