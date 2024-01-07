@@ -67,13 +67,15 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
               [System.AttributeUsage(System.AttributeTargets.Method)]
               public class {{ExposeAttributeName}} : System.Attribute 
               {
-                  public CapsuleMethodAwait Await { get; init; } = CapsuleMethodAwait.Completion;
+                  public CapsuleSynchronization Synchronization { get; init; } = CapsuleSynchronization.AwaitCompletion;
               }
               
-              public enum CapsuleMethodAwait {
-                  Completion,
-                  Reception,
-                  Enqueueing
+              public enum CapsuleSynchronization 
+              {
+                  AwaitCompletion,
+                  AwaitReception,
+                  AwaitEnqueueing,
+                  PassThrough
               }
               """;
     }
@@ -238,9 +240,8 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
     {
         var attr = method.GetAttributes().Single(a => a.AttributeClass!.Name == ExposeAttributeName);
         
-        var awaitArgs = attr.NamedArguments.Where(a => a.Key == "Await").ToList();
-
-        var proxyMethod = awaitArgs.Any() && awaitArgs.Single().Value.Value as int? == 1 ? "EnqueueAwaitReception" : "EnqueueAwaitResult";
+        var synchronization = attr.NamedArguments.Where(a => a.Key == "Synchronization").ToList();
+        var proxyMethod = ProxyMethod(synchronization.Any() ? synchronization.Single().Value.Value as int? : null);
        
         var parameterDeclarations = string.Join(", ", method.Parameters.Select(p => $"{p.Type.ToDisplayString()} {p.Name}"));
 
@@ -257,4 +258,14 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
                     """
                 : ";");
     }
+
+    private static string ProxyMethod(int? enumValue) =>
+        enumValue switch
+        {
+            0 => "EnqueueAwaitResult",
+            1 => "EnqueueAwaitReception",
+            2 => "EnqueueReturn",
+            3 => "PassThrough",
+            _ => "EnqueueAwaitResult"
+        };
 }

@@ -17,7 +17,7 @@ public class ListDevicesController
 
         foreach (var device in devices)
         {
-            result.Add(await device.GetIdAsync());
+            result.Add(device.GetId());
         }
 
         return result.Select(i => i.Value).ToArray();

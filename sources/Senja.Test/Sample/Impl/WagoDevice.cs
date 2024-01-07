@@ -19,8 +19,8 @@ public class WagoDevice : ICapsule
         _logger = logger;
     }
 
-    [Expose]
-    public async Task<DeviceId> GetIdAsync()
+    [Expose(Synchronization = CapsuleSynchronization.PassThrough)]
+    public DeviceId GetId()
     {
         return _id;
     }
@@ -37,7 +37,7 @@ public class WagoDevice : ICapsule
         return new Dictionary<ChannelId, bool>();
     }
 
-    [Expose(Await = CapsuleMethodAwait.Reception)]
+    [Expose(Synchronization = CapsuleSynchronization.AwaitReception)]
     public async Task TriggerForcedUpdateAsync(CancellationToken cancellationToken)
     {
     }

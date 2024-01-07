@@ -3,7 +3,7 @@
   "profiles": {
     "DebugRoslynSourceGenerator": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "../../Senja.Test/Senja.Test.csproj"
+      "targetProject": "../Senja.Test/Senja.Test.csproj"
     }
   }
 }

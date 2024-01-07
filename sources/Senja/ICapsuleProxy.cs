@@ -8,4 +8,5 @@ public interface ICapsuleProxy
     Task EnqueueAwaitReception(Func<Task> impl);
 
     void EnqueueReturn(Func<Task> impl);
+    T PassThrough<T>(Func<T> impl);
 }

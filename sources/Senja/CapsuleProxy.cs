@@ -61,4 +61,9 @@ public class CapsuleProxy : ICapsuleProxy
     {
         _writer.TryWrite(impl);
     }
+
+    public T PassThrough<T>(Func<T> impl)
+    {
+        return impl();
+    }
 }
