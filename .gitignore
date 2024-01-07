@@ -3,7 +3,7 @@ obj
 bin
 
 
-/sources/Senja.sln.DotSettings.user
+/sources/*.sln.DotSettings.user
 
-/sources/Senja.Test/test-results.xml
+/sources/*.Test/test-results.xml
 /gitlab-runner/runner/config/*
