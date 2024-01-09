@@ -25,7 +25,7 @@ public class CapsuleProxy : ICapsuleProxy
 
     public async Task<TResult> EnqueueAwaitResult<TResult>(Func<Task<TResult>> impl)
     {
-        var tcs = new TaskCompletionSource<TResult>();
+        var tcs = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         async Task Func()
         {
@@ -47,11 +47,11 @@ public class CapsuleProxy : ICapsuleProxy
 
     public async Task EnqueueAwaitReception(Func<Task> impl)
     {
-        var tcs = new TaskCompletionSource();
+        var tcs = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         async Task Func()
         {
-            tcs.SetResult();
+            tcs.SetResult(null!);
             await impl();
         }
 

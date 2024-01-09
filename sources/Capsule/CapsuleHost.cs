@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Threading.Channels;
+﻿using System.Threading.Channels;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -9,7 +8,7 @@ public class CapsuleHost : BackgroundService, ICapsuleHost
 {
     private readonly ILogger<CapsuleHost> _logger;
     
-    private ImmutableList<Task> _eventLoopTasks = ImmutableList<Task>.Empty;
+    private IList<Task> _eventLoopTasks = new List<Task>();
 
     private readonly CancellationTokenSource _shutdownCts = new();
 
@@ -43,12 +42,12 @@ public class CapsuleHost : BackgroundService, ICapsuleHost
                     await HandleCompletedTaskAsync(completedTask);
                 }
 
-                _eventLoopTasks = running.ToImmutableList();
+                _eventLoopTasks = running.ToList();
             }
             
             if (_taskChannel.Reader.TryRead(out var newTask))
             {
-                _eventLoopTasks = _eventLoopTasks.Add(newTask);
+                _eventLoopTasks.Add(newTask);
             }
         }
 

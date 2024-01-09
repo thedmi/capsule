@@ -41,8 +41,4 @@
     <ProjectReference Include="..\CapsuleGen\CapsuleGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="AutomatedTests\" />
-  </ItemGroup>
-
 </Project>
