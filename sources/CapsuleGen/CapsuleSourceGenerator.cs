@@ -23,14 +23,6 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
     
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // Add the marker attribute to the compilation.
-        context.RegisterPostInitializationOutput(ctx => ctx.AddSource(
-            "CapsuleAttribute.g.cs",
-            SourceText.From(AttributeSource(Namespace, CapsuleAttributeName, "Class"), Encoding.UTF8)));
-        context.RegisterPostInitializationOutput(ctx => ctx.AddSource(
-            "ExposeAttribute.g.cs",
-            SourceText.From(ExposeAttributeSource(Namespace), Encoding.UTF8)));
-        
         // Only filtered Syntax Nodes can trigger code generation
         var provider = context.SyntaxProvider
             .CreateSyntaxProvider(
@@ -98,8 +90,8 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
             {
                 var attributeName = attributeSymbol.ContainingType.ToDisplayString();
 
-                // Check the full name of the [Report] attribute.
-                if (attributeName == $"{Namespace}.{CapsuleAttributeName}")
+                // Check the full name of the [Capsule] attribute.
+                if (attributeName == $"Capsule.{CapsuleAttributeName}")
                 {
                     return classDeclarationSyntax;
                 }

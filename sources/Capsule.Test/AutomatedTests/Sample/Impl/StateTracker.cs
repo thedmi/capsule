@@ -1,5 +1,4 @@
-﻿using Capsule.Generated;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace Capsule.Test.AutomatedTests.Sample.Impl;
 
