@@ -10,13 +10,16 @@
     <RootNamespace>CapsuleGen.Sample</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\CapsuleGen\CapsuleGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-  </ItemGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <NoWarn>1701;1702;1998</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <NoWarn>1701;1702;1998</NoWarn>
+  </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="DDD.UbiquitousLanguageRegistry.txt"/>
-    <AdditionalFiles Include="DDD.UbiquitousLanguageRegistry.txt"/>
+    <PackageReference Include="Capsule" Version="0.0.6" />
   </ItemGroup>
 
 </Project>
