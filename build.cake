@@ -34,16 +34,21 @@ Task("Lib:Build")
 
     CleanDirectory(releaseDir);
 
-    var packSettings = new DotNetPackSettings {
+    DotNetPack(libProject, new DotNetPackSettings {
         Configuration = configuration,
         OutputDirectory = releaseDir,
         IncludeSource = true,
         IncludeSymbols = true,
         SymbolPackageFormat = "snupkg",
-        MSBuildSettings = new DotNetMSBuildSettings().SetVersion(version) };
-
-    DotNetPack(libProject, packSettings);
-    DotNetPack(generatorProject, packSettings);
+        MSBuildSettings = new DotNetMSBuildSettings().SetVersion(version) });
+        
+    DotNetPack(generatorProject, new DotNetPackSettings {
+        Configuration = configuration,
+        OutputDirectory = releaseDir,
+        IncludeSource = false,
+        IncludeSymbols = false,
+        SymbolPackageFormat = null,
+        MSBuildSettings = new DotNetMSBuildSettings().SetVersion(version) });
 });
 
 

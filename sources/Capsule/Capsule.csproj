@@ -26,7 +26,7 @@
 
   <ItemGroup>
     <!-- Workaround for missing IsExternalInit on .NET standard, see https://github.com/dotnet/roslyn/issues/45510 -->
-    <Compile Remove="IsExternalInit.cs" Condition="'$(TargetFramework)' == 'net6.0'" />
+    <Compile Remove="IsExternalInit.cs" Condition="'$(TargetFramework)' != 'netstandard2.0'" />
   </ItemGroup>
 
   <ItemGroup>
