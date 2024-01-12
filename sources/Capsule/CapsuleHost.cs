@@ -73,16 +73,15 @@ public class CapsuleHost : BackgroundService, ICapsuleHost
 
     private async Task HandleCompletedTaskAsync(Task task)
     {
-        if (task.IsFaulted)
+        try
         {
-            try
-            {
-                await task;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Exception during capsule event loop processing");
-            }
+            // The invocation loop task should always complete successfully, otherwise there is an implementation error
+            // in CapsuleInvocationLoop.
+            await task;
+        }
+        catch (Exception e)
+        {
+            throw new ArgumentException("Capsule invocation loop terminated abnormally", e);
         }
     }
 

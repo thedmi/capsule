@@ -76,7 +76,7 @@ public class CapsuleSynchronizer : ICapsuleSynchronizer
 
         if (!success)
         {
-            throw new CapsuleProxyingException($"Unable to enqueue function call for capsule of type {_capsuleType}");
+            throw new CapsuleInvocationException($"Unable to enqueue invocation for capsule of type {_capsuleType}");
         }
     }
 }
