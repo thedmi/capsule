@@ -7,12 +7,12 @@ namespace Capsule;
 public class CapsuleHost : BackgroundService, ICapsuleHost
 {
     private readonly ILogger<CapsuleHost> _logger;
-    
-    private IList<Task> _eventLoopTasks = new List<Task>();
-
-    private readonly CancellationTokenSource _shutdownCts = new();
 
     private readonly Channel<Task> _taskChannel;
+
+    private readonly CancellationTokenSource _shutdownCts = new();
+    
+    private IList<Task> _invocationLoopTasks = new List<Task>();
 
     public CapsuleHost(ILogger<CapsuleHost> logger)
     {
@@ -27,34 +27,48 @@ public class CapsuleHost : BackgroundService, ICapsuleHost
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var anyEventLoopTask = _eventLoopTasks.Any() ? Task.WhenAny(_eventLoopTasks) : Task.Delay(-1, stoppingToken);
+            var anyEventLoopTask = _invocationLoopTasks.Any() ? Task.WhenAny(_invocationLoopTasks) : Task.Delay(-1, stoppingToken);
 
             _logger.LogDebug("Capsule host awaiting event loop termination or new event loop task...");
-            await Task.WhenAny(_taskChannel.Reader.WaitToReadAsync(stoppingToken).AsTask(), anyEventLoopTask);
+            
+            try
+            {
+                await Task.WhenAny(_taskChannel.Reader.WaitToReadAsync(stoppingToken).AsTask(), anyEventLoopTask);
+            }
+            catch (OperationCanceledException)
+            {    
+            }
 
             if (anyEventLoopTask.IsCompleted)
             {
-                var completed = _eventLoopTasks.Where(t => t.IsCompleted);
-                var running = _eventLoopTasks.Where(t => !t.IsCompleted);
-                
-                foreach (var completedTask in completed)
-                {
-                    await HandleCompletedTaskAsync(completedTask);
-                }
-
-                _eventLoopTasks = running.ToList();
+                // Handle completed tasks and remove them from the list, keep the still running ones
+                await SeparateCompletedTasksAsync();
             }
             
-            if (_taskChannel.Reader.TryRead(out var newTask))
+            while (_taskChannel.Reader.TryRead(out var newTask))
             {
-                _eventLoopTasks.Add(newTask);
+                // Add newly received tasks one by one
+                _invocationLoopTasks.Add(newTask);
             }
         }
 
-        foreach (var task in _eventLoopTasks)
+        foreach (var task in _invocationLoopTasks)
         {
             await task;
         }
+    }
+
+    private async Task SeparateCompletedTasksAsync()
+    {
+        var completed = _invocationLoopTasks.Where(t => t.IsCompleted);
+        var running = _invocationLoopTasks.Where(t => !t.IsCompleted);
+                
+        foreach (var completedTask in completed)
+        {
+            await HandleCompletedTaskAsync(completedTask);
+        }
+
+        _invocationLoopTasks = running.ToList();
     }
 
     private async Task HandleCompletedTaskAsync(Task task)
@@ -72,8 +86,14 @@ public class CapsuleHost : BackgroundService, ICapsuleHost
         }
     }
 
-    public async Task RegisterAsync(ICapsuleEventLoop capsuleEventLoop)
+    public async Task RegisterAsync(ICapsuleInvocationLoop capsuleInvocationLoop)
     {
-        _taskChannel.Writer.TryWrite(capsuleEventLoop.RunAsync(_shutdownCts.Token));
+        // Wrap the run method in a local function to force async processing
+        async Task RunAsync()
+        {
+            await capsuleInvocationLoop.RunAsync(_shutdownCts.Token);
+        }
+
+        _taskChannel.Writer.TryWrite(RunAsync());
     }
 }

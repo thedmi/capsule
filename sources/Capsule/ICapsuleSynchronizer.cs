@@ -1,6 +1,6 @@
 namespace Capsule;
 
-public interface ICapsuleProxy
+public interface ICapsuleSynchronizer
 {
     Task EnqueueAwaitResult(Func<Task> impl);
     Task<TResult> EnqueueAwaitResult<TResult>(Func<Task<TResult>> impl);

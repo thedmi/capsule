@@ -179,8 +179,8 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
               
                   protected override {{classSymbol.Name}} CreateImplementation() => _implementationFactory();
               
-                  protected override {{interfaceName}} CreateFacade({{classSymbol.Name}} implementation, ICapsuleProxy proxy) =>
-                      new {{classSymbol.Name}}CapsuleFacade(implementation, proxy);
+                  protected override {{interfaceName}} CreateFacade({{classSymbol.Name}} implementation, ICapsuleSynchronizer synchronizer) =>
+                      new {{classSymbol.Name}}CapsuleFacade(implementation, synchronizer);
               }
               """;
 
@@ -210,12 +210,12 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
               {
                   private readonly {{classSymbol.Name}} _impl;
               
-                  private readonly ICapsuleProxy _proxy;
+                  private readonly ICapsuleSynchronizer _synchronizer;
               
-                  public {{facadeClassName}}({{classSymbol.Name}} impl, ICapsuleProxy proxy)
+                  public {{facadeClassName}}({{classSymbol.Name}} impl, ICapsuleSynchronizer synchronizer)
                   {
                       _impl = impl;
-                      _proxy = proxy;
+                      _synchronizer = synchronizer;
                   }
 
               {{string.Join("\n\n", methods)}}
@@ -250,7 +250,7 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
             (renderImplementation
                 ? $$"""
                      =>
-                            _proxy.{{proxyMethod}}(() => _impl.{{method.Name}}({{arguments}}));    
+                            _synchronizer.{{proxyMethod}}(() => _impl.{{method.Name}}({{arguments}}));    
                     """
                 : ";");
     }

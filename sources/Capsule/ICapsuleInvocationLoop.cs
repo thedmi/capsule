@@ -1,6 +1,6 @@
 namespace Capsule;
 
-public interface ICapsuleEventLoop
+public interface ICapsuleInvocationLoop
 {
     Task RunAsync(CancellationToken cancellationToken);
 }

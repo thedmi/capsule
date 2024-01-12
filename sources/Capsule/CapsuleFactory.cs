@@ -18,16 +18,16 @@ public abstract class CapsuleFactory<T, TImpl> : ICapsuleFactory<T> where TImpl 
 
         var implementation = CreateImplementation();
 
-        var capsuleProxy = new CapsuleProxy(channel.Writer, typeof(TImpl));
+        var invoker = new CapsuleSynchronizer(channel.Writer, typeof(TImpl));
         
         // Ensure the first item in the event loop is a call to InitializeAsync
-        capsuleProxy.EnqueueReturn(implementation.InitializeAsync);
+        invoker.EnqueueReturn(implementation.InitializeAsync);
         
-        _capsuleHost.RegisterAsync(new CapsuleEventLoop(channel.Reader));
-        return CreateFacade(implementation, capsuleProxy);
+        _capsuleHost.RegisterAsync(new CapsuleInvocationLoop(channel.Reader));
+        return CreateFacade(implementation, invoker);
     }
 
     protected abstract TImpl CreateImplementation();
 
-    protected abstract T CreateFacade(TImpl implementation, ICapsuleProxy capsuleProxy);
+    protected abstract T CreateFacade(TImpl implementation, ICapsuleSynchronizer synchronizer);
 }

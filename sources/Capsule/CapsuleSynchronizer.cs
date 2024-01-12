@@ -2,13 +2,13 @@
 
 namespace Capsule;
 
-public class CapsuleProxy : ICapsuleProxy
+public class CapsuleSynchronizer : ICapsuleSynchronizer
 {
     private readonly ChannelWriter<Func<Task>> _writer;
     
     private readonly Type _capsuleType;
 
-    public CapsuleProxy(ChannelWriter<Func<Task>> writer, Type capsuleType)
+    public CapsuleSynchronizer(ChannelWriter<Func<Task>> writer, Type capsuleType)
     {
         _writer = writer;
         _capsuleType = capsuleType;
