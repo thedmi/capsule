@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Shouldly;
 
 namespace Capsule.Test.AutomatedTests.UnitTests;
@@ -8,13 +9,17 @@ public class AwaitCompletionTest
     [Test]
     public async Task Await_completion_returns_result_when_method_ran_to_completion_successfully()
     {
-        var loggerFactory = LoggerFactory.Create(c => c.AddNUnit().SetMinimumLevel(LogLevel.Debug));
+        var runtimeContext = TestRuntime.Create();
+        var hostedService = (BackgroundService)runtimeContext.Host;
+        
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        
+        await hostedService.StartAsync(CancellationToken.None);
 
-        using var host = new CapsuleHost(loggerFactory.CreateLogger<CapsuleHost>());
-        await host.StartAsync(CancellationToken.None);
-
-        var factory = new AwaitCompletionTestSubjectCapsuleFactory(() => new AwaitCompletionTestSubject(tcs.Task, () => 42), host);
+        var factory =
+            new AwaitCompletionTestSubjectCapsuleFactory(() => new AwaitCompletionTestSubject(tcs.Task, () => 42),
+                runtimeContext);
+        
         var sut = factory.CreateCapsule();
 
         var sutInvocationTask = sut.ExecuteInnerAsync();
@@ -33,23 +38,27 @@ public class AwaitCompletionTest
         // Ensure that the loop is still active and is able to handle a second invocation
         (await sut.SucceedAlwaysAsync()).ShouldBeTrue();
         
-        await host.StopAsync(CancellationToken.None);
+        await hostedService.StopAsync(CancellationToken.None);
         await Task.Delay(100);
-        await host.ExecuteTask!;
+        await hostedService.ExecuteTask!;
     }
     
     [Test]
     public async Task Await_completion_throws_when_method_ran_to_completion_with_exception()
     {
-        var loggerFactory = LoggerFactory.Create(c => c.AddNUnit().SetMinimumLevel(LogLevel.Debug));
+        var runtimeContext = TestRuntime.Create();
+        var hostedService = (BackgroundService)runtimeContext.Host;
+        
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         
         var exception = new InvalidOperationException("oh no");
         
-        using var host = new CapsuleHost(loggerFactory.CreateLogger<CapsuleHost>());
-        await host.StartAsync(CancellationToken.None);
+        await hostedService.StartAsync(CancellationToken.None);
+
+        var factory =
+            new AwaitCompletionTestSubjectCapsuleFactory(
+                () => new AwaitCompletionTestSubject(tcs.Task, () => throw exception), runtimeContext);
         
-        var factory = new AwaitCompletionTestSubjectCapsuleFactory(() => new AwaitCompletionTestSubject(tcs.Task, () => throw exception), host);
         var sut = factory.CreateCapsule();
 
         var sutInvocationTask = sut.ExecuteInnerAsync();
@@ -68,21 +77,25 @@ public class AwaitCompletionTest
         // Ensure that the loop is still active and is able to handle a second invocation
         (await sut.SucceedAlwaysAsync()).ShouldBeTrue();
         
-        await host.StopAsync(CancellationToken.None);
+        await hostedService.StopAsync(CancellationToken.None);
         await Task.Delay(100);
-        await host.ExecuteTask!;
+        await hostedService.ExecuteTask!;
     }
     
     [Test]
     public async Task Await_completion_throws_when_method_is_cancelled()
     {
-        var loggerFactory = LoggerFactory.Create(c => c.AddNUnit().SetMinimumLevel(LogLevel.Debug));
+        var runtimeContext = TestRuntime.Create();
+        var hostedService = (BackgroundService)runtimeContext.Host;
+        
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         
-        using var host = new CapsuleHost(loggerFactory.CreateLogger<CapsuleHost>());
-        await host.StartAsync(CancellationToken.None);
+        await hostedService.StartAsync(CancellationToken.None);
+
+        var factory =
+            new AwaitCompletionTestSubjectCapsuleFactory(() => new AwaitCompletionTestSubject(tcs.Task, () => 1),
+                runtimeContext);
         
-        var factory = new AwaitCompletionTestSubjectCapsuleFactory(() => new AwaitCompletionTestSubject(tcs.Task, () => 1), host);
         var sut = factory.CreateCapsule();
 
         var sutInvocationTask = sut.ExecuteInnerAsync();
@@ -100,8 +113,8 @@ public class AwaitCompletionTest
         // Ensure that the loop is still active and is able to handle a second invocation
         (await sut.SucceedAlwaysAsync()).ShouldBeTrue();
         
-        await host.StopAsync(CancellationToken.None);
+        await hostedService.StopAsync(CancellationToken.None);
         await Task.Delay(100);
-        await host.ExecuteTask!;
+        await hostedService.ExecuteTask!;
     }
 }

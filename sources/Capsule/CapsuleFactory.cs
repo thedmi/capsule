@@ -4,11 +4,11 @@ namespace Capsule;
 
 public abstract class CapsuleFactory<T, TImpl> : ICapsuleFactory<T> where TImpl : ICapsule
 {
-    private readonly ICapsuleHost _capsuleHost;
-
-    protected CapsuleFactory(ICapsuleHost capsuleHost)
+    private readonly CapsuleRuntimeContext _runtimeContext;
+    
+    protected CapsuleFactory(CapsuleRuntimeContext runtimeContext)
     {
-        _capsuleHost = capsuleHost;
+        _runtimeContext = runtimeContext;
     }
     
     public T CreateCapsule()
@@ -23,7 +23,7 @@ public abstract class CapsuleFactory<T, TImpl> : ICapsuleFactory<T> where TImpl 
         // Ensure the first item in the event loop is a call to InitializeAsync
         invoker.EnqueueReturn(implementation.InitializeAsync);
         
-        _capsuleHost.RegisterAsync(new CapsuleInvocationLoop(channel.Reader));
+        _runtimeContext.Host.RegisterAsync(_runtimeContext.InvocationLoopFactory.Create(channel.Reader));
         return CreateFacade(implementation, invoker);
     }
 

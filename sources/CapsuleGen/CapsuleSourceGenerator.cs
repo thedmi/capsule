@@ -172,7 +172,7 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
               {
                   private readonly Func<{{classSymbol.Name}}> _implementationFactory;
               
-                  public {{factoryClassName}}(Func<{{classSymbol.Name}}> implementationFactory, ICapsuleHost host) : base(host)
+                  public {{factoryClassName}}(Func<{{classSymbol.Name}}> implementationFactory, CapsuleRuntimeContext ctx) : base(ctx)
                   {
                       _implementationFactory = implementationFactory;
                   }

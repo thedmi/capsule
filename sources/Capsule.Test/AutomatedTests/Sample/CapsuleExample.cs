@@ -11,17 +11,19 @@ public class CapsuleExample
         var loggerFactory = LoggerFactory.Create(
             c =>
             {
-                c.AddConsole();
+                c.AddNUnit();
                 c.SetMinimumLevel(LogLevel.Debug);
             });
         
         var host = new CapsuleHost(loggerFactory.CreateLogger<CapsuleHost>());
+        var runtimeContext = new CapsuleRuntimeContext(host,
+            new CapsuleInvocationLoopFactory(loggerFactory.CreateLogger<CapsuleInvocationLoop>()));
 
         await host.StartAsync(CancellationToken.None);
 
         var stateTrackerFactory = new StateTrackerCapsuleFactory(
             () => new StateTracker(loggerFactory.CreateLogger<StateTracker>()),
-            host);
+            runtimeContext);
 
         var stateTracker = stateTrackerFactory.CreateCapsule();
 
@@ -30,18 +32,18 @@ public class CapsuleExample
                 new DeviceId("wago-1"),
                 stateTracker,
                 loggerFactory.CreateLogger<WagoDevice>()),
-            host);
+            runtimeContext);
 
         var wago2Factory = new WagoDeviceCapsuleFactory(
             () => new WagoDevice(
                 new DeviceId("wago-2"),
                 stateTracker,
                 loggerFactory.CreateLogger<WagoDevice>()),
-            host);
+            runtimeContext);
 
         var coordinator = new DeviceLifecycleCoordinatorCapsuleFactory(
             () => new DeviceLifecycleCoordinator([wago1Factory, wago2Factory]),
-            host).CreateCapsule();
+            runtimeContext).CreateCapsule();
 
         var controller = new ListDevicesController(coordinator);
         
