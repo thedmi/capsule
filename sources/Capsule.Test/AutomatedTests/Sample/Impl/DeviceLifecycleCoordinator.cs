@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Diagnostics;
+﻿using Capsule.Attribution;
+
+using CommunityToolkit.Diagnostics;
 
 namespace Capsule.Test.AutomatedTests.Sample.Impl;
 

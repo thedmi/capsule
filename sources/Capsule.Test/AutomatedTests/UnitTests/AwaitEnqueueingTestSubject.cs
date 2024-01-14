@@ -1,4 +1,6 @@
-﻿namespace Capsule.Test.AutomatedTests.UnitTests;
+﻿using Capsule.Attribution;
+
+namespace Capsule.Test.AutomatedTests.UnitTests;
 
 [Capsule]
 public class AwaitEnqueueingTestSubject : ICapsule

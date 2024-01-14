@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Capsule.Attribution;
+
+using Microsoft.Extensions.Logging;
 
 namespace Capsule.Test.AutomatedTests.Sample.Impl;
 

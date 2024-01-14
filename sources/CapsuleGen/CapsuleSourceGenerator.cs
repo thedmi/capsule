@@ -14,7 +14,7 @@ namespace CapsuleGen;
 [Generator]
 public class CapsuleSourceGenerator : IIncrementalGenerator
 {
-    private const string LibNamespace = "Capsule";
+    private const string AttributionNamespace = "Capsule.Attribution";
 
     private const string CapsuleAttributeName = "CapsuleAttribute";
 
@@ -52,8 +52,8 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
             {
                 var attributeName = attributeSymbol.ContainingType.ToDisplayString();
 
-                // Check the full name of the [Capsule] attribute.
-                if (attributeName == $"{LibNamespace}.{CapsuleAttributeName}")
+                // Check the full name of the Capsule attribute.
+                if (attributeName == $"{AttributionNamespace}.{CapsuleAttributeName}")
                 {
                     return classDeclarationSyntax;
                 }
@@ -195,7 +195,7 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
 
     private static bool IsExposeAttribute(AttributeData attr) =>
         attr.AttributeClass?.Name == ExposeAttributeName &&
-        attr.AttributeClass?.ContainingNamespace.Name == LibNamespace;
+        attr.AttributeClass?.ContainingNamespace.ToDisplayString() == AttributionNamespace;
 
     private static string RenderFacadeMethod(IMethodSymbol method, bool renderImplementation)
     {

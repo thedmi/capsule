@@ -5,12 +5,12 @@ namespace Capsule;
 
 public class CapsuleInvocationLoop : ICapsuleInvocationLoop
 {
-    private readonly ChannelReader<Func<Task>> _messageReader;
+    private readonly ChannelReader<Func<Task>> _reader;
     private readonly ILogger<CapsuleInvocationLoop> _logger;
 
-    public CapsuleInvocationLoop(ChannelReader<Func<Task>> messageReader, ILogger<CapsuleInvocationLoop> logger)
+    public CapsuleInvocationLoop(ChannelReader<Func<Task>> reader, ILogger<CapsuleInvocationLoop> logger)
     {
-        _messageReader = messageReader;
+        _reader = reader;
         _logger = logger;
     }
 
@@ -20,16 +20,16 @@ public class CapsuleInvocationLoop : ICapsuleInvocationLoop
         {
             try
             {
-                await _messageReader.WaitToReadAsync(cancellationToken);
+                await _reader.WaitToReadAsync(cancellationToken);
             }
             catch (OperationCanceledException)
             {
             }
 
-            // Try to consume all outstanding invocations even if a shutdown is in progress. We expect the caller
-            // to use a timeout to guarantee cancellation even if one of the functions take a long time (which
-            // BackgroundService does).
-            while (_messageReader.TryRead(out var f))
+            // Try to consume all outstanding invocations even if we've been cancelled. We expect the caller
+            // to use a timeout to guarantee cancellation even if one of the functions take a long time
+            // (BackgroundService does employ such a timeout).
+            while (_reader.TryRead(out var f))
             {
                 try
                 {

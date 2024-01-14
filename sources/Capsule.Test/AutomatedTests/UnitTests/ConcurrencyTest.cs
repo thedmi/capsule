@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Capsule.Attribution;
+
+using Microsoft.Extensions.Hosting;
 
 using Shouldly;
 
