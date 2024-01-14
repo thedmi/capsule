@@ -1,4 +1,5 @@
 ﻿using Capsule;
+using Capsule.Attribution;
 
 namespace CapsuleGen.Sample;
 
