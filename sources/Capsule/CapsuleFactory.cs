@@ -21,7 +21,7 @@ public abstract class CapsuleFactory<T, TImpl> : ICapsuleFactory<T> where TImpl 
         var invoker = new CapsuleSynchronizer(channel.Writer, typeof(TImpl));
         
         // Ensure the first item in the event loop is a call to InitializeAsync
-        invoker.EnqueueReturn(implementation.InitializeAsync);
+        invoker.EnqueueReturnInternal(implementation.InitializeAsync);
         
         _runtimeContext.Host.RegisterAsync(_runtimeContext.InvocationLoopFactory.Create(channel.Reader));
         return CreateFacade(implementation, invoker);

@@ -7,6 +7,6 @@ public interface ICapsuleSynchronizer
 
     Task EnqueueAwaitReception(Func<Task> impl);
 
-    void EnqueueReturn(Func<Task> impl);
+    Task EnqueueReturn(Func<Task> impl);
     T PassThrough<T>(Func<T> impl);
 }
