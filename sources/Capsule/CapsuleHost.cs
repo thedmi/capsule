@@ -17,8 +17,9 @@ public class CapsuleHost : BackgroundService, ICapsuleHost
     public CapsuleHost(ILogger<CapsuleHost> logger)
     {
         _logger = logger;
-        
-        _taskChannel = Channel.CreateUnbounded<Task>();
+
+        _taskChannel = Channel.CreateBounded<Task>(new BoundedChannelOptions(1023)
+            { SingleReader = true, SingleWriter = false, FullMode = BoundedChannelFullMode.Wait });
     }
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -27,7 +28,9 @@ public class CapsuleHost : BackgroundService, ICapsuleHost
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var anyEventLoopTask = _invocationLoopTasks.Any() ? Task.WhenAny(_invocationLoopTasks) : Task.Delay(-1, stoppingToken);
+            var anyEventLoopTask = _invocationLoopTasks.Any()
+                ? Task.WhenAny(_invocationLoopTasks)
+                : Task.Delay(-1, stoppingToken);
 
             _logger.LogDebug("Capsule host awaiting event loop termination or new event loop task...");
             

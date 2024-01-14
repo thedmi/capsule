@@ -2,4 +2,4 @@
 namespace Capsule;
 
 [AttributeUsage(AttributeTargets.Class)]
-public sealed class CapsuleAttribute : Attribute { }
+public sealed class CapsuleAttribute : Attribute;

@@ -7,6 +7,7 @@ public class WagoDevice : ICapsule
 {
     private readonly DeviceId _id;
 
+    // ReSharper disable once NotAccessedField.Local
     private readonly IStateTracker _stateTracker;
 
     private readonly ILogger<WagoDevice> _logger;
@@ -46,6 +47,7 @@ public class WagoDevice : ICapsule
         _logger.LogInformation("Wago device actor {Id} initialized", _id.Value);
     }
 
+    // ReSharper disable once UnusedMember.Local
     private void SomePrivateMethod()
     {
     }

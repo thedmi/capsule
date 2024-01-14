@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+
 using Shouldly;
 
 namespace Capsule.Test.AutomatedTests.UnitTests;

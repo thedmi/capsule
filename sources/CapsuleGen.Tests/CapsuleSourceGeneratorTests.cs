@@ -1,6 +1,5 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using CapsuleGen;
 
 namespace CapsuleGen.Tests;
 
@@ -45,7 +44,7 @@ partial class Vector3
         var driver = CSharpGeneratorDriver.Create(generator);
 
         // We need to create a compilation with the required source code.
-        var compilation = CSharpCompilation.Create(nameof(SampleSourceGeneratorTests),
+        var compilation = CSharpCompilation.Create(nameof(CapsuleSourceGeneratorTests),
             new[] { CSharpSyntaxTree.ParseText(VectorClassText) },
             new[]
             {
