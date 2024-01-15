@@ -9,6 +9,9 @@ public static class TestRuntime
         var loggerFactory = LoggerFactory.Create(c => c.AddNUnit().SetMinimumLevel(LogLevel.Debug));
         var host = new CapsuleHost(loggerFactory.CreateLogger<CapsuleHost>());
 
-        return new(host, new CapsuleInvocationLoopFactory(loggerFactory.CreateLogger<CapsuleInvocationLoop>()));
+        return new(
+            host,
+            new CapsuleSynchronizerFactory(
+                new CapsuleInvocationLoopFactory(loggerFactory.CreateLogger<CapsuleInvocationLoop>())));
     }
 }

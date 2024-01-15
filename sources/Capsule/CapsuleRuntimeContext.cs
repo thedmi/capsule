@@ -1,3 +1,3 @@
 ﻿namespace Capsule;
 
-public record CapsuleRuntimeContext(ICapsuleHost Host, ICapsuleInvocationLoopFactory InvocationLoopFactory);
+public record CapsuleRuntimeContext(ICapsuleHost Host, ICapsuleSynchronizerFactory SynchronizerFactory);

@@ -1,6 +1,4 @@
-﻿using System.Threading.Channels;
-
-namespace Capsule;
+﻿namespace Capsule;
 
 public abstract class CapsuleFactory<T, TImpl> : ICapsuleFactory<T> where TImpl : ICapsule
 {
@@ -13,17 +11,10 @@ public abstract class CapsuleFactory<T, TImpl> : ICapsuleFactory<T> where TImpl 
     
     public T CreateCapsule()
     {
-        var channel = Channel.CreateBounded<Func<Task>>(new BoundedChannelOptions(1023)
-            { SingleReader = true, SingleWriter = false, FullMode = BoundedChannelFullMode.Wait });
-
         var implementation = CreateImplementation();
 
-        var synchronizer = new CapsuleSynchronizer(channel.Writer, typeof(TImpl));
+        var synchronizer = _runtimeContext.SynchronizerFactory.Create(implementation, _runtimeContext);
         
-        // Ensure the first item in the event loop is a call to InitializeAsync
-        synchronizer.EnqueueReturnInternal(implementation.InitializeAsync);
-        
-        _runtimeContext.Host.RegisterAsync(_runtimeContext.InvocationLoopFactory.Create(channel.Reader));
         return CreateFacade(implementation, synchronizer);
     }
 

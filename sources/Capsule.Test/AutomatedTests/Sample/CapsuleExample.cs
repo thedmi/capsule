@@ -19,8 +19,10 @@ public class CapsuleExample
         
         var host = new CapsuleHost(loggerFactory.CreateLogger<CapsuleHost>());
         var backgroundService = new CapsuleBackgroundService(host);
-        var runtimeContext = new CapsuleRuntimeContext(host,
-            new CapsuleInvocationLoopFactory(loggerFactory.CreateLogger<CapsuleInvocationLoop>()));
+        var runtimeContext = new CapsuleRuntimeContext(
+            host,
+            new CapsuleSynchronizerFactory(
+                new CapsuleInvocationLoopFactory(loggerFactory.CreateLogger<CapsuleInvocationLoop>())));
 
         await backgroundService.StartAsync(CancellationToken.None);
 
