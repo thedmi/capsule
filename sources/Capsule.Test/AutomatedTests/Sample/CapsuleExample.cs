@@ -26,29 +26,19 @@ public class CapsuleExample
 
         await backgroundService.StartAsync(CancellationToken.None);
 
-        var stateTrackerFactory = new StateTrackerCapsuleFactory(
-            () => new StateTracker(loggerFactory.CreateLogger<StateTracker>()),
-            runtimeContext);
+        var stateTracker = new StateTracker(loggerFactory.CreateLogger<StateTracker>()).Encapsulate(runtimeContext);
 
-        var stateTracker = stateTrackerFactory.CreateCapsule();
+        var wago1Factory = () => new WagoDevice(
+                               new DeviceId("wago-1"),
+                               stateTracker,
+                               loggerFactory.CreateLogger<WagoDevice>()).Encapsulate(runtimeContext);
 
-        var wago1Factory = new WagoDeviceCapsuleFactory(
-            () => new WagoDevice(
-                new DeviceId("wago-1"),
-                stateTracker,
-                loggerFactory.CreateLogger<WagoDevice>()),
-            runtimeContext);
+        var wago2Factory = () => new WagoDevice(
+                               new DeviceId("wago-2"),
+                               stateTracker,
+                               loggerFactory.CreateLogger<WagoDevice>()).Encapsulate(runtimeContext);
 
-        var wago2Factory = new WagoDeviceCapsuleFactory(
-            () => new WagoDevice(
-                new DeviceId("wago-2"),
-                stateTracker,
-                loggerFactory.CreateLogger<WagoDevice>()),
-            runtimeContext);
-
-        var coordinator = new DeviceLifecycleCoordinatorCapsuleFactory(
-            () => new DeviceLifecycleCoordinator([wago1Factory, wago2Factory]),
-            runtimeContext).CreateCapsule();
+        var coordinator = new DeviceLifecycleCoordinator([wago1Factory, wago2Factory]).Encapsulate(runtimeContext);
 
         var controller = new ListDevicesController(coordinator);
         

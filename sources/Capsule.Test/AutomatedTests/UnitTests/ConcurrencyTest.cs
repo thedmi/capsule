@@ -15,8 +15,7 @@ public class ConcurrencyTest
         
         await hostedService.StartAsync(CancellationToken.None);
 
-        var sut = new ConcurrencyTestSubjectCapsuleFactory(() => new ConcurrencyTestSubject(), runtimeContext)
-            .CreateCapsule();
+        var sut = new ConcurrencyTestSubject().Encapsulate(runtimeContext);
 
         var taskRes1 = sut.IncrementAwaitResultAsync();
         var taskRes2 = sut.IncrementAwaitResultAsync();

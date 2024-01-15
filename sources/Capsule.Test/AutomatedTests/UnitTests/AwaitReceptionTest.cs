@@ -18,11 +18,7 @@ public class AwaitReceptionTest
 
         var methodRunStarted = false;
 
-        var factory =
-            new AwaitReceptionTestSubjectCapsuleFactory(
-                () => new AwaitReceptionTestSubject(tcs.Task, () => { methodRunStarted = true; }), runtimeContext);
-        
-        var sut = factory.CreateCapsule();
+        var sut = new AwaitReceptionTestSubject(tcs.Task, () => { methodRunStarted = true; }).Encapsulate(runtimeContext);
 
         var sutInvocationTask = sut.ExecuteInnerAsync();
 
@@ -65,11 +61,7 @@ public class AwaitReceptionTest
         
         await hostedService.StartAsync(CancellationToken.None);
 
-        var factory =
-            new AwaitReceptionTestSubjectCapsuleFactory(
-                () => new AwaitReceptionTestSubject(tcs.Task, () => throw exception), runtimeContext);
-        
-        var sut = factory.CreateCapsule();
+        var sut = new AwaitReceptionTestSubject(tcs.Task, () => throw exception).Encapsulate(runtimeContext);
 
         var sutInvocationTask = sut.ExecuteInnerAsync();
 
@@ -96,11 +88,7 @@ public class AwaitReceptionTest
         
         await hostedService.StartAsync(CancellationToken.None);
 
-        var factory =
-            new AwaitReceptionTestSubjectCapsuleFactory(
-                () => new AwaitReceptionTestSubject(tcs.Task, () => {}), runtimeContext);
-        
-        var sut = factory.CreateCapsule();
+        var sut = new AwaitReceptionTestSubject(tcs.Task, () => { }).Encapsulate(runtimeContext);
 
         var sutInvocationTask = sut.ExecuteInnerAsync();
         tcs.SetCanceled();

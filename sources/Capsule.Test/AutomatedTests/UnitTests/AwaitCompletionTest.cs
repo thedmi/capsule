@@ -16,11 +16,7 @@ public class AwaitCompletionTest
         
         await hostedService.StartAsync(CancellationToken.None);
 
-        var factory =
-            new AwaitCompletionTestSubjectCapsuleFactory(() => new AwaitCompletionTestSubject(tcs.Task, () => 42),
-                runtimeContext);
-        
-        var sut = factory.CreateCapsule();
+        var sut = new AwaitCompletionTestSubject(tcs.Task, () => 42).Encapsulate(runtimeContext);
 
         var sutInvocationTask = sut.ExecuteInnerAsync();
 
@@ -55,11 +51,7 @@ public class AwaitCompletionTest
         
         await hostedService.StartAsync(CancellationToken.None);
 
-        var factory =
-            new AwaitCompletionTestSubjectCapsuleFactory(
-                () => new AwaitCompletionTestSubject(tcs.Task, () => throw exception), runtimeContext);
-        
-        var sut = factory.CreateCapsule();
+        var sut = new AwaitCompletionTestSubject(tcs.Task, () => 42).Encapsulate(runtimeContext);
 
         var sutInvocationTask = sut.ExecuteInnerAsync();
 
@@ -92,11 +84,7 @@ public class AwaitCompletionTest
         
         await hostedService.StartAsync(CancellationToken.None);
 
-        var factory =
-            new AwaitCompletionTestSubjectCapsuleFactory(() => new AwaitCompletionTestSubject(tcs.Task, () => 1),
-                runtimeContext);
-        
-        var sut = factory.CreateCapsule();
+        var sut = new AwaitCompletionTestSubject(tcs.Task, () => 42).Encapsulate(runtimeContext);
 
         var sutInvocationTask = sut.ExecuteInnerAsync();
 

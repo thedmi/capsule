@@ -18,11 +18,7 @@ public class AwaitEnqueueingTest
 
         var methodRunStarted = false;
 
-        var factory =
-            new AwaitEnqueueingTestSubjectCapsuleFactory(
-                () => new AwaitEnqueueingTestSubject(tcs.Task, () => { methodRunStarted = true; }), runtimeContext);
-        
-        var sut = factory.CreateCapsule();
+        var sut = new AwaitEnqueueingTestSubject(tcs.Task, () => { methodRunStarted = true; }).Encapsulate(runtimeContext);
 
         var sutInvocationTask = sut.ExecuteInnerAsync();
 
@@ -65,11 +61,7 @@ public class AwaitEnqueueingTest
         
         await hostedService.StartAsync(CancellationToken.None);
 
-        var factory =
-            new AwaitEnqueueingTestSubjectCapsuleFactory(
-                () => new AwaitEnqueueingTestSubject(tcs.Task, () => throw exception), runtimeContext);
-        
-        var sut = factory.CreateCapsule();
+        var sut = new AwaitEnqueueingTestSubject(tcs.Task, () => throw exception).Encapsulate(runtimeContext);
 
         var sutInvocationTask = sut.ExecuteInnerAsync();
 
@@ -96,11 +88,7 @@ public class AwaitEnqueueingTest
         
         await hostedService.StartAsync(CancellationToken.None);
 
-        var factory =
-            new AwaitEnqueueingTestSubjectCapsuleFactory(
-                () => new AwaitEnqueueingTestSubject(tcs.Task, () => {}), runtimeContext);
-        
-        var sut = factory.CreateCapsule();
+        var sut = new AwaitEnqueueingTestSubject(tcs.Task, () => { }).Encapsulate(runtimeContext);
 
         var sutInvocationTask = sut.ExecuteInnerAsync();
         tcs.SetCanceled();
