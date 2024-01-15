@@ -1,10 +1,9 @@
 ﻿using System.Threading.Channels;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Capsule;
 
-public class CapsuleHost : BackgroundService, ICapsuleHost
+public class CapsuleHost : ICapsuleHost
 {
     private readonly ILogger<CapsuleHost> _logger;
 
@@ -22,7 +21,7 @@ public class CapsuleHost : BackgroundService, ICapsuleHost
             { SingleReader = true, SingleWriter = false, FullMode = BoundedChannelFullMode.Wait });
     }
     
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    public async Task RunAsync(CancellationToken stoppingToken)
     {
         stoppingToken.Register(() => _shutdownCts.Cancel());
 
@@ -91,11 +90,11 @@ public class CapsuleHost : BackgroundService, ICapsuleHost
     public async Task RegisterAsync(ICapsuleInvocationLoop capsuleInvocationLoop)
     {
         // Wrap the run method in a local function to force async processing
-        async Task RunAsync()
+        async Task RunInvocationLoopAsync()
         {
             await capsuleInvocationLoop.RunAsync(_shutdownCts.Token);
         }
 
-        _taskChannel.Writer.TryWrite(RunAsync());
+        _taskChannel.Writer.TryWrite(RunInvocationLoopAsync());
     }
 }

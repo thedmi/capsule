@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <WarningsAsErrors>Nullable</WarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <RootNamespace>Capsule.Extensions.DependencyInjection</RootNamespace>
+    <PackageId>Capsule.Extensions.DependencyInjection</PackageId>
+    <Authors>Dani Michel</Authors>
+    <Description>Automatic thread-safe objects</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <AssemblyTitle>Capsule.Extensions.DependencyInjection</AssemblyTitle>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Capsule\Capsule.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -13,6 +13,7 @@
     <PackageId>Capsule</PackageId>
     <Authors>Dani Michel</Authors>
     <Description>Automatic thread-safe objects</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <AssemblyTitle>Capsule</AssemblyTitle>
   </PropertyGroup>
 
@@ -30,12 +31,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
     <PackageReference Include="System.Threading.Channels" Version="6.0.0" Condition="'$(TargetFramework)' == 'netstandard2.0'"/>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CapsuleGen\CapsuleGen.csproj" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\Capsule.Generator\Capsule.Generator.csproj" OutputItemType="Analyzer" />
   </ItemGroup>
 </Project>

@@ -25,6 +25,7 @@
     <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.2.2" />
     <PackageReference Include="Extensions.Logging.NUnit" Version="1.0.1" />
     <PackageReference Include="JunitXml.TestLogger" Version="3.0.134" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
@@ -40,8 +41,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Capsule.Extensions.DependencyInjection\Capsule.Extensions.DependencyInjection.csproj" />
     <ProjectReference Include="..\Capsule\Capsule.csproj" />
-    <ProjectReference Include="..\CapsuleGen\CapsuleGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Capsule.Generator\Capsule.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

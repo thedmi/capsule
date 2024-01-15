@@ -1,4 +1,6 @@
-﻿using Capsule.Test.AutomatedTests.Sample.Impl;
+﻿using Capsule.Extensions.DependencyInjection;
+using Capsule.Test.AutomatedTests.Sample.Impl;
+
 using Microsoft.Extensions.Logging;
 
 namespace Capsule.Test.AutomatedTests.Sample;
@@ -16,10 +18,11 @@ public class CapsuleExample
             });
         
         var host = new CapsuleHost(loggerFactory.CreateLogger<CapsuleHost>());
+        var backgroundService = new CapsuleBackgroundService(host);
         var runtimeContext = new CapsuleRuntimeContext(host,
             new CapsuleInvocationLoopFactory(loggerFactory.CreateLogger<CapsuleInvocationLoop>()));
 
-        await host.StartAsync(CancellationToken.None);
+        await backgroundService.StartAsync(CancellationToken.None);
 
         var stateTrackerFactory = new StateTrackerCapsuleFactory(
             () => new StateTracker(loggerFactory.CreateLogger<StateTracker>()),
@@ -57,7 +60,7 @@ public class CapsuleExample
         
         Console.WriteLine(string.Join(", ", await controller.GetDevicesAsync()));
 
-        await host.StopAsync(CancellationToken.None);
+        await backgroundService.StopAsync(CancellationToken.None);
     }
 
 }

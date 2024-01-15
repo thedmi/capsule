@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Capsule.Extensions.DependencyInjection;
 
 using Shouldly;
 
@@ -10,7 +10,7 @@ public class AwaitCompletionTest
     public async Task Await_completion_returns_result_when_method_ran_to_completion_successfully()
     {
         var runtimeContext = TestRuntime.Create();
-        var hostedService = (BackgroundService)runtimeContext.Host;
+        var hostedService = new CapsuleBackgroundService((CapsuleHost)runtimeContext.Host);
         
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         
@@ -47,7 +47,7 @@ public class AwaitCompletionTest
     public async Task Await_completion_throws_when_method_ran_to_completion_with_exception()
     {
         var runtimeContext = TestRuntime.Create();
-        var hostedService = (BackgroundService)runtimeContext.Host;
+        var hostedService = new CapsuleBackgroundService((CapsuleHost)runtimeContext.Host);
         
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         
@@ -86,7 +86,7 @@ public class AwaitCompletionTest
     public async Task Await_completion_throws_when_method_is_cancelled()
     {
         var runtimeContext = TestRuntime.Create();
-        var hostedService = (BackgroundService)runtimeContext.Host;
+        var hostedService = new CapsuleBackgroundService((CapsuleHost)runtimeContext.Host);
         
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         

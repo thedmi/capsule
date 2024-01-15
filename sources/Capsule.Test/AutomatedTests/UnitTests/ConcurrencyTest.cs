@@ -1,6 +1,5 @@
 ﻿using Capsule.Attribution;
-
-using Microsoft.Extensions.Hosting;
+using Capsule.Extensions.DependencyInjection;
 
 using Shouldly;
 
@@ -12,7 +11,7 @@ public class ConcurrencyTest
     public async Task Capsule_does_not_produce_inconsistent_state_when_under_concurrent_load()
     {
         var runtimeContext = TestRuntime.Create();
-        var hostedService = (BackgroundService)runtimeContext.Host;
+        var hostedService = new CapsuleBackgroundService((CapsuleHost)runtimeContext.Host);
         
         await hostedService.StartAsync(CancellationToken.None);
 

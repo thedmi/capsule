@@ -12,11 +12,12 @@
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <IsRoslynComponent>true</IsRoslynComponent>
 
-    <RootNamespace>CapsuleGen</RootNamespace>
+    <RootNamespace>Capsule.Generator</RootNamespace>
     
-    <PackageId>CapsuleGen</PackageId>
+    <PackageId>Capsule.Generator</PackageId>
     <Authors>Dani Michel</Authors>
     <Description>Automatic thread-safe objects</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <AssemblyTitle>Capsule Generator</AssemblyTitle>
     <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Do not include the generator as a lib dependency -->
   </PropertyGroup>

@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CapsuleGen\CapsuleGen.csproj" />
+    <ProjectReference Include="..\Capsule.Generator\Capsule.Generator.csproj" />
   </ItemGroup>
   
 </Project>

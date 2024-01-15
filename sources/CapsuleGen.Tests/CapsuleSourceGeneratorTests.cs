@@ -1,3 +1,5 @@
+using Capsule.Generator;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 

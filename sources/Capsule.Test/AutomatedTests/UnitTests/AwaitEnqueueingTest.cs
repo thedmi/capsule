@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Capsule.Extensions.DependencyInjection;
+
 using Shouldly;
 
 namespace Capsule.Test.AutomatedTests.UnitTests;
@@ -9,7 +10,7 @@ public class AwaitEnqueueingTest
     public async Task Await_enqueueing_returns_when_invocation_was_enqueued()
     {
         var runtimeContext = TestRuntime.Create();
-        var hostedService = (BackgroundService)runtimeContext.Host;
+        var hostedService = new CapsuleBackgroundService((CapsuleHost)runtimeContext.Host);
         
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -56,7 +57,7 @@ public class AwaitEnqueueingTest
     public async Task Await_enqueueing_does_not_throw_exception_when_capsule_method_throws()
     {
         var runtimeContext = TestRuntime.Create();
-        var hostedService = (BackgroundService)runtimeContext.Host;
+        var hostedService = new CapsuleBackgroundService((CapsuleHost)runtimeContext.Host);
         
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         
@@ -89,7 +90,7 @@ public class AwaitEnqueueingTest
     public async Task Await_enqueueing_does_not_throw_exception_when_capsule_method_is_cancelled()
     {
         var runtimeContext = TestRuntime.Create();
-        var hostedService = (BackgroundService)runtimeContext.Host;
+        var hostedService = new CapsuleBackgroundService((CapsuleHost)runtimeContext.Host);
         
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         
