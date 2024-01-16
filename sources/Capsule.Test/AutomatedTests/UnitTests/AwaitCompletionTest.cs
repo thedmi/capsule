@@ -51,7 +51,7 @@ public class AwaitCompletionTest
         
         await hostedService.StartAsync(CancellationToken.None);
 
-        var sut = new AwaitCompletionTestSubject(tcs.Task, () => 42).Encapsulate(runtimeContext);
+        var sut = new AwaitCompletionTestSubject(tcs.Task, () => throw exception).Encapsulate(runtimeContext);
 
         var sutInvocationTask = sut.ExecuteInnerAsync();
 

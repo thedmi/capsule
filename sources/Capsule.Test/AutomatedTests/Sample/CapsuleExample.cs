@@ -1,6 +1,8 @@
 ﻿using Capsule.Extensions.DependencyInjection;
 using Capsule.Test.AutomatedTests.Sample.Impl;
 
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Capsule.Test.AutomatedTests.Sample;
@@ -10,38 +12,55 @@ public class CapsuleExample
     [Test]
     public async Task RunAsync()
     {
-        var loggerFactory = LoggerFactory.Create(
-            c =>
-            {
-                c.AddNUnit();
-                c.SetMinimumLevel(LogLevel.Debug);
-            });
+        using var app = ConfigureHost();
+
+        var controller = app.Services.GetRequiredService<ListDevicesController>();
         
-        var host = new CapsuleHost(loggerFactory.CreateLogger<CapsuleHost>());
-        var backgroundService = new CapsuleBackgroundService(host);
-        var runtimeContext = new CapsuleRuntimeContext(
-            host,
-            new CapsuleSynchronizerFactory(
-                new CapsuleInvocationLoopFactory(loggerFactory.CreateLogger<CapsuleInvocationLoop>())));
+        await RunExample(controller);
 
-        await backgroundService.StartAsync(CancellationToken.None);
+        await app.StopAsync(CancellationToken.None);
+        await Task.Delay(100);
+    }
 
-        var stateTracker = new StateTracker(loggerFactory.CreateLogger<StateTracker>()).Encapsulate(runtimeContext);
+    private static IHost ConfigureHost()
+    {
+        return Host.CreateDefaultBuilder()
+            .ConfigureServices(
+                services =>
+                {
+                    services.AddLogging(
+                        l =>
+                        {
+                            l.AddNUnit();
+                            l.SetMinimumLevel(LogLevel.Debug);
+                        });
 
-        var wago1Factory = () => new WagoDevice(
-                               new DeviceId("wago-1"),
-                               stateTracker,
-                               loggerFactory.CreateLogger<WagoDevice>()).Encapsulate(runtimeContext);
+                    services.AddCapsuleHost();
 
-        var wago2Factory = () => new WagoDevice(
-                               new DeviceId("wago-2"),
-                               stateTracker,
-                               loggerFactory.CreateLogger<WagoDevice>()).Encapsulate(runtimeContext);
+                    services.AddSingleton<IWagoDevice>(
+                        p => ActivatorUtilities.CreateInstance<WagoDevice>(p, new DeviceId("wago1"))
+                            .Encapsulate(p.GetRequiredService<CapsuleRuntimeContext>()));
 
-        var coordinator = new DeviceLifecycleCoordinator([wago1Factory, wago2Factory]).Encapsulate(runtimeContext);
+                    services.AddSingleton<IWagoDevice>(
+                        p => ActivatorUtilities.CreateInstance<WagoDevice>(p, new DeviceId("wago2"))
+                            .Encapsulate(p.GetRequiredService<CapsuleRuntimeContext>()));
 
-        var controller = new ListDevicesController(coordinator);
-        
+                    services.AddSingleton<StateTracker>();
+                    services.AddSingleton<IStateTracker>(
+                        p => p.GetRequiredService<StateTracker>()
+                            .Encapsulate(p.GetRequiredService<CapsuleRuntimeContext>()));
+
+                    services.AddSingleton<IDeviceLifecycleCoordinator>(
+                        p => new DeviceLifecycleCoordinator(() => p.GetServices<IWagoDevice>().ToList()).Encapsulate(
+                            p.GetRequiredService<CapsuleRuntimeContext>()));
+
+                    services.AddTransient<ListDevicesController>();
+                })
+            .Build();
+    }
+
+    private static async Task RunExample(ListDevicesController controller)
+    {
         Console.WriteLine("Started");
 
         await Task.Delay(500);
@@ -51,8 +70,5 @@ public class CapsuleExample
         await Task.Delay(500);
         
         Console.WriteLine(string.Join(", ", await controller.GetDevicesAsync()));
-
-        await backgroundService.StopAsync(CancellationToken.None);
     }
-
 }

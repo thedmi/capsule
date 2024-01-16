@@ -1,11 +1,10 @@
 ﻿using System.Threading.Channels;
-using Microsoft.Extensions.Logging;
 
 namespace Capsule;
 
 public class CapsuleHost : ICapsuleHost
 {
-    private readonly ILogger<CapsuleHost> _logger;
+    private readonly ICapsuleLogger<CapsuleHost> _logger;
 
     private readonly Channel<Task> _taskChannel;
 
@@ -13,7 +12,7 @@ public class CapsuleHost : ICapsuleHost
     
     private IList<Task> _invocationLoopTasks = new List<Task>();
 
-    public CapsuleHost(ILogger<CapsuleHost> logger)
+    public CapsuleHost(ICapsuleLogger<CapsuleHost> logger)
     {
         _logger = logger;
 

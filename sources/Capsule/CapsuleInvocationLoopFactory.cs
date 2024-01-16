@@ -1,13 +1,12 @@
 ﻿using System.Threading.Channels;
-using Microsoft.Extensions.Logging;
 
 namespace Capsule;
 
 public class CapsuleInvocationLoopFactory : ICapsuleInvocationLoopFactory
 {
-    private readonly ILogger<CapsuleInvocationLoop> _logger;
+    private readonly ICapsuleLogger<CapsuleInvocationLoop> _logger;
 
-    public CapsuleInvocationLoopFactory(ILogger<CapsuleInvocationLoop> logger)
+    public CapsuleInvocationLoopFactory(ICapsuleLogger<CapsuleInvocationLoop> logger)
     {
         _logger = logger;
     }

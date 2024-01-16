@@ -1,14 +1,12 @@
 using System.Threading.Channels;
-using Microsoft.Extensions.Logging;
-
 namespace Capsule;
 
 public class CapsuleInvocationLoop : ICapsuleInvocationLoop
 {
     private readonly ChannelReader<Func<Task>> _reader;
-    private readonly ILogger<CapsuleInvocationLoop> _logger;
+    private readonly ICapsuleLogger<CapsuleInvocationLoop> _logger;
 
-    public CapsuleInvocationLoop(ChannelReader<Func<Task>> reader, ILogger<CapsuleInvocationLoop> logger)
+    public CapsuleInvocationLoop(ChannelReader<Func<Task>> reader, ICapsuleLogger<CapsuleInvocationLoop> logger)
     {
         _reader = reader;
         _logger = logger;
