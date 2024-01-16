@@ -1,5 +1,6 @@
 ﻿namespace Capsule;
 
+// ReSharper disable once UnusedTypeParameter
 public interface ICapsuleLogger<T>
 {
     void LogDebug(string message);

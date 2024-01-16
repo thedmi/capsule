@@ -8,8 +8,9 @@ var configuration = Argument("configuration", "Release");
 var sourceDir = Directory("./sources");
 
 var testProject = sourceDir + File("Capsule.Test/Capsule.Test.csproj");
-var libProject = sourceDir + File("Capsule/Capsule.csproj");
-var generatorProject = sourceDir + File("CapsuleGen/CapsuleGen.csproj");
+var coreLibProject = sourceDir + File("Capsule/Capsule.csproj");
+var extensionsLibProject = sourceDir + File("Capsule.Extensions.DependencyInjection/Capsule.Extensions.DependencyInjection.csproj");
+var generatorProject = sourceDir + File("Capsule.Generator/Capsule.Generator.csproj");
 
 var releaseDir = Directory("./release/lib");
 
@@ -28,19 +29,23 @@ Task("Lib:Test")
 });
 
 Task("Lib:Build")
+    .IsDependentOn("Lib:Test")
     .Does(() =>
 {
     var version = Argument<string>("lib-version");
 
     CleanDirectory(releaseDir);
 
-    DotNetPack(libProject, new DotNetPackSettings {
+    var libSettings = new DotNetPackSettings {
         Configuration = configuration,
         OutputDirectory = releaseDir,
         IncludeSource = true,
         IncludeSymbols = true,
         SymbolPackageFormat = "snupkg",
-        MSBuildSettings = new DotNetMSBuildSettings().SetVersion(version) });
+        MSBuildSettings = new DotNetMSBuildSettings().SetVersion(version) };
+
+    DotNetPack(coreLibProject, libSettings);
+    DotNetPack(extensionsLibProject, libSettings);
         
     DotNetPack(generatorProject, new DotNetPackSettings {
         Configuration = configuration,
