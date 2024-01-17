@@ -37,11 +37,11 @@ public class CapsuleExample
 
                     services.AddCapsuleHost();
 
-                    services.AddSingleton<IWagoDevice>(
+                    services.AddSingleton<IDevice>(
                         p => ActivatorUtilities.CreateInstance<WagoDevice>(p, new DeviceId("wago1"))
                             .Encapsulate(p.GetRequiredService<CapsuleRuntimeContext>()));
 
-                    services.AddSingleton<IWagoDevice>(
+                    services.AddSingleton<IDevice>(
                         p => ActivatorUtilities.CreateInstance<WagoDevice>(p, new DeviceId("wago2"))
                             .Encapsulate(p.GetRequiredService<CapsuleRuntimeContext>()));
 
@@ -51,7 +51,7 @@ public class CapsuleExample
                             .Encapsulate(p.GetRequiredService<CapsuleRuntimeContext>()));
 
                     services.AddSingleton<IDeviceLifecycleCoordinator>(
-                        p => new DeviceLifecycleCoordinator(() => p.GetServices<IWagoDevice>().ToList()).Encapsulate(
+                        p => new DeviceLifecycleCoordinator(() => p.GetServices<IDevice>().ToList()).Encapsulate(
                             p.GetRequiredService<CapsuleRuntimeContext>()));
 
                     services.AddTransient<ListDevicesController>();

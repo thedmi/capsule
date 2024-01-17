@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Capsule.Test.AutomatedTests.Sample.Impl;
 
-[Capsule]
+[Capsule(InterfaceName = "IDevice")]
 public class WagoDevice : ICapsule
 {
     private readonly DeviceId _id;

@@ -3,5 +3,5 @@ namespace Capsule.Test.AutomatedTests.Sample.Impl;
 
 public interface IDeviceRepository
 {
-    Task<IReadOnlyList<IWagoDevice>> GetDevicesAsync();
+    Task<IReadOnlyList<IDevice>> GetDevicesAsync();
 }

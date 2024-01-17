@@ -7,17 +7,17 @@ namespace Capsule.Test.AutomatedTests.Sample.Impl;
 [Capsule]
 public class DeviceLifecycleCoordinator : IDeviceRepository, ICapsule
 {
-    private readonly Func<IReadOnlyList<IWagoDevice>> _deviceFactories;
+    private readonly Func<IReadOnlyList<IDevice>> _deviceFactories;
 
-    private IReadOnlyList<IWagoDevice>? _devices;
+    private IReadOnlyList<IDevice>? _devices;
 
-    public DeviceLifecycleCoordinator(Func<IReadOnlyList<IWagoDevice>> deviceFactories)
+    public DeviceLifecycleCoordinator(Func<IReadOnlyList<IDevice>> deviceFactories)
     {
         _deviceFactories = deviceFactories;
     }
 
     [Expose]
-    public async Task<IReadOnlyList<IWagoDevice>> GetDevicesAsync()
+    public async Task<IReadOnlyList<IDevice>> GetDevicesAsync()
     {
         if (_devices == null)
         {
