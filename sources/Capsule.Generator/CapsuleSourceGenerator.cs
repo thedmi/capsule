@@ -19,7 +19,9 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
     private const string CapsuleAttributeName = "CapsuleAttribute";
 
     private const string ExposeAttributeName = "ExposeAttribute";
-    
+
+    private const string SynchronizationPropertyName = "Synchronization";
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // Only filtered Syntax Nodes can trigger code generation
@@ -175,8 +177,8 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
     {
         var attr = method.GetAttributes().Single(a => a.AttributeClass!.Name == ExposeAttributeName);
         
-        var synchronization = attr.NamedArguments.Where(a => a.Key == "Synchronization").ToList();
-        var proxyMethod = ProxyMethod(synchronization.Any() ? synchronization.Single().Value.Value as int? : null);
+        var synchronization = GetAttibuteProperty(attr, SynchronizationPropertyName);
+        var proxyMethod = ProxyMethod(synchronization?.Value as int?);
        
         var parameterDeclarations = string.Join(", ", method.Parameters.Select(p => $"{p.Type.ToDisplayString()} {p.Name}"));
 
@@ -203,4 +205,10 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
             3 => "PassThrough",
             _ => "EnqueueAwaitResult"
         };
+
+    private static TypedConstant? GetAttibuteProperty(AttributeData attributeData, string propertyName)
+    {
+        var properties = attributeData.NamedArguments.Where(a => a.Key == propertyName).ToList();
+        return properties.Any() ? properties.Single().Value : null;
+    }
 }
