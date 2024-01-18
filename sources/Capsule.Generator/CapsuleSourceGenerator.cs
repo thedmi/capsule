@@ -25,6 +25,23 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
     private const string InterfaceNamePropertyName = "InterfaceName";
     
     private const string GenerateInterfacePropertyName = "GenerateInterface";
+    
+#pragma warning disable RS2008
+    private static readonly DiagnosticDescriptor UnexposableMethodError = new(id: "CAPSULEGEN0001",
+        title: "Method cannot be exposed",
+        messageFormat: "Cannot expose method '{0}': {1}",
+        category: "CapsuleGen",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+    
+    private static readonly DiagnosticDescriptor UnexposablePropertyError = new(id: "CAPSULEGEN0002",
+        title: "Property cannot be exposed",
+        messageFormat: "Cannot expose property '{0}': {1}",
+        category: "CapsuleGen",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+#pragma warning restore RS2008
+
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -90,7 +107,7 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
             {
                 var spec = GetCapsuleSpec(classSymbol);
 
-                var exposeSpecs = GetExposeSpecs(classSymbol).ToImmutableArray();
+                var exposeSpecs = GetExposeSpecs(context, classSymbol).ToImmutableArray();
                 
                 RenderCapsuleInterface(context, spec, classSymbol, exposeSpecs);
                 RenderExtensions(context, spec, classSymbol, exposeSpecs);
@@ -188,7 +205,7 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
         context.AddSource($"{extensionsClassName}.g.cs", SourceText.From(code, Encoding.UTF8));
     }
     
-    private static IEnumerable<ExposeSpec> GetExposeSpecs(INamedTypeSymbol classSymbol)
+    private static IEnumerable<ExposeSpec> GetExposeSpecs(SourceProductionContext context, INamedTypeSymbol classSymbol)
     {
         var exposedSymbols = classSymbol.GetMembers()
             .Where(s => s.GetAttributes().Any(attr => AttributeHasName(attr, ExposeAttributeName)))
@@ -197,20 +214,90 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
 
         return
         [
-            ..exposedSymbols.Where(
-                s => s.Symbol is IPropertySymbol
-                     {
-                         GetMethod: not null, DeclaredAccessibility: Accessibility.Public
-                     } &&
-                     s.Synchronization == Synchronization.PassThrough),
-            ..exposedSymbols.Where(
-                s => s.Symbol is IMethodSymbol
-                {
-                    MethodKind: MethodKind.Ordinary, DeclaredAccessibility: Accessibility.Public
-                })
+            ..exposedSymbols.Where(s => s.Symbol is IPropertySymbol p && IsExposable(context, p, s.Synchronization)),
+            ..exposedSymbols.Where(s => s.Symbol is IMethodSymbol m && IsExposable(context, m))
         ];
     }
 
+    private static bool IsExposable(
+        SourceProductionContext context,
+        IMethodSymbol method)
+    {
+        var exposable = true;
+
+        if (method.MethodKind != MethodKind.Ordinary)
+        {
+            context.ReportDiagnostic(
+                Diagnostic.Create(
+                    UnexposableMethodError,
+                    Location.None,
+                    method.ToDisplayString(),
+                    "Only ordinary methods can be exposed"));
+
+            exposable = false;
+        }
+
+        if (method.DeclaredAccessibility != Accessibility.Public)
+        {
+            context.ReportDiagnostic(
+                Diagnostic.Create(
+                    UnexposableMethodError,
+                    Location.None,
+                    method.ToDisplayString(),
+                    "Exposed methods must be public."));
+
+            exposable = false;
+        }
+
+        return exposable;
+    }
+
+    private static bool IsExposable(
+        SourceProductionContext context,
+        IPropertySymbol property,
+        Synchronization synchronization)
+    {
+        var exposable = true;
+        
+        if (property.GetMethod == null)
+        {
+            context.ReportDiagnostic(
+                Diagnostic.Create(
+                    UnexposablePropertyError,
+                    Location.None,
+                    property.Name,
+                    "Exposed properties must have a getter."));
+
+            exposable = false;
+        }
+
+        if (property.DeclaredAccessibility != Accessibility.Public)
+        {
+            context.ReportDiagnostic(
+                Diagnostic.Create(
+                    UnexposablePropertyError,
+                    Location.None,
+                    property.Name,
+                    "Exposed properties must be public."));
+
+            exposable = false;
+        }
+
+        if (synchronization != Synchronization.PassThrough)
+        {
+            context.ReportDiagnostic(
+                Diagnostic.Create(
+                    UnexposablePropertyError,
+                    Location.None,
+                    property.Name,
+                    "Only Synchronization.PassThrough synchronization mode is supported for properties."));
+
+            exposable = false;
+        }
+
+        return exposable;
+    }
+    
     private static bool AttributeHasName(AttributeData attr, string attributeName) =>
         attr.AttributeClass?.Name == attributeName &&
         attr.AttributeClass?.ContainingNamespace.ToDisplayString() == AttributionNamespace;
