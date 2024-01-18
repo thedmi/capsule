@@ -9,6 +9,17 @@ public class AwaitEnqueueingTest
     [Test]
     public async Task Await_enqueueing_returns_when_invocation_was_enqueued()
     {
+        await TestSuccessful(s => s.ExecuteInnerAsync());
+    }
+    
+    [Test]
+    public async Task Await_enqueueing_returns_when_invocation_was_enqueued_value_task()
+    {
+        await TestSuccessful(s => s.ExecuteInnerValueTaskAsync().AsTask());
+    }
+
+    private static async Task TestSuccessful(Func<IAwaitEnqueueingTestSubject, Task> testSubjectCall)
+    {
         var runtimeContext = TestRuntime.Create();
         var hostedService = new CapsuleBackgroundService((CapsuleHost)runtimeContext.Host);
         
@@ -18,9 +29,10 @@ public class AwaitEnqueueingTest
 
         var methodRunStarted = false;
 
-        var sut = new AwaitEnqueueingTestSubject(tcs.Task, () => { methodRunStarted = true; }).Encapsulate(runtimeContext);
+        var sut =
+            new AwaitEnqueueingTestSubject(tcs.Task, () => { methodRunStarted = true; }).Encapsulate(runtimeContext);
 
-        var sutInvocationTask = sut.ExecuteInnerAsync();
+        var sutInvocationTask = testSubjectCall(sut);
 
         sutInvocationTask.IsCompleted.ShouldBeTrue();
         sutInvocationTask.IsCompletedSuccessfully.ShouldBeTrue();
@@ -48,9 +60,20 @@ public class AwaitEnqueueingTest
         await Task.Delay(100);
         await hostedService.ExecuteTask!;
     }
-    
+
     [Test]
     public async Task Await_enqueueing_does_not_throw_exception_when_capsule_method_throws()
+    {
+        await TestException(s => s.ExecuteInnerAsync());
+    }
+
+    [Test]
+    public async Task Await_enqueueing_does_not_throw_exception_when_capsule_method_throws_value_task()
+    {
+        await TestException(s => s.ExecuteInnerValueTaskAsync().AsTask());
+    }
+
+    private static async Task TestException(Func<IAwaitEnqueueingTestSubject, Task> testSubjectCall)
     {
         var runtimeContext = TestRuntime.Create();
         var hostedService = new CapsuleBackgroundService((CapsuleHost)runtimeContext.Host);
@@ -63,7 +86,7 @@ public class AwaitEnqueueingTest
 
         var sut = new AwaitEnqueueingTestSubject(tcs.Task, () => throw exception).Encapsulate(runtimeContext);
 
-        var sutInvocationTask = sut.ExecuteInnerAsync();
+        var sutInvocationTask = testSubjectCall(sut);
 
         await Task.Delay(100);
         
@@ -77,9 +100,20 @@ public class AwaitEnqueueingTest
         await Task.Delay(100);
         await hostedService.ExecuteTask!;
     }
-    
+
     [Test]
     public async Task Await_enqueueing_does_not_throw_exception_when_capsule_method_is_cancelled()
+    {
+        await TestCancellation(s => s.ExecuteInnerAsync());
+    }
+
+    [Test]
+    public async Task Await_enqueueing_does_not_throw_exception_when_capsule_method_is_cancelled_value_task()
+    {
+        await TestCancellation(s => s.ExecuteInnerValueTaskAsync().AsTask());
+    }
+
+    private static async Task TestCancellation(Func<IAwaitEnqueueingTestSubject, Task> testSubjectCall)
     {
         var runtimeContext = TestRuntime.Create();
         var hostedService = new CapsuleBackgroundService((CapsuleHost)runtimeContext.Host);
@@ -90,7 +124,7 @@ public class AwaitEnqueueingTest
 
         var sut = new AwaitEnqueueingTestSubject(tcs.Task, () => { }).Encapsulate(runtimeContext);
 
-        var sutInvocationTask = sut.ExecuteInnerAsync();
+        var sutInvocationTask = testSubjectCall(sut);
         tcs.SetCanceled();
 
         await Task.Delay(100);

@@ -23,6 +23,12 @@ public class AwaitEnqueueingTestSubject : ICapsule
         await _innerTask;
     }
 
+    [Expose(Synchronization = CapsuleSynchronization.AwaitEnqueueing)]
+    public async ValueTask ExecuteInnerValueTaskAsync()
+    {
+        await ExecuteInnerAsync();
+    }
+
     [Expose]
     public async Task<bool> SucceedAlwaysAsync()
     {

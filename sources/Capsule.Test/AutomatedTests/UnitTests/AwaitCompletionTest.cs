@@ -9,6 +9,17 @@ public class AwaitCompletionTest
     [Test]
     public async Task Await_completion_returns_result_when_method_ran_to_completion_successfully()
     {
+        await TestSuccessfulCompletion(s => s.ExecuteInnerAsync());
+    }
+    
+    [Test]
+    public async Task Await_completion_returns_result_when_method_ran_to_completion_successfully_value_task()
+    {
+        await TestSuccessfulCompletion(s => s.ExecuteInnerValueTaskAsync().AsTask());
+    }
+
+    private static async Task TestSuccessfulCompletion(Func<IAwaitCompletionTestSubject, Task<int>> testSubjectCall)
+    {
         var runtimeContext = TestRuntime.Create();
         var hostedService = new CapsuleBackgroundService((CapsuleHost)runtimeContext.Host);
         
@@ -18,7 +29,7 @@ public class AwaitCompletionTest
 
         var sut = new AwaitCompletionTestSubject(tcs.Task, () => 42).Encapsulate(runtimeContext);
 
-        var sutInvocationTask = sut.ExecuteInnerAsync();
+        var sutInvocationTask = testSubjectCall(sut);
 
         await Task.Yield();
         
@@ -38,9 +49,20 @@ public class AwaitCompletionTest
         await Task.Delay(100);
         await hostedService.ExecuteTask!;
     }
-    
+
     [Test]
     public async Task Await_completion_throws_when_method_ran_to_completion_with_exception()
+    {
+        await TestException(s => s.ExecuteInnerAsync());
+    }
+
+    [Test]
+    public async Task Await_completion_throws_when_method_ran_to_completion_with_exception_value_task()
+    {
+        await TestException(s => s.ExecuteInnerValueTaskAsync().AsTask());
+    }
+
+    private static async Task TestException(Func<IAwaitCompletionTestSubject, Task<int>> testSubjectCall)
     {
         var runtimeContext = TestRuntime.Create();
         var hostedService = new CapsuleBackgroundService((CapsuleHost)runtimeContext.Host);
@@ -53,7 +75,7 @@ public class AwaitCompletionTest
 
         var sut = new AwaitCompletionTestSubject(tcs.Task, () => throw exception).Encapsulate(runtimeContext);
 
-        var sutInvocationTask = sut.ExecuteInnerAsync();
+        var sutInvocationTask = testSubjectCall(sut);
 
         await Task.Yield();
         
@@ -73,9 +95,20 @@ public class AwaitCompletionTest
         await Task.Delay(100);
         await hostedService.ExecuteTask!;
     }
-    
+
     [Test]
     public async Task Await_completion_throws_when_method_is_cancelled()
+    {
+        await TestCancellation(s => s.ExecuteInnerAsync());
+    }
+    
+    [Test]
+    public async Task Await_completion_throws_when_method_is_cancelled_value_task()
+    {
+        await TestCancellation(s => s.ExecuteInnerValueTaskAsync().AsTask());
+    }
+
+    private static async Task TestCancellation(Func<IAwaitCompletionTestSubject, Task<int>> testSubjectCall)
     {
         var runtimeContext = TestRuntime.Create();
         var hostedService = new CapsuleBackgroundService((CapsuleHost)runtimeContext.Host);
@@ -86,7 +119,7 @@ public class AwaitCompletionTest
 
         var sut = new AwaitCompletionTestSubject(tcs.Task, () => 42).Encapsulate(runtimeContext);
 
-        var sutInvocationTask = sut.ExecuteInnerAsync();
+        var sutInvocationTask = testSubjectCall(sut);
 
         await Task.Yield();
         

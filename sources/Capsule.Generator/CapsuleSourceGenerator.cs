@@ -241,15 +241,17 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
 
         var arguments = string.Join(", ", method.Parameters.Select(p => $"{p.Name}"));
 
-        return $$"""
-                     public {{method.ReturnType}} {{method.Name}}({{parameterDeclarations}})
-                 """ +
-               (renderImplementation
-                   ? $$"""
-                        =>
-                                   _synchronizer.{{proxyMethod}}(() => _impl.{{method.Name}}({{arguments}}));
-                       """
-                   : ";");
+        var returnsValueTask = IsValueTask(method.ReturnType);
+
+        var signature = $"    public {method.ReturnType} {method.Name}({parameterDeclarations})";
+
+        var synchronizerCall = returnsValueTask
+            ? $"new {method.ReturnType}(_synchronizer.{proxyMethod}(() => _impl.{method.Name}({arguments}).AsTask()))"
+            : $"_synchronizer.{proxyMethod}(() => _impl.{method.Name}({arguments}))";
+        
+        var body = renderImplementation ? $"=>\n            {synchronizerCall};" : ";";
+
+        return $"{signature} {body}";
     }
     
     private static string RenderFacadeProperty(
@@ -293,6 +295,9 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
         var properties = attributeData.NamedArguments.Where(a => a.Key == propertyName).ToList();
         return properties.Any() ? properties.Single().Value : null;
     }
+
+    private static bool IsValueTask(ITypeSymbol typeSymbol) =>
+        typeSymbol.Name == "ValueTask" && typeSymbol.ContainingNamespace.ToDisplayString() == "System.Threading.Tasks";
 
     private record CapsuleSpec(string InterfaceName, bool GenerateInterface);
 

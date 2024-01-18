@@ -4,8 +4,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Capsule.Test.AutomatedTests.Sample.Impl;
 
-[Capsule(InterfaceName = "IDevice")]
-public class WagoDevice : ICapsule
+[Capsule(InterfaceName = nameof(IDevice), GenerateInterface = false)]
+public class WagoDevice : ICapsule, IAsyncDisposable
 {
     private readonly DeviceId _id;
 
@@ -48,6 +48,11 @@ public class WagoDevice : ICapsule
 
     // ReSharper disable once UnusedMember.Local
     private void SomePrivateMethod()
+    {
+    }
+
+    [Expose]
+    public async ValueTask DisposeAsync()
     {
     }
 }

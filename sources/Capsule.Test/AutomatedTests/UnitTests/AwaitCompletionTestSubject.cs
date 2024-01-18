@@ -24,6 +24,12 @@ public class AwaitCompletionTestSubject : ICapsule
     }
 
     [Expose]
+    public async ValueTask<int> ExecuteInnerValueTaskAsync()
+    {
+        return await ExecuteInnerAsync();
+    }
+
+    [Expose]
     public async Task<bool> SucceedAlwaysAsync()
     {
         return true;
