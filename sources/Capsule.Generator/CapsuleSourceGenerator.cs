@@ -90,10 +90,10 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
             {
                 var spec = GetCapsuleSpec(classSymbol);
 
-                var exposedMethods = GetExposedMethods(classSymbol).ToImmutableArray();
+                var exposeSpecs = GetExposeSpecs(classSymbol).ToImmutableArray();
                 
-                RenderCapsuleInterface(context, spec, classSymbol, exposedMethods);
-                RenderExtensions(context, spec, classSymbol, exposedMethods);
+                RenderCapsuleInterface(context, spec, classSymbol, exposeSpecs);
+                RenderExtensions(context, spec, classSymbol, exposeSpecs);
             }
         }
     }
@@ -102,10 +102,10 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
     {
         var capsuleAttribute = classSymbol.GetAttributes().Single(a => AttributeHasName(a, CapsuleAttributeName));
 
-        var interfaceName = GetAttibuteProperty(capsuleAttribute, InterfaceNamePropertyName)?.Value as string ??
+        var interfaceName = GetAttributeProperty(capsuleAttribute, InterfaceNamePropertyName)?.Value as string ??
                             "I" + classSymbol.Name;
 
-        var generateInterface = GetAttibuteProperty(capsuleAttribute, GenerateInterfacePropertyName)?.Value as bool? ??
+        var generateInterface = GetAttributeProperty(capsuleAttribute, GenerateInterfacePropertyName)?.Value as bool? ??
                                 true;
 
         return new(interfaceName, generateInterface);
@@ -115,7 +115,7 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
         SourceProductionContext context,
         CapsuleSpec spec,
         INamedTypeSymbol classSymbol,
-        ImmutableArray<IMethodSymbol> exposedMethods)
+        ImmutableArray<ExposeSpec> exposedMethods)
     {
         if (!spec.GenerateInterface)
         {
@@ -124,7 +124,7 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
         
         var namespaceName = classSymbol.ContainingNamespace.ToDisplayString();
 
-        var methods = exposedMethods.Select(symbol => RenderFacadeMethod(symbol, false));
+        var methods = exposedMethods.Select(symbol => RenderFacadeMethodOrProperty(symbol, false));
         
         var code =
             $$"""
@@ -145,14 +145,14 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
         SourceProductionContext context,
         CapsuleSpec spec,
         INamedTypeSymbol classSymbol,
-        ImmutableArray<IMethodSymbol> exposedMethods)
+        ImmutableArray<ExposeSpec> exposeSpecs)
     {
         var namespaceName = classSymbol.ContainingNamespace.ToDisplayString();
 
         var extensionsClassName = classSymbol.Name + "CapsuleExtensions";
         
-        var methods = exposedMethods
-            .Select(symbol => RenderFacadeMethod(symbol, true));
+        var methods = exposeSpecs
+            .Select(symbol => RenderFacadeMethodOrProperty(symbol, true));
         
         var code =
             $$"""
@@ -188,55 +188,113 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
         context.AddSource($"{extensionsClassName}.g.cs", SourceText.From(code, Encoding.UTF8));
     }
     
-    private static IEnumerable<IMethodSymbol> GetExposedMethods(INamedTypeSymbol classSymbol) =>
-        classSymbol.GetMembers()
-            .OfType<IMethodSymbol>()
-            .Where(
-                m => m is { MethodKind: MethodKind.Ordinary, DeclaredAccessibility: Accessibility.Public } &&
-                     m.GetAttributes().Any(attr => AttributeHasName(attr, ExposeAttributeName)));
+    private static IEnumerable<ExposeSpec> GetExposeSpecs(INamedTypeSymbol classSymbol)
+    {
+        var exposedSymbols = classSymbol.GetMembers()
+            .Where(s => s.GetAttributes().Any(attr => AttributeHasName(attr, ExposeAttributeName)))
+            .Select(GetExposeSpec)
+            .ToList();
+
+        return
+        [
+            ..exposedSymbols.Where(
+                s => s.Symbol is IPropertySymbol
+                     {
+                         GetMethod: not null, DeclaredAccessibility: Accessibility.Public
+                     } &&
+                     s.Synchronization == Synchronization.PassThrough),
+            ..exposedSymbols.Where(
+                s => s.Symbol is IMethodSymbol
+                {
+                    MethodKind: MethodKind.Ordinary, DeclaredAccessibility: Accessibility.Public
+                })
+        ];
+    }
 
     private static bool AttributeHasName(AttributeData attr, string attributeName) =>
         attr.AttributeClass?.Name == attributeName &&
         attr.AttributeClass?.ContainingNamespace.ToDisplayString() == AttributionNamespace;
 
-    private static string RenderFacadeMethod(IMethodSymbol method, bool renderImplementation)
+    private static string RenderFacadeMethodOrProperty(ExposeSpec exposeSpec, bool renderImplementation)
     {
-        var attr = method.GetAttributes().Single(a => a.AttributeClass!.Name == ExposeAttributeName);
+        var attr = exposeSpec.Symbol.GetAttributes().Single(a => a.AttributeClass!.Name == ExposeAttributeName);
         
-        var synchronization = GetAttibuteProperty(attr, SynchronizationPropertyName);
-        var proxyMethod = ProxyMethod(synchronization?.Value as int?);
-       
-        var parameterDeclarations = string.Join(", ", method.Parameters.Select(p => $"{p.Type.ToDisplayString()} {p.Name}"));
+        var synchronization = GetAttributeProperty(attr, SynchronizationPropertyName);
+        var proxyMethod = SynchronizerMethod(synchronization?.Value as int?);
+
+        return exposeSpec.Symbol switch
+        {
+            IMethodSymbol m => RenderFacadeMethod(m, proxyMethod, renderImplementation),
+            IPropertySymbol p => RenderFacadeProperty(p, exposeSpec.Synchronization, renderImplementation),
+            _ => throw new ArgumentOutOfRangeException(nameof(exposeSpec.Symbol))
+        };
+    }
+
+    private static string RenderFacadeMethod(
+        IMethodSymbol method,
+        Synchronization proxyMethod,
+        bool renderImplementation)
+    {
+        var parameterDeclarations = string.Join(
+            ", ",
+            method.Parameters.Select(p => $"{p.Type.ToDisplayString()} {p.Name}"));
 
         var arguments = string.Join(", ", method.Parameters.Select(p => $"{p.Name}"));
 
-        return
-            $$"""
-                  public {{method.ReturnType}} {{method.Name}}({{parameterDeclarations}})
-              """ +
-            (renderImplementation
-                ? $$"""
-                     =>
-                                _synchronizer.{{proxyMethod}}(() => _impl.{{method.Name}}({{arguments}}));    
-                    """
-                : ";");
+        return $$"""
+                     public {{method.ReturnType}} {{method.Name}}({{parameterDeclarations}})
+                 """ +
+               (renderImplementation
+                   ? $$"""
+                        =>
+                                   _synchronizer.{{proxyMethod}}(() => _impl.{{method.Name}}({{arguments}}));
+                       """
+                   : ";");
+    }
+    
+    private static string RenderFacadeProperty(
+        IPropertySymbol property,
+        Synchronization synchronization,
+        bool renderImplementation)
+    {
+        return $$"""
+                     public {{property.GetMethod!.ReturnType}} {{property.Name}}
+                 """ +
+               (renderImplementation
+                   ? $$"""
+                        =>
+                                   _synchronizer.{{synchronization}}(() => _impl.{{property.Name}});
+                       """
+                   : " { get; }");
     }
 
-    private static string ProxyMethod(int? enumValue) =>
+    private static ExposeSpec GetExposeSpec(ISymbol symbol)
+    {
+        var attr = symbol.GetAttributes().Single(a => a.AttributeClass!.Name == ExposeAttributeName);
+
+        var synchronization =
+            SynchronizerMethod(GetAttributeProperty(attr, SynchronizationPropertyName)?.Value as int?);
+
+        return new (symbol, synchronization);
+    }
+
+    private static Synchronization SynchronizerMethod(int? enumValue) =>
         enumValue switch
         {
-            0 => "EnqueueAwaitResult",
-            1 => "EnqueueAwaitReception",
-            2 => "EnqueueReturn",
-            3 => "PassThrough",
-            _ => "EnqueueAwaitResult"
+            0 => Synchronization.EnqueueAwaitResult,
+            1 => Synchronization.EnqueueAwaitReception,
+            2 => Synchronization.EnqueueReturn,
+            3 => Synchronization.PassThrough,
+            _ => Synchronization.EnqueueAwaitResult
         };
 
-    private static TypedConstant? GetAttibuteProperty(AttributeData attributeData, string propertyName)
+    private static TypedConstant? GetAttributeProperty(AttributeData attributeData, string propertyName)
     {
         var properties = attributeData.NamedArguments.Where(a => a.Key == propertyName).ToList();
         return properties.Any() ? properties.Single().Value : null;
     }
 
     private record CapsuleSpec(string InterfaceName, bool GenerateInterface);
+
+    private record ExposeSpec(ISymbol Symbol, Synchronization Synchronization);
 }

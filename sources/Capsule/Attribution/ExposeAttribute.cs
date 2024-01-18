@@ -1,7 +1,7 @@
 ﻿namespace Capsule.Attribution;
 
-[AttributeUsage(AttributeTargets.Method)]
-public sealed class ExposeAttribute : Attribute 
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Property)]
+public sealed class ExposeAttribute : Attribute
 {
     public CapsuleSynchronization Synchronization { get; init; } = CapsuleSynchronization.AwaitCompletion;
 }

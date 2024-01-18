@@ -14,13 +14,6 @@ public class ListDevicesController
     {
         var devices = await _repository.GetDevicesAsync();
 
-        var result = new List<DeviceId>();
-
-        foreach (var device in devices)
-        {
-            result.Add(device.GetId());
-        }
-
-        return result.Select(i => i.Value).ToArray();
+        return devices.Select(device => device.Id.Value).ToArray();
     }
 }

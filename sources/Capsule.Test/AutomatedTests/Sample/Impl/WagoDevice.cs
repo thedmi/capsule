@@ -22,10 +22,7 @@ public class WagoDevice : ICapsule
     }
 
     [Expose(Synchronization = CapsuleSynchronization.PassThrough)]
-    public DeviceId GetId()
-    {
-        return _id;
-    }
+    public DeviceId Id => _id;
 
     [Expose]
     public async Task<bool> SetChannelStateAsync(ChannelId id, bool value)
