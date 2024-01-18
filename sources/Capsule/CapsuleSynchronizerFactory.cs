@@ -11,15 +11,18 @@ public class CapsuleSynchronizerFactory : ICapsuleSynchronizerFactory
         _invocationLoopFactory = invocationLoopFactory;
     }
 
-    public ICapsuleSynchronizer Create(ICapsule capsule, CapsuleRuntimeContext context)
+    public ICapsuleSynchronizer Create(object capsuleImpl, CapsuleRuntimeContext context)
     {
         var channel = Channel.CreateBounded<Func<Task>>(new BoundedChannelOptions(1023)
             { SingleReader = true, SingleWriter = false, FullMode = BoundedChannelFullMode.Wait });
 
-        var synchronizer = new CapsuleSynchronizer(channel.Writer, capsule.GetType());
-        
-        // Ensure the first item in the event loop is a call to InitializeAsync
-        synchronizer.EnqueueReturnInternal(capsule.InitializeAsync);
+        var synchronizer = new CapsuleSynchronizer(channel.Writer, capsuleImpl.GetType());
+
+        // If the implementation requires initialization, ensure this is the first call in the invocation queue
+        if (capsuleImpl is ICapsuleInitialization c)
+        {
+            synchronizer.EnqueueReturnInternal(c.InitializeAsync);
+        }
         
         context.Host.RegisterAsync(_invocationLoopFactory.Create(channel.Reader));
         

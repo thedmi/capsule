@@ -2,8 +2,8 @@
 
 namespace Capsule.Test.AutomatedTests.UnitTests;
 
-[Capsule]
-public class AwaitReceptionTestSubject : ICapsule
+[Capsule(InterfaceName = "ISomeAwaitReceptionTestSubject")]
+public class AwaitReceptionTestSubject
 {
     private readonly Task _innerTask;
     private readonly Action _preAction;
@@ -13,8 +13,6 @@ public class AwaitReceptionTestSubject : ICapsule
         _innerTask = innerTask;
         _preAction = preAction;
     }
-
-    public async Task InitializeAsync() { }
 
     [Expose(Synchronization = CapsuleSynchronization.AwaitReception)]
     public async Task ExecuteInnerAsync()

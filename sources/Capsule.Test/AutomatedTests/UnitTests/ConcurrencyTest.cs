@@ -42,7 +42,7 @@ public class ConcurrencyTest
 }
 
 [Capsule]
-public class ConcurrencyTestSubject : ICapsule
+public class ConcurrencyTestSubject : ICapsuleInitialization
 {
     private int _someState;
     

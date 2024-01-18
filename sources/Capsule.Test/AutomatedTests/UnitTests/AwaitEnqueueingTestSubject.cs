@@ -3,7 +3,7 @@
 namespace Capsule.Test.AutomatedTests.UnitTests;
 
 [Capsule]
-public class AwaitEnqueueingTestSubject : ICapsule
+public class AwaitEnqueueingTestSubject
 {
     private readonly Task _innerTask;
     private readonly Action _preAction;
@@ -13,8 +13,6 @@ public class AwaitEnqueueingTestSubject : ICapsule
         _innerTask = innerTask;
         _preAction = preAction;
     }
-
-    public async Task InitializeAsync() { }
 
     [Expose(Synchronization = CapsuleSynchronization.AwaitEnqueueing)]
     public async Task ExecuteInnerAsync()

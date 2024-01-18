@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Capsule.Test.AutomatedTests.Sample.Impl;
 
 [Capsule]
-public class StateTracker : ICapsule
+public class StateTracker : ICapsuleInitialization
 {
     private readonly ILogger<StateTracker> _logger;
 

@@ -3,7 +3,7 @@
 namespace Capsule.Test.AutomatedTests.UnitTests;
 
 [Capsule]
-public class AwaitCompletionTestSubject : ICapsule
+public class AwaitCompletionTestSubject
 {
     private readonly Task _innerTask;
     private readonly Func<int> _innerFunc;
@@ -13,8 +13,6 @@ public class AwaitCompletionTestSubject : ICapsule
         _innerTask = innerTask;
         _innerFunc = innerFunc;
     }
-
-    public async Task InitializeAsync() { }
 
     [Expose]
     public async Task<int> ExecuteInnerAsync()

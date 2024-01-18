@@ -1,6 +1,6 @@
 ﻿namespace Capsule;
 
-public interface ICapsule
+public interface ICapsuleInitialization
 {
     Task InitializeAsync();
 }

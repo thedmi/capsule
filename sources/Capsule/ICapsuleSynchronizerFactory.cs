@@ -2,5 +2,5 @@
 
 public interface ICapsuleSynchronizerFactory
 {
-    ICapsuleSynchronizer Create(ICapsule capsule, CapsuleRuntimeContext context);
+    ICapsuleSynchronizer Create(object capsuleImpl, CapsuleRuntimeContext context);
 }
