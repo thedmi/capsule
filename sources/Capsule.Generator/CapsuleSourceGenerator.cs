@@ -14,35 +14,12 @@ namespace Capsule.Generator;
 [Generator]
 public class CapsuleSourceGenerator : IIncrementalGenerator
 {
-    private const string AttributionNamespace = "Capsule.Attribution";
-
     private const string CapsuleAttributeName = "CapsuleAttribute";
-
-    private const string ExposeAttributeName = "ExposeAttribute";
-
-    private const string SynchronizationPropertyName = "Synchronization";
     
     private const string InterfaceNamePropertyName = "InterfaceName";
     
     private const string GenerateInterfacePropertyName = "GenerateInterface";
     
-#pragma warning disable RS2008
-    private static readonly DiagnosticDescriptor UnexposableMethodError = new(id: "CAPSULEGEN0001",
-        title: "Method cannot be exposed",
-        messageFormat: "Cannot expose method '{0}': {1}",
-        category: "CapsuleGen",
-        DiagnosticSeverity.Error,
-        isEnabledByDefault: true);
-    
-    private static readonly DiagnosticDescriptor UnexposablePropertyError = new(id: "CAPSULEGEN0002",
-        title: "Property cannot be exposed",
-        messageFormat: "Cannot expose property '{0}': {1}",
-        category: "CapsuleGen",
-        DiagnosticSeverity.Error,
-        isEnabledByDefault: true);
-#pragma warning restore RS2008
-
-
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // Only filtered Syntax Nodes can trigger code generation
@@ -76,7 +53,7 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
                 var attributeName = attributeSymbol.ContainingType.ToDisplayString();
 
                 // Check the full name of the Capsule attribute.
-                if (attributeName == $"{AttributionNamespace}.{CapsuleAttributeName}")
+                if (attributeName == $"{SymbolNames.AttributionNamespace}.{CapsuleAttributeName}")
                 {
                     return classDeclarationSyntax;
                 }
@@ -107,23 +84,22 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
             {
                 var spec = GetCapsuleSpec(classSymbol);
 
-                var exposeSpecs = GetExposeSpecs(context, classSymbol).ToImmutableArray();
+                var exposeDefinitions = new ExposeDefinitionResolver().GetExposeDefinitions(context, classSymbol).ToImmutableArray();
                 
-                RenderCapsuleInterface(context, spec, classSymbol, exposeSpecs);
-                RenderExtensions(context, spec, classSymbol, exposeSpecs);
+                RenderCapsuleInterface(context, spec, classSymbol, exposeDefinitions);
+                RenderExtensions(context, spec, classSymbol, exposeDefinitions);
             }
         }
     }
 
     private CapsuleSpec GetCapsuleSpec(INamedTypeSymbol classSymbol)
     {
-        var capsuleAttribute = classSymbol.GetAttributes().Single(a => AttributeHasName(a, CapsuleAttributeName));
+        var capsuleAttribute = classSymbol.GetAttributes().Single(a => a.HasNameAndNamespace(CapsuleAttributeName, SymbolNames.AttributionNamespace));
 
-        var interfaceName = GetAttributeProperty(capsuleAttribute, InterfaceNamePropertyName)?.Value as string ??
+        var interfaceName = capsuleAttribute.GetProperty(InterfaceNamePropertyName)?.Value as string ??
                             "I" + classSymbol.Name;
 
-        var generateInterface = GetAttributeProperty(capsuleAttribute, GenerateInterfacePropertyName)?.Value as bool? ??
-                                true;
+        var generateInterface = capsuleAttribute.GetProperty(GenerateInterfacePropertyName)?.Value as bool? ?? true;
 
         return new(interfaceName, generateInterface);
     }
@@ -132,7 +108,7 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
         SourceProductionContext context,
         CapsuleSpec spec,
         INamedTypeSymbol classSymbol,
-        ImmutableArray<ExposeSpec> exposedMethods)
+        ImmutableArray<ExposeDefinition> exposedMethods)
     {
         if (!spec.GenerateInterface)
         {
@@ -162,13 +138,13 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
         SourceProductionContext context,
         CapsuleSpec spec,
         INamedTypeSymbol classSymbol,
-        ImmutableArray<ExposeSpec> exposeSpecs)
+        ImmutableArray<ExposeDefinition> exposeDefinitions)
     {
         var namespaceName = classSymbol.ContainingNamespace.ToDisplayString();
 
         var extensionsClassName = classSymbol.Name + "CapsuleExtensions";
         
-        var methods = exposeSpecs
+        var methods = exposeDefinitions
             .Select(symbol => RenderFacadeMethodOrProperty(symbol, true));
         
         var code =
@@ -205,115 +181,13 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
         context.AddSource($"{extensionsClassName}.g.cs", SourceText.From(code, Encoding.UTF8));
     }
     
-    private static IEnumerable<ExposeSpec> GetExposeSpecs(SourceProductionContext context, INamedTypeSymbol classSymbol)
+    private static string RenderFacadeMethodOrProperty(ExposeDefinition exposeDefinition, bool renderImplementation)
     {
-        var exposedSymbols = classSymbol.GetMembers()
-            .Where(s => s.GetAttributes().Any(attr => AttributeHasName(attr, ExposeAttributeName)))
-            .Select(GetExposeSpec)
-            .ToList();
-
-        return
-        [
-            ..exposedSymbols.Where(s => s.Symbol is IPropertySymbol p && IsExposable(context, p, s.Synchronization)),
-            ..exposedSymbols.Where(s => s.Symbol is IMethodSymbol m && IsExposable(context, m))
-        ];
-    }
-
-    private static bool IsExposable(
-        SourceProductionContext context,
-        IMethodSymbol method)
-    {
-        var exposable = true;
-
-        if (method.MethodKind != MethodKind.Ordinary)
+        return exposeDefinition.Symbol switch
         {
-            context.ReportDiagnostic(
-                Diagnostic.Create(
-                    UnexposableMethodError,
-                    Location.None,
-                    method.ToDisplayString(),
-                    "Only ordinary methods can be exposed"));
-
-            exposable = false;
-        }
-
-        if (method.DeclaredAccessibility != Accessibility.Public)
-        {
-            context.ReportDiagnostic(
-                Diagnostic.Create(
-                    UnexposableMethodError,
-                    Location.None,
-                    method.ToDisplayString(),
-                    "Exposed methods must be public."));
-
-            exposable = false;
-        }
-
-        return exposable;
-    }
-
-    private static bool IsExposable(
-        SourceProductionContext context,
-        IPropertySymbol property,
-        Synchronization synchronization)
-    {
-        var exposable = true;
-        
-        if (property.GetMethod == null)
-        {
-            context.ReportDiagnostic(
-                Diagnostic.Create(
-                    UnexposablePropertyError,
-                    Location.None,
-                    property.Name,
-                    "Exposed properties must have a getter."));
-
-            exposable = false;
-        }
-
-        if (property.DeclaredAccessibility != Accessibility.Public)
-        {
-            context.ReportDiagnostic(
-                Diagnostic.Create(
-                    UnexposablePropertyError,
-                    Location.None,
-                    property.Name,
-                    "Exposed properties must be public."));
-
-            exposable = false;
-        }
-
-        if (synchronization != Synchronization.PassThrough)
-        {
-            context.ReportDiagnostic(
-                Diagnostic.Create(
-                    UnexposablePropertyError,
-                    Location.None,
-                    property.Name,
-                    "Only Synchronization.PassThrough synchronization mode is supported for properties."));
-
-            exposable = false;
-        }
-
-        return exposable;
-    }
-    
-    private static bool AttributeHasName(AttributeData attr, string attributeName) =>
-        attr.AttributeClass?.Name == attributeName &&
-        attr.AttributeClass?.ContainingNamespace.ToDisplayString() == AttributionNamespace;
-
-    private static string RenderFacadeMethodOrProperty(ExposeSpec exposeSpec, bool renderImplementation)
-    {
-        var attr = exposeSpec.Symbol.GetAttributes().Single(a => a.AttributeClass!.Name == ExposeAttributeName);
-        
-        var synchronization = GetAttributeProperty(attr, SynchronizationPropertyName);
-        var proxyMethod = SynchronizerMethod(synchronization?.Value as int?);
-
-        return exposeSpec.Symbol switch
-        {
-            IMethodSymbol m => RenderFacadeMethod(m, proxyMethod, renderImplementation),
-            IPropertySymbol p => RenderFacadeProperty(p, exposeSpec.Synchronization, renderImplementation),
-            _ => throw new ArgumentOutOfRangeException(nameof(exposeSpec.Symbol))
+            IMethodSymbol m => RenderFacadeMethod(m, exposeDefinition.Synchronization, renderImplementation),
+            IPropertySymbol p => RenderFacadeProperty(p, exposeDefinition.Synchronization, renderImplementation),
+            _ => throw new ArgumentOutOfRangeException(nameof(exposeDefinition.Symbol))
         };
     }
 
@@ -357,36 +231,8 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
                    : " { get; }");
     }
 
-    private static ExposeSpec GetExposeSpec(ISymbol symbol)
-    {
-        var attr = symbol.GetAttributes().Single(a => a.AttributeClass!.Name == ExposeAttributeName);
-
-        var synchronization =
-            SynchronizerMethod(GetAttributeProperty(attr, SynchronizationPropertyName)?.Value as int?);
-
-        return new (symbol, synchronization);
-    }
-
-    private static Synchronization SynchronizerMethod(int? enumValue) =>
-        enumValue switch
-        {
-            0 => Synchronization.EnqueueAwaitResult,
-            1 => Synchronization.EnqueueAwaitReception,
-            2 => Synchronization.EnqueueReturn,
-            3 => Synchronization.PassThrough,
-            _ => Synchronization.EnqueueAwaitResult
-        };
-
-    private static TypedConstant? GetAttributeProperty(AttributeData attributeData, string propertyName)
-    {
-        var properties = attributeData.NamedArguments.Where(a => a.Key == propertyName).ToList();
-        return properties.Any() ? properties.Single().Value : null;
-    }
-
     private static bool IsValueTask(ITypeSymbol typeSymbol) =>
         typeSymbol.Name == "ValueTask" && typeSymbol.ContainingNamespace.ToDisplayString() == "System.Threading.Tasks";
 
     private record CapsuleSpec(string InterfaceName, bool GenerateInterface);
-
-    private record ExposeSpec(ISymbol Symbol, Synchronization Synchronization);
 }
