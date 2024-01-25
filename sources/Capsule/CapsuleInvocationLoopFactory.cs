@@ -4,9 +4,9 @@ namespace Capsule;
 
 public class CapsuleInvocationLoopFactory : ICapsuleInvocationLoopFactory
 {
-    private readonly ICapsuleLogger<CapsuleInvocationLoop> _logger;
+    private readonly ICapsuleLogger<ICapsuleInvocationLoop> _logger;
 
-    public CapsuleInvocationLoopFactory(ICapsuleLogger<CapsuleInvocationLoop> logger)
+    public CapsuleInvocationLoopFactory(ICapsuleLogger<ICapsuleInvocationLoop> logger)
     {
         _logger = logger;
     }

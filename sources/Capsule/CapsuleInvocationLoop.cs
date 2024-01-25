@@ -1,24 +1,17 @@
 using System.Threading.Channels;
+
 namespace Capsule;
 
-public class CapsuleInvocationLoop : ICapsuleInvocationLoop
+internal class CapsuleInvocationLoop(ChannelReader<Func<Task>> reader, ICapsuleLogger<ICapsuleInvocationLoop> logger)
+    : ICapsuleInvocationLoop
 {
-    private readonly ChannelReader<Func<Task>> _reader;
-    private readonly ICapsuleLogger<CapsuleInvocationLoop> _logger;
-
-    public CapsuleInvocationLoop(ChannelReader<Func<Task>> reader, ICapsuleLogger<CapsuleInvocationLoop> logger)
-    {
-        _reader = reader;
-        _logger = logger;
-    }
-
     public async Task RunAsync(CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
-                await _reader.WaitToReadAsync(cancellationToken);
+                await reader.WaitToReadAsync(cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -27,7 +20,7 @@ public class CapsuleInvocationLoop : ICapsuleInvocationLoop
             // Try to consume all outstanding invocations even if we've been cancelled. We expect the caller
             // to use a timeout to guarantee cancellation even if one of the functions take a long time
             // (BackgroundService does employ such a timeout).
-            while (_reader.TryRead(out var f))
+            while (reader.TryRead(out var f))
             {
                 try
                 {
@@ -36,11 +29,11 @@ public class CapsuleInvocationLoop : ICapsuleInvocationLoop
                 }
                 catch (OperationCanceledException e)
                 {
-                    _logger.LogWarning(e, "An invocation loop task was cancelled.");
+                    logger.LogWarning(e, "An invocation loop task was cancelled.");
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, "Exception during capsule invocation loop processing.");
+                    logger.LogError(e, "Exception during capsule invocation loop processing.");
                 }
             }
         }

@@ -2,18 +2,8 @@
 
 namespace Capsule;
 
-public class CapsuleSynchronizer : ICapsuleSynchronizer
+internal class CapsuleSynchronizer(ChannelWriter<Func<Task>> writer, Type capsuleType) : ICapsuleSynchronizer
 {
-    private readonly ChannelWriter<Func<Task>> _writer;
-    
-    private readonly Type _capsuleType;
-
-    public CapsuleSynchronizer(ChannelWriter<Func<Task>> writer, Type capsuleType)
-    {
-        _writer = writer;
-        _capsuleType = capsuleType;
-    }
-
     public async Task EnqueueAwaitResult(Func<Task> impl)
     {
         await EnqueueAwaitResult<object?>(async () =>
@@ -77,11 +67,11 @@ public class CapsuleSynchronizer : ICapsuleSynchronizer
 
     private void Write(Func<Task> func)
     {
-        var success = _writer.TryWrite(func);
+        var success = writer.TryWrite(func);
 
         if (!success)
         {
-            throw new CapsuleInvocationException($"Unable to enqueue invocation for capsule of type {_capsuleType}");
+            throw new CapsuleInvocationException($"Unable to enqueue invocation for capsule of type {capsuleType}");
         }
     }
 }

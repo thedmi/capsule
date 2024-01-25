@@ -2,15 +2,9 @@
 
 namespace Capsule;
 
-public class CapsuleSynchronizerFactory : ICapsuleSynchronizerFactory
+public class CapsuleSynchronizerFactory(ICapsuleInvocationLoopFactory invocationLoopFactory)
+    : ICapsuleSynchronizerFactory
 {
-    private readonly ICapsuleInvocationLoopFactory _invocationLoopFactory;
-
-    public CapsuleSynchronizerFactory(ICapsuleInvocationLoopFactory invocationLoopFactory)
-    {
-        _invocationLoopFactory = invocationLoopFactory;
-    }
-
     public ICapsuleSynchronizer Create(object capsuleImpl, CapsuleRuntimeContext context)
     {
         var channel = Channel.CreateBounded<Func<Task>>(new BoundedChannelOptions(1023)
@@ -24,7 +18,7 @@ public class CapsuleSynchronizerFactory : ICapsuleSynchronizerFactory
             synchronizer.EnqueueReturnInternal(c.InitializeAsync);
         }
         
-        context.Host.RegisterAsync(_invocationLoopFactory.Create(channel.Reader));
+        context.Host.RegisterAsync(invocationLoopFactory.Create(channel.Reader));
         
         return synchronizer;
     }

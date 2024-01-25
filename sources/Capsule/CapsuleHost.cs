@@ -2,24 +2,18 @@
 
 namespace Capsule;
 
-public class CapsuleHost : ICapsuleHost
+public class CapsuleHost(ICapsuleLogger<CapsuleHost> logger) : ICapsuleHost
 {
-    private readonly ICapsuleLogger<CapsuleHost> _logger;
-
-    private readonly Channel<Task> _taskChannel;
+    private readonly Channel<Task> _taskChannel = Channel.CreateBounded<Task>(
+        new BoundedChannelOptions(1023)
+        {
+            SingleReader = true, SingleWriter = false, FullMode = BoundedChannelFullMode.Wait
+        });
 
     private readonly CancellationTokenSource _shutdownCts = new();
     
     private IList<Task> _invocationLoopTasks = new List<Task>();
 
-    public CapsuleHost(ICapsuleLogger<CapsuleHost> logger)
-    {
-        _logger = logger;
-
-        _taskChannel = Channel.CreateBounded<Task>(new BoundedChannelOptions(1023)
-            { SingleReader = true, SingleWriter = false, FullMode = BoundedChannelFullMode.Wait });
-    }
-    
     public async Task RunAsync(CancellationToken stoppingToken)
     {
         stoppingToken.Register(() => _shutdownCts.Cancel());
@@ -30,7 +24,7 @@ public class CapsuleHost : ICapsuleHost
                 ? Task.WhenAny(_invocationLoopTasks)
                 : Task.Delay(-1, stoppingToken);
 
-            _logger.LogDebug("Capsule host awaiting event loop termination or new event loop task...");
+            logger.LogDebug("Capsule host awaiting event loop termination or new event loop task...");
             
             try
             {
