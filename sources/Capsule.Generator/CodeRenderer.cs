@@ -124,9 +124,9 @@ internal class CodeRenderer
             ? $"new {method.ReturnType}(_synchronizer.{proxyMethod}(() => _impl.{method.Name}({arguments}).AsTask()))"
             : $"_synchronizer.{proxyMethod}(() => _impl.{method.Name}({arguments}))";
         
-        var body = renderImplementation ? $"=>\n            {synchronizerCall};" : ";";
+        var body = renderImplementation ? $" =>\n            {synchronizerCall};" : ";";
 
-        return $"{signature} {body}";
+        return $"{signature}{body}";
     }
     
     private static string RenderFacadeProperty(
