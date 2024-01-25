@@ -14,11 +14,9 @@ namespace Capsule.Generator;
 [Generator]
 public class CapsuleSourceGenerator : IIncrementalGenerator
 {
-    private const string CapsuleAttributeName = "CapsuleAttribute";
-    
-    private const string InterfaceNamePropertyName = "InterfaceName";
-    
-    private const string GenerateInterfacePropertyName = "GenerateInterface";
+    private readonly CapsuleDefinitionResolver _capsuleDefinitionResolver = new();
+
+    private readonly ExposeDefinitionResolver _exposeDefinitionResolver = new();
     
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -53,7 +51,7 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
                 var attributeName = attributeSymbol.ContainingType.ToDisplayString();
 
                 // Check the full name of the Capsule attribute.
-                if (attributeName == $"{SymbolNames.AttributionNamespace}.{CapsuleAttributeName}")
+                if (attributeName == $"{SymbolNames.AttributionNamespace}.{SymbolNames.CapsuleAttributeName}")
                 {
                     return classDeclarationSyntax;
                 }
@@ -82,9 +80,10 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
             // Symbols allow us to get the compile-time information.
             if (semanticModel.GetDeclaredSymbol(classDeclarationSyntax) is INamedTypeSymbol classSymbol)
             {
-                var spec = GetCapsuleSpec(classSymbol);
+                var spec = _capsuleDefinitionResolver.GetCapsuleDefinition(classSymbol);
 
-                var exposeDefinitions = new ExposeDefinitionResolver().GetExposeDefinitions(context, classSymbol).ToImmutableArray();
+                var exposeDefinitions = _exposeDefinitionResolver.GetExposeDefinitions(context, classSymbol)
+                    .ToImmutableArray();
                 
                 RenderCapsuleInterface(context, spec, classSymbol, exposeDefinitions);
                 RenderExtensions(context, spec, classSymbol, exposeDefinitions);
@@ -92,25 +91,13 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
         }
     }
 
-    private CapsuleSpec GetCapsuleSpec(INamedTypeSymbol classSymbol)
-    {
-        var capsuleAttribute = classSymbol.GetAttributes().Single(a => a.HasNameAndNamespace(CapsuleAttributeName, SymbolNames.AttributionNamespace));
-
-        var interfaceName = capsuleAttribute.GetProperty(InterfaceNamePropertyName)?.Value as string ??
-                            "I" + classSymbol.Name;
-
-        var generateInterface = capsuleAttribute.GetProperty(GenerateInterfacePropertyName)?.Value as bool? ?? true;
-
-        return new(interfaceName, generateInterface);
-    }
-
     private static void RenderCapsuleInterface(
         SourceProductionContext context,
-        CapsuleSpec spec,
+        CapsuleDefinition definition,
         INamedTypeSymbol classSymbol,
         ImmutableArray<ExposeDefinition> exposedMethods)
     {
-        if (!spec.GenerateInterface)
+        if (!definition.GenerateInterface)
         {
             return;
         }
@@ -125,18 +112,18 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
 
               namespace {{namespaceName}};
 
-              public interface {{spec.InterfaceName}}
+              public interface {{definition.InterfaceName}}
               {
               {{string.Join("\n\n", methods)}}
               }
               """;
         
-        context.AddSource($"{spec.InterfaceName}.g.cs", SourceText.From(code, Encoding.UTF8));
+        context.AddSource($"{definition.InterfaceName}.g.cs", SourceText.From(code, Encoding.UTF8));
     }
 
     private static void RenderExtensions(
         SourceProductionContext context,
-        CapsuleSpec spec,
+        CapsuleDefinition definition,
         INamedTypeSymbol classSymbol,
         ImmutableArray<ExposeDefinition> exposeDefinitions)
     {
@@ -157,10 +144,10 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
 
               public static class {{extensionsClassName}}
               {
-                  public static {{spec.InterfaceName}} Encapsulate(this {{classSymbol.Name}} impl, CapsuleRuntimeContext context) =>
+                  public static {{definition.InterfaceName}} Encapsulate(this {{classSymbol.Name}} impl, CapsuleRuntimeContext context) =>
                       new Facade(impl, context.SynchronizerFactory.Create(impl, context));
               
-                  public class Facade : {{spec.InterfaceName}} 
+                  public class Facade : {{definition.InterfaceName}} 
                   {
                       private readonly {{classSymbol.Name}} _impl;
                       
@@ -233,6 +220,4 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
 
     private static bool IsValueTask(ITypeSymbol typeSymbol) =>
         typeSymbol.Name == "ValueTask" && typeSymbol.ContainingNamespace.ToDisplayString() == "System.Threading.Tasks";
-
-    private record CapsuleSpec(string InterfaceName, bool GenerateInterface);
 }
