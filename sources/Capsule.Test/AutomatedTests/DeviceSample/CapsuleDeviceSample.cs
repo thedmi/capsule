@@ -1,13 +1,13 @@
 ﻿using Capsule.Extensions.DependencyInjection;
-using Capsule.Test.AutomatedTests.Sample.Impl;
+using Capsule.Test.AutomatedTests.DeviceSample.Impl;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Capsule.Test.AutomatedTests.Sample;
+namespace Capsule.Test.AutomatedTests.DeviceSample;
 
-public class CapsuleExample
+public class CapsuleDeviceSample
 {
     [Test]
     public async Task RunAsync()

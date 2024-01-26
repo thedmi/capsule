@@ -2,7 +2,7 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace Capsule.Test.AutomatedTests.Sample.Impl;
+namespace Capsule.Test.AutomatedTests.DeviceSample.Impl;
 
 [Capsule(InterfaceName = nameof(IDevice), GenerateInterface = false)]
 public class WagoDevice : ICapsuleInitialization, IAsyncDisposable

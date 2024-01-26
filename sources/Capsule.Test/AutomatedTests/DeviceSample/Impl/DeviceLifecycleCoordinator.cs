@@ -2,7 +2,7 @@
 
 using CommunityToolkit.Diagnostics;
 
-namespace Capsule.Test.AutomatedTests.Sample.Impl;
+namespace Capsule.Test.AutomatedTests.DeviceSample.Impl;
 
 [Capsule]
 public class DeviceLifecycleCoordinator : IDeviceRepository, ICapsuleInitialization
