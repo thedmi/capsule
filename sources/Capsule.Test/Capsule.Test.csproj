@@ -42,7 +42,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Capsule.Extensions.DependencyInjection\Capsule.Extensions.DependencyInjection.csproj" />
-    <ProjectReference Include="..\Capsule\Capsule.csproj" />
+    <ProjectReference Include="..\Capsule.Core\Capsule.Core.csproj" />
     <ProjectReference Include="..\Capsule.Generator\Capsule.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 

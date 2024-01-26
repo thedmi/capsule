@@ -8,7 +8,7 @@ var configuration = Argument("configuration", "Release");
 var sourceDir = Directory("./sources");
 
 var testProject = sourceDir + File("Capsule.Test/Capsule.Test.csproj");
-var coreLibProject = sourceDir + File("Capsule/Capsule.csproj");
+var coreLibProject = sourceDir + File("Capsule.Core/Capsule.Core.csproj");
 var extensionsLibProject = sourceDir + File("Capsule.Extensions.DependencyInjection/Capsule.Extensions.DependencyInjection.csproj");
 var generatorProject = sourceDir + File("Capsule.Generator/Capsule.Generator.csproj");
 

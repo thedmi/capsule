@@ -10,11 +10,11 @@
 
     <RootNamespace>Capsule</RootNamespace>
     
-    <PackageId>Capsule</PackageId>
+    <PackageId>Capsule.Core</PackageId>
     <Authors>Dani Michel</Authors>
     <Description>Automatic thread-safe objects</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <AssemblyTitle>Capsule</AssemblyTitle>
+    <AssemblyTitle>Capsule.Core</AssemblyTitle>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

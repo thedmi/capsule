@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Capsule.Test", "Capsule.Test\Capsule.Test.csproj", "{435099A9-D1F3-4E83-BADD-EC38517A09A0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Capsule", "Capsule\Capsule.csproj", "{9D0B3050-A1D4-47BF-BCA8-3000AA202212}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Capsule.Core", "Capsule.Core\Capsule.Core.csproj", "{9D0B3050-A1D4-47BF-BCA8-3000AA202212}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00_Tests", "00_Tests", "{74718C67-89AE-41AB-8AB0-84D6BBC8D788}"
 EndProject
