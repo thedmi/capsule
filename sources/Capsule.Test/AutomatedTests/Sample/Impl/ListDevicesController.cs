@@ -3,9 +3,9 @@ namespace Capsule.Test.AutomatedTests.Sample.Impl;
 
 public class ListDevicesController
 {
-    private readonly IDeviceLifecycleCoordinator _repository;
+    private readonly IDeviceRepository _repository;
 
-    public ListDevicesController(IDeviceLifecycleCoordinator repository)
+    public ListDevicesController(IDeviceRepository repository)
     {
         _repository = repository;
     }

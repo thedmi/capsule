@@ -50,7 +50,7 @@ public class CapsuleExample
                         p => p.GetRequiredService<StateTracker>()
                             .Encapsulate(p.GetRequiredService<CapsuleRuntimeContext>()));
 
-                    services.AddSingleton<IDeviceLifecycleCoordinator>(
+                    services.AddSingleton<IDeviceRepository>(
                         p => new DeviceLifecycleCoordinator(() => p.GetServices<IDevice>().ToList()).Encapsulate(
                             p.GetRequiredService<CapsuleRuntimeContext>()));
 

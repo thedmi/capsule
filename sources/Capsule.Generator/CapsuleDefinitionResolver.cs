@@ -13,10 +13,20 @@ internal class CapsuleDefinitionResolver
         var capsuleAttribute = classSymbol.GetAttributes()
             .Single(a => a.HasNameAndNamespace(SymbolNames.CapsuleAttributeName, SymbolNames.AttributionNamespace));
 
-        var interfaceName = capsuleAttribute.GetProperty(InterfaceNamePropertyName)?.Value as string ??
-                            "I" + classSymbol.Name;
+        var relevantInterfaces = classSymbol.Interfaces.Where(
+            i => !i.GetAttributes()
+                .Any(
+                    a => a.HasNameAndNamespace(
+                        SymbolNames.CapsuleIgnoreAttributeName,
+                        SymbolNames.AttributionNamespace)));
+        
+        var singleInterface = relevantInterfaces.SingleOrDefault();
 
-        var generateInterface = capsuleAttribute.GetProperty(GenerateInterfacePropertyName)?.Value as bool? ?? true;
+        var interfaceName = capsuleAttribute.GetProperty(InterfaceNamePropertyName)?.Value as string ??
+                            singleInterface?.Name ?? "I" + classSymbol.Name;
+
+        var generateInterface = capsuleAttribute.GetProperty(GenerateInterfacePropertyName)?.Value as bool? ??
+                                singleInterface == null;
 
         return new(interfaceName, generateInterface);
     }
