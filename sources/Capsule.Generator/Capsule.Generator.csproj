@@ -35,6 +35,10 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.3.0" PrivateAssets="all" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Capsule.Core\Capsule.Core.csproj" />
+  </ItemGroup>
   
   <ItemGroup>
     <!-- Package the generator in the analyzer directory of the nuget package -->

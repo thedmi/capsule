@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <WarningsAsErrors>Nullable</WarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <RootNamespace>Capsule</RootNamespace>
+
+    <PackageId>Capsule</PackageId>
+    <Authors>Dani Michel</Authors>
+    <Description>Automatic thread-safe objects</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <AssemblyTitle>Capsule</AssemblyTitle>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Capsule.Core\Capsule.Core.csproj" />
+    <ProjectReference Include="..\Capsule.Extensions.DependencyInjection\Capsule.Extensions.DependencyInjection.csproj" />
+    
+    <ProjectReference Include="..\Capsule.Generator\Capsule.Generator.csproj" OutputItemType="Analyzer" />
+  </ItemGroup>
+</Project>

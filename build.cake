@@ -7,6 +7,7 @@ var configuration = Argument("configuration", "Release");
 
 var sourceDir = Directory("./sources");
 
+var conveniencePackageProject = sourceDir + File("Capsule/Capsule.csproj");
 var testProject = sourceDir + File("Capsule.Test/Capsule.Test.csproj");
 var coreLibProject = sourceDir + File("Capsule.Core/Capsule.Core.csproj");
 var extensionsLibProject = sourceDir + File("Capsule.Extensions.DependencyInjection/Capsule.Extensions.DependencyInjection.csproj");
@@ -44,6 +45,7 @@ Task("Lib:Build")
         SymbolPackageFormat = "snupkg",
         MSBuildSettings = new DotNetMSBuildSettings().SetVersion(version) };
 
+    DotNetPack(conveniencePackageProject, libSettings);
     DotNetPack(coreLibProject, libSettings);
     DotNetPack(extensionsLibProject, libSettings);
         

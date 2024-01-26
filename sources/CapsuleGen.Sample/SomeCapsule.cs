@@ -1,18 +1,13 @@
-﻿using Capsule;
-using Capsule.Attribution;
+﻿using Capsule.Attribution;
 
 namespace CapsuleGen.Sample;
 
 [Capsule]
-public class SomeCapsule : ICapsule
+public class SomeCapsule
 {
     [Expose]
     public async Task DoIt()
     {
         await Task.Yield();
-    }
-
-    public async Task InitializeAsync()
-    {
     }
 }
