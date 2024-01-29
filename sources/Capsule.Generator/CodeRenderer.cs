@@ -37,7 +37,7 @@ internal class CodeRenderer
         
         var namespaceName = _classSymbol.ContainingNamespace.ToDisplayString();
 
-        var methods = _exposedMethods.Select(d => RenderFacadeMethodOrProperty(d, false));
+        var methods = _exposedMethods.Select(d => RenderHullMethodOrProperty(d, false));
         
         var code =
             $$"""
@@ -62,7 +62,7 @@ internal class CodeRenderer
         var extensionsClassName = _classSymbol.Name + "CapsuleExtensions";
         
         var methods = _exposedMethods
-            .Select(d => RenderFacadeMethodOrProperty(d, true));
+            .Select(d => RenderHullMethodOrProperty(d, true));
         
         var code =
             $$"""
@@ -76,15 +76,15 @@ internal class CodeRenderer
               public static class {{extensionsClassName}}
               {
                   public static {{_definition.InterfaceName}} Encapsulate(this {{_classSymbol.Name}} impl, CapsuleRuntimeContext context) =>
-                      new Facade(impl, context.SynchronizerFactory.Create(impl, context));
+                      new Hull(impl, context.SynchronizerFactory.Create(impl, context));
               
-                  public class Facade : {{_definition.InterfaceName}} 
+                  public class Hull : {{_definition.InterfaceName}} 
                   {
                       private readonly {{_classSymbol.Name}} _impl;
                       
                       private readonly ICapsuleSynchronizer _synchronizer;
                       
-                      public Facade({{_classSymbol.Name}} impl, ICapsuleSynchronizer synchronizer)
+                      public Hull({{_classSymbol.Name}} impl, ICapsuleSynchronizer synchronizer)
                       {
                           _impl = impl;
                           _synchronizer = synchronizer;
@@ -99,17 +99,17 @@ internal class CodeRenderer
         _context.AddSource($"{extensionsClassName}.g.cs", SourceText.From(code, Encoding.UTF8));
     }
     
-    private static string RenderFacadeMethodOrProperty(ExposeDefinition exposeDefinition, bool renderImplementation)
+    private static string RenderHullMethodOrProperty(ExposeDefinition exposeDefinition, bool renderImplementation)
     {
         return exposeDefinition.Symbol switch
         {
-            IMethodSymbol m => RenderFacadeMethod(m, exposeDefinition.Synchronization, renderImplementation),
-            IPropertySymbol p => RenderFacadeProperty(p, exposeDefinition.Synchronization, renderImplementation),
+            IMethodSymbol m => RenderHullMethod(m, exposeDefinition.Synchronization, renderImplementation),
+            IPropertySymbol p => RenderHullProperty(p, exposeDefinition.Synchronization, renderImplementation),
             _ => throw new ArgumentOutOfRangeException(nameof(exposeDefinition.Symbol))
         };
     }
 
-    private static string RenderFacadeMethod(
+    private static string RenderHullMethod(
         IMethodSymbol method,
         Synchronization proxyMethod,
         bool renderImplementation)
@@ -131,7 +131,7 @@ internal class CodeRenderer
         return $"{signature}{body}";
     }
     
-    private static string RenderFacadeProperty(
+    private static string RenderHullProperty(
         IPropertySymbol property,
         Synchronization synchronization,
         bool renderImplementation)
