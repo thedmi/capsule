@@ -12,6 +12,12 @@ public class CapsuleSynchronizerFactory(ICapsuleInvocationLoopFactory invocation
 
         var synchronizer = new CapsuleSynchronizer(channel.Writer, capsuleImpl.GetType());
 
+        // If the implementation uses timers, inject the timer service
+        if (capsuleImpl is CapsuleFeature.ITimers t)
+        {
+            t.Timers = new CapsuleTimerService(synchronizer);
+        }
+        
         // If the implementation requires initialization, ensure this is the first call in the invocation queue
         if (capsuleImpl is CapsuleFeature.IInitializer i)
         {

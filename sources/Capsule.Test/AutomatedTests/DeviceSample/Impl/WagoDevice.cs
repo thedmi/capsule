@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Capsule.Test.AutomatedTests.DeviceSample.Impl;
 
 [Capsule(InterfaceName = nameof(IDevice), GenerateInterface = false)]
-public class WagoDevice : CapsuleFeature.IInitializer, IAsyncDisposable
+public class WagoDevice : CapsuleFeature.IInitializer, CapsuleFeature.ITimers, IAsyncDisposable
 {
     private readonly DeviceId _id;
 
@@ -21,12 +21,15 @@ public class WagoDevice : CapsuleFeature.IInitializer, IAsyncDisposable
         _logger = logger;
     }
 
+    public ICapsuleTimerService? Timers { private get; set; }
+
     [Expose(Synchronization = CapsuleSynchronization.PassThrough)]
     public DeviceId Id => _id;
 
     [Expose]
     public async Task<bool> SetChannelStateAsync(ChannelId id, bool value)
     {
+        Timers!.StartNew(TimeSpan.FromSeconds(10), async () => SomePrivateMethod());
         return true;
     }
 
