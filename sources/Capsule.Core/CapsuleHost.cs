@@ -11,8 +11,8 @@ public class CapsuleHost(ICapsuleLogger<CapsuleHost> logger) : ICapsuleHost
         });
 
     private readonly CancellationTokenSource _shutdownCts = new();
-    
-    private IList<Task> _invocationLoopTasks = new List<Task>();
+
+    private readonly TaskCollection _invocationLoopTasks = [];
 
     public async Task RunAsync(CancellationToken stoppingToken)
     {
@@ -21,18 +21,16 @@ public class CapsuleHost(ICapsuleLogger<CapsuleHost> logger) : ICapsuleHost
         while (!stoppingToken.IsCancellationRequested)
         {
             var anyEventLoopTask = _invocationLoopTasks.Any()
-                ? Task.WhenAny(_invocationLoopTasks)
+                ? Task.WhenAny(_invocationLoopTasks) // these tasks are already connected to the shutdown token
                 : Task.Delay(-1, stoppingToken);
 
             logger.LogDebug("Capsule host awaiting event loop termination or new event loop task...");
-            
+
             try
             {
                 await Task.WhenAny(_taskChannel.Reader.WaitToReadAsync(stoppingToken).AsTask(), anyEventLoopTask);
             }
-            catch (OperationCanceledException)
-            {    
-            }
+            catch (OperationCanceledException) { }
 
             if (anyEventLoopTask.IsCompleted)
             {
@@ -47,26 +45,21 @@ public class CapsuleHost(ICapsuleLogger<CapsuleHost> logger) : ICapsuleHost
             }
         }
 
-        foreach (var task in _invocationLoopTasks)
-        {
-            await task;
-        }
+        // Shutting down, so await all tasks
+        await Task.WhenAll(_invocationLoopTasks);
     }
 
     private async Task SeparateCompletedTasksAsync()
     {
-        var completed = _invocationLoopTasks.Where(t => t.IsCompleted);
-        var running = _invocationLoopTasks.Where(t => !t.IsCompleted);
-                
+        var completed = _invocationLoopTasks.RemoveCompleted();
+        
         foreach (var completedTask in completed)
         {
             await HandleCompletedTaskAsync(completedTask);
         }
-
-        _invocationLoopTasks = running.ToList();
     }
 
-    private async Task HandleCompletedTaskAsync(Task task)
+    private static async Task HandleCompletedTaskAsync(Task task)
     {
         try
         {
