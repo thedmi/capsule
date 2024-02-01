@@ -13,9 +13,9 @@ public class CapsuleSynchronizerFactory(ICapsuleInvocationLoopFactory invocation
         var synchronizer = new CapsuleSynchronizer(channel.Writer, capsuleImpl.GetType());
 
         // If the implementation requires initialization, ensure this is the first call in the invocation queue
-        if (capsuleImpl is ICapsuleInitialization c)
+        if (capsuleImpl is CapsuleFeature.IInitializer i)
         {
-            synchronizer.EnqueueReturnInternal(c.InitializeAsync);
+            synchronizer.EnqueueReturnInternal(i.InitializeAsync);
         }
         
         context.Host.RegisterAsync(invocationLoopFactory.Create(channel.Reader));

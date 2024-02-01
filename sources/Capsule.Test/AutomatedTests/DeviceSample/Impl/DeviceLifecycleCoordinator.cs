@@ -5,7 +5,7 @@ using CommunityToolkit.Diagnostics;
 namespace Capsule.Test.AutomatedTests.DeviceSample.Impl;
 
 [Capsule]
-public class DeviceLifecycleCoordinator : IDeviceRepository, ICapsuleInitialization
+public class DeviceLifecycleCoordinator : IDeviceRepository, CapsuleFeature.IInitializer
 {
     private readonly Func<IReadOnlyList<IDevice>> _deviceFactories;
 

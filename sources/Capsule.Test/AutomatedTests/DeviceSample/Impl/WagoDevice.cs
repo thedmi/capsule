@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Capsule.Test.AutomatedTests.DeviceSample.Impl;
 
 [Capsule(InterfaceName = nameof(IDevice), GenerateInterface = false)]
-public class WagoDevice : ICapsuleInitialization, IAsyncDisposable
+public class WagoDevice : CapsuleFeature.IInitializer, IAsyncDisposable
 {
     private readonly DeviceId _id;
 
