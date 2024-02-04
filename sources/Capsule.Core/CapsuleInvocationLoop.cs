@@ -11,7 +11,15 @@ internal class CapsuleInvocationLoop(ChannelReader<Func<Task>> reader, ICapsuleL
         {
             try
             {
-                await reader.WaitToReadAsync(cancellationToken);
+                var channelStillOpen = await reader.WaitToReadAsync(cancellationToken);
+
+                // The synchronizer will close the channel when it is finalized. This avoids keeping invocation loop
+                // instances around for capsules that already have been GCed.
+                if (!channelStillOpen)
+                {
+                    logger.LogDebug("Invocation queue has been closed, terminating invocation loop...");
+                    return;
+                }
             }
             catch (OperationCanceledException)
             {
@@ -22,20 +30,24 @@ internal class CapsuleInvocationLoop(ChannelReader<Func<Task>> reader, ICapsuleL
             // (BackgroundService does employ such a timeout).
             while (reader.TryRead(out var f))
             {
-                try
-                {
-                    var task = f();
-                    await task;
-                }
-                catch (OperationCanceledException e)
-                {
-                    logger.LogWarning(e, "An invocation loop task was cancelled.");
-                }
-                catch (Exception e)
-                {
-                    logger.LogError(e, "Exception during capsule invocation loop processing.");
-                }
+                await ExecuteAsync(f);
             }
+        }
+    }
+
+    private async Task ExecuteAsync(Func<Task> invocation)
+    {
+        try
+        {
+            await invocation();
+        }
+        catch (OperationCanceledException e)
+        {
+            logger.LogWarning(e, "An invocation loop task was cancelled.");
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Exception during capsule invocation loop processing.");
         }
     }
 }

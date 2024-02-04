@@ -65,6 +65,11 @@ internal class CapsuleSynchronizer(ChannelWriter<Func<Task>> writer, Type capsul
         return impl();
     }
 
+    public void Close()
+    {
+        writer.TryComplete();
+    }
+
     private void Write(Func<Task> func)
     {
         var success = writer.TryWrite(func);
