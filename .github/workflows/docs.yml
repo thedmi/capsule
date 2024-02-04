@@ -5,7 +5,7 @@ name: Docs
 
 on:
   push:
-    branches: [ "*" ]
+    branches: [ "master" ]
 
 permissions:
   contents: write
