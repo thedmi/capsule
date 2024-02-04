@@ -3,17 +3,17 @@ namespace Capsule.Test.AutomatedTests.DeviceSample.Impl;
 
 public class ListDevicesController
 {
-    private readonly IDeviceRepository _repository;
+    private readonly IDeviceCoordinator _coordinator;
 
-    public ListDevicesController(IDeviceRepository repository)
+    public ListDevicesController(IDeviceCoordinator coordinator)
     {
-        _repository = repository;
+        _coordinator = coordinator;
     }
 
     public async Task<string[]> GetDevicesAsync()
     {
-        var devices = await _repository.GetDevicesAsync();
+        var devices = await _coordinator.GetDevicesAsync();
 
-        return devices.Select(device => device.Id.Value).ToArray();
+        return devices.Select(device => device.Id).ToArray();
     }
 }

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Capsule.Test.AutomatedTests.DeviceSample.Impl;
 
 [Capsule]
-public class StateTracker : ISomethingElse, CapsuleFeature.IInitializer
+public class StateTracker : ISomethingElse
 {
     private readonly ILogger<StateTracker> _logger;
 
@@ -15,12 +15,8 @@ public class StateTracker : ISomethingElse, CapsuleFeature.IInitializer
     }
 
     [Expose]
-    public async Task TrackStatesAsync(IReadOnlyList<ChannelStateUpdate> update, CancellationToken cancellationToken)
+    public async Task TrackStatesAsync(IReadOnlyList<(string Channel, bool Value)> update, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("State tracker actor called with {Count} updates", update.Count);
-    }
-
-    public async Task InitializeAsync()
-    {
+        _logger.LogInformation("State tracker called with {Count} updates", update.Count);
     }
 }

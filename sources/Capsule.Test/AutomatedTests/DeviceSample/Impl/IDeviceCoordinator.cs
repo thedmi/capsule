@@ -1,7 +1,7 @@
 ﻿
 namespace Capsule.Test.AutomatedTests.DeviceSample.Impl;
 
-public interface IDeviceRepository
+public interface IDeviceCoordinator
 {
     Task<IReadOnlyList<IDevice>> GetDevicesAsync();
 }

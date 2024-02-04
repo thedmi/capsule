@@ -2,11 +2,9 @@
 
 public interface IDevice : IAsyncDisposable
 {
-    public DeviceId Id { get; }
+    public string Id { get; }
 
-    public Task<bool> SetChannelStateAsync(ChannelId id, bool value);
+    public Task<bool> SetOutputAsync(string channelId, bool value);
 
-    public Task<IReadOnlyDictionary<ChannelId, bool>> CurrentChannelStatesAsync();
-
-    public Task TriggerForcedUpdateAsync(CancellationToken cancellationToken);
+    public Task<IReadOnlyDictionary<string, bool>> ReadIosAsync();
 }

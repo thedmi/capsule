@@ -5,15 +5,15 @@ using CommunityToolkit.Diagnostics;
 namespace Capsule.Test.AutomatedTests.DeviceSample.Impl;
 
 [Capsule]
-public class DeviceLifecycleCoordinator : IDeviceRepository, CapsuleFeature.IInitializer
+public class DeviceCoordinator(Func<IReadOnlyList<IDevice>> deviceFactories)
+    : IDeviceCoordinator, CapsuleFeature.IInitializer
 {
-    private readonly Func<IReadOnlyList<IDevice>> _deviceFactories;
-
     private IReadOnlyList<IDevice>? _devices;
 
-    public DeviceLifecycleCoordinator(Func<IReadOnlyList<IDevice>> deviceFactories)
+    public async Task InitializeAsync()
     {
-        _deviceFactories = deviceFactories;
+        Guard.IsNull(_devices);
+        _devices = deviceFactories();
     }
 
     [Expose]
@@ -26,11 +26,4 @@ public class DeviceLifecycleCoordinator : IDeviceRepository, CapsuleFeature.IIni
 
         return _devices;
     }
-
-    public async Task InitializeAsync()
-    {
-        Guard.IsNull(_devices);
-        _devices = _deviceFactories();
-    }
-    
 }
