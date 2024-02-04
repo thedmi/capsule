@@ -1,0 +1,14 @@
+site_name: Capsule
+
+repo_url: https://github.com/thedmi/capsule
+
+theme:
+  name: material
+  palette:
+    primary: deep purple
+    accent: green
+  icon:
+    repo: fontawesome/brands/github
+    
+  features:
+    - navigation.instant
