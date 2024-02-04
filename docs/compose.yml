@@ -1,0 +1,11 @@
+# Compose project for local docs development.
+
+services:
+  
+  docs:
+    image: squidfunk/mkdocs-material:9
+    ports:
+    - 127.0.0.1:8000:8000
+    volumes:
+      - ./:/docs
+
