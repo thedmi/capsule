@@ -14,7 +14,7 @@ Apart from a few attributes and the requirement to make methods `async`, impleme
 
 ## Motivation
 
-Writing thread-safe code is hard. .NET offers a lot of powerful synchronization primitives and helper classes, but using them in complex problem domains leads to a lot of boilerplate, lower readability, reduced testability and consequently a higher risk for bugs.
+Writing thread-safe code is hard. .NET offers a lot of powerful synchronization primitives and helper classes, but using them in complex problem domains often leads to a lot of boilerplate, lower readability, reduced testability and consequently a higher risk for bugs.
 
 Capsule aims to improve the situation through the following approaches:
 
@@ -65,15 +65,16 @@ public class SampleController(IMemoryCache cache)
     public async Task<string?> GetAsync(int key) => await cache.GetAsync(key);
     
     [HttpPut]
-    public async Task InsertOrUpdateAsync(int key, string content) => await cache.InsertOrUpdateAsync(key, content);
+    public async Task InsertOrUpdateAsync(int key, string content) => 
+        await cache.InsertOrUpdateAsync(key, content);
 }
 ```
 
 Note the usage of `IMemoryCache` (capsule interface) instead of `MemoryCache`. The former is backed by the thread-safe hull, the latter is the non-thread-safe implementation.
 
-As you can see, the only thing we need to make the implementation thread-safe are the `[Capsule]` and `[Expose]` attributes. Neither locks nor concurrent collections that are hard to use correctly are needed.
+As you can see, the only thing we need to make the implementation thread-safe are the `[Capsule]` and `[Expose]` attributes. Neither locks nor concurrent collections (that are hard to use correctly) are needed.
 
-Typically, you'll register the capsule in the dependency injection container. Capsule comes with support for Microsoft DI through the `Capsule.Extensions.DependencyInjection` package, which is already included when using the `Capsule` nuget package.
+Typically, you'll register the capsule in DI. Capsule comes with support for Microsoft dependency injection through the `Capsule.Extensions.DependencyInjection` package, which is already included when using the `Capsule` nuget package.
 
 Assuming `MemoryCache` has already been properly registered in DI, the following registers `IMemoryCache` capsules:
 
