@@ -119,7 +119,5 @@ public class CapsuleTimerServiceTest
         public async Task EnqueueReturn(Func<Task> impl) => InvocationQueue.Enqueue(impl);
 
         public T PassThrough<T>(Func<T> impl) => throw new NotImplementedException();
-
-        public void Close() => throw new NotImplementedException();
     }
 }

@@ -65,11 +65,6 @@ internal class CapsuleSynchronizer(ChannelWriter<Func<Task>> writer, Type capsul
         return impl();
     }
 
-    public void Close()
-    {
-        writer.TryComplete();
-    }
-
     private void Write(Func<Task> func)
     {
         var success = writer.TryWrite(func);
@@ -79,4 +74,10 @@ internal class CapsuleSynchronizer(ChannelWriter<Func<Task>> writer, Type capsul
             throw new CapsuleInvocationException($"Unable to enqueue invocation for capsule of type {capsuleType}");
         }
     }
+
+    /// <summary>
+    /// Ensure the invocation queue is closed when the synchronizer is finalized to avoid memory leaks on the queue
+    /// reader side (invocation loop).
+    /// </summary>
+    ~CapsuleSynchronizer() => writer.TryComplete();
 }

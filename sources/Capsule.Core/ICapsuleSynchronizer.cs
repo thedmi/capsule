@@ -10,10 +10,4 @@ public interface ICapsuleSynchronizer
     Task EnqueueReturn(Func<Task> impl);
     
     T PassThrough<T>(Func<T> impl);
-
-    /// <summary>
-    /// Closes the underlying invocation queue to indicate that this synchronizer will not be used anymore. This allows
-    /// the reader-side of the queue to be cleaned up.
-    /// </summary>
-    void Close();
 }

@@ -91,10 +91,6 @@ internal class CodeRenderer
                       }
                       
                   {{string.Join("\n\n    ", methods)}}
-                  
-                      // Ensure the synchronizer is closed when the hull is finalized to avoid memory leaks on the
-                      // queue reader side (invocation loop).
-                      ~Hull() => _synchronizer.Close();
                   }
               }
               """;
