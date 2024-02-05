@@ -34,7 +34,7 @@ public class TimerServiceTest
         callbackCalled.ShouldBeFalse();
         synchronizer.InvocationQueue.ShouldBeEmpty();
         sut.TimerTasks.Count().ShouldBe(1);
-        cancellationToken.ShouldBe(timerRef.CancellationTokenSource.Token);
+        cancellationToken.ShouldBe(timerRef.CancellationToken);
         
         // Act 2 - the delay elapsed
         taskCompletionSource.SetResult();
@@ -79,7 +79,7 @@ public class TimerServiceTest
         sut.TimerTasks.Count().ShouldBe(1);
         
         // Act 2 - cancel the timer
-        await timerRef.CancellationTokenSource.CancelAsync();
+        timerRef.Cancel();
         await Task.Delay(100);
 
         // Assert 2 - callback and timer management invocation enqueued
