@@ -34,6 +34,7 @@ public class TimerServiceTest
         callbackCalled.ShouldBeFalse();
         synchronizer.InvocationQueue.ShouldBeEmpty();
         sut.TimerTasks.Count().ShouldBe(1);
+        sut.Timers.ShouldBe([timerRef]);
         cancellationToken.ShouldBe(timerRef.CancellationToken);
         
         // Act 2 - the delay elapsed
@@ -50,6 +51,7 @@ public class TimerServiceTest
         // Assert 3 - callback executed and timers cleaned up
         callbackCalled.ShouldBeTrue();
         sut.TimerTasks.ShouldBeEmpty();
+        sut.Timers.ShouldBeEmpty();
     }
     
     [Test]
@@ -77,6 +79,7 @@ public class TimerServiceTest
         callbackCalled.ShouldBeFalse();
         synchronizer.InvocationQueue.ShouldBeEmpty();
         sut.TimerTasks.Count().ShouldBe(1);
+        sut.Timers.ShouldBe([timerRef]);
         
         // Act 2 - cancel the timer
         timerRef.Cancel();
@@ -92,6 +95,7 @@ public class TimerServiceTest
         // Assert 3 - callback executed and timers cleaned up
         callbackCalled.ShouldBeFalse();
         sut.TimerTasks.ShouldBeEmpty();
+        sut.Timers.ShouldBeEmpty();
     }
 
     private class FakeSynchronizer : ICapsuleSynchronizer

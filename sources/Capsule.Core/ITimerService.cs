@@ -14,4 +14,12 @@ public interface ITimerService
     /// </summary>
     /// <returns>A reference to the timer that allows cancelling the timer before it expires.</returns>
     TimerReference StartNew(TimeSpan timeout, Func<Task> callback);
+
+    /// <summary>
+    /// Cancel all pending timers. 
+    /// </summary>
+    /// <remarks>
+    /// Callbacks that have been enqueued because their timer has elapsed will remain enqueued.
+    /// </remarks>
+    void CancelAll();
 }

@@ -13,10 +13,13 @@ internal class TimerService(
     ICapsuleSynchronizer synchronizer,
     Func<TimeSpan, CancellationToken, Task>? delayProvider = null) : ITimerService
 {
+    private readonly Func<TimeSpan, CancellationToken, Task> _delayProvider = delayProvider ?? Task.Delay;
+
     // Internal for unit test access
     internal readonly TaskCollection TimerTasks = [];
 
-    private readonly Func<TimeSpan, CancellationToken, Task> _delayProvider = delayProvider ?? Task.Delay;
+    // Internal for unit test access
+    internal readonly List<TimerReference> Timers = [];
 
     public TimerReference StartNew(TimeSpan timeout, Func<Task> callback)
     {
@@ -28,9 +31,12 @@ internal class TimerService(
         var cts = new CancellationTokenSource();
 
         var timerTask = EnqueueCallbackDelayed();
+        var timerReference = new TimerReference(timerTask, cts);
+        
         TimerTasks.Add(timerTask);
+        Timers.Add(timerReference);
 
-        return new TimerReference(timerTask, cts);
+        return timerReference;
 
         async Task EnqueueCallbackDelayed()
         {
@@ -56,9 +62,19 @@ internal class TimerService(
         }
     }
 
+    public void CancelAll()
+    {
+        foreach (var timerRef in Timers)
+        {
+            timerRef.Cancel();
+        }
+    }
+
     private async Task ClearElapsedTimersAsync()
     {
         var completed = TimerTasks.RemoveCompleted();
         await Task.WhenAll(completed);
+
+        Timers.RemoveAll(t => completed.Contains(t.TimerTask));
     }
 }

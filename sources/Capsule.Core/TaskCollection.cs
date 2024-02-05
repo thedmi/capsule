@@ -4,7 +4,7 @@ namespace Capsule;
 
 public class TaskCollection : IEnumerable<Task>
 {
-    private List<Task> _tasks = new();
+    private List<Task> _tasks = [];
 
     public void Add(Task task)
     {
