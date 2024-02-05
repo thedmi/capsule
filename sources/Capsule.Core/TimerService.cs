@@ -9,9 +9,9 @@
 /// </remarks>
 /// <param name="synchronizer">The synchronizer of the capsule this service is used with.</param>
 /// <param name="delayProvider">Optional delay provider for testing. Should be left null in non-test contexts.</param>
-internal class CapsuleTimerService(
+internal class TimerService(
     ICapsuleSynchronizer synchronizer,
-    Func<TimeSpan, CancellationToken, Task>? delayProvider = null) : ICapsuleTimerService
+    Func<TimeSpan, CancellationToken, Task>? delayProvider = null) : ITimerService
 {
     // Internal for unit test access
     internal readonly TaskCollection TimerTasks = [];
@@ -20,6 +20,11 @@ internal class CapsuleTimerService(
 
     public TimerReference StartNew(TimeSpan timeout, Func<Task> callback)
     {
+        if (timeout < TimeSpan.Zero)
+        {
+            throw new ArgumentOutOfRangeException(nameof(timeout), timeout, "Timeout must be >= 0.");
+        }
+        
         var cts = new CancellationTokenSource();
 
         var timerTask = EnqueueCallbackDelayed();

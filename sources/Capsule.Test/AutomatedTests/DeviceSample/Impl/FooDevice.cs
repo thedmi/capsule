@@ -19,7 +19,7 @@ public class FooDevice : IDevice, CapsuleFeature.IInitializer, CapsuleFeature.IT
         _logger = logger;
     }
 
-    public ICapsuleTimerService? Timers { private get; set; }
+    public ITimerService? Timers { private get; set; }
 
     [Expose(Synchronization = CapsuleSynchronization.PassThrough)]
     public string Id { get; }

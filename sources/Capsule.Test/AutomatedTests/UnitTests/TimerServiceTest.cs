@@ -2,7 +2,7 @@
 
 namespace Capsule.Test.AutomatedTests.UnitTests;
 
-public class CapsuleTimerServiceTest
+public class TimerServiceTest
 {
     [Test]
     public async Task Timers_enqueue_the_callback_after_the_timeout_has_elapsed_and_timers_are_cleaned_up()
@@ -13,7 +13,7 @@ public class CapsuleTimerServiceTest
         var timeSpan = TimeSpan.Zero;
         var cancellationToken = new CancellationToken();
 
-        var sut = new CapsuleTimerService(
+        var sut = new TimerService(
             synchronizer,
             (ts, ct) =>
             {
@@ -58,7 +58,7 @@ public class CapsuleTimerServiceTest
         var taskCompletionSource = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var synchronizer = new FakeSynchronizer();
 
-        var sut = new CapsuleTimerService(
+        var sut = new TimerService(
             synchronizer,
             (_, ct) =>
             {

@@ -5,7 +5,7 @@
 /// <see cref="CapsuleFeature.ITimers"/> in the capsule implementation. 
 /// </summary>
 /// <remarks>This service is not meant to be used outside of capsule implementations.</remarks>
-public interface ICapsuleTimerService
+public interface ITimerService
 {
     /// <summary>
     /// Register a new timer and start it immediately. The timer will fire after <paramref name="timeout"/> has expired.

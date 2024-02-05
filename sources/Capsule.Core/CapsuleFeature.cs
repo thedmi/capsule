@@ -13,6 +13,6 @@ public static class CapsuleFeature
     [CapsuleIgnore]
     public interface ITimers
     {
-        ICapsuleTimerService Timers { set; }
+        ITimerService Timers { set; }
     }
 }
