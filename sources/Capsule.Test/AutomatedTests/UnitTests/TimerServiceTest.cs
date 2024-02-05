@@ -114,14 +114,14 @@ public class TimerServiceTest
             }
         }
 
-        public async Task EnqueueAwaitResult(Func<Task> impl) => throw new NotImplementedException();
+        public async Task EnqueueAwaitResult(Func<Task> impl) => throw new InvalidOperationException();
 
-        public async Task<TResult> EnqueueAwaitResult<TResult>(Func<Task<TResult>> impl) => throw new NotImplementedException();
+        public async Task<TResult> EnqueueAwaitResult<TResult>(Func<Task<TResult>> impl) => throw new InvalidOperationException();
 
-        public async Task EnqueueAwaitReception(Func<Task> impl) => throw new NotImplementedException();
+        public async Task EnqueueAwaitReception(Func<Task> impl) => throw new InvalidOperationException();
 
         public async Task EnqueueReturn(Func<Task> impl) => InvocationQueue.Enqueue(impl);
 
-        public T PassThrough<T>(Func<T> impl) => throw new NotImplementedException();
+        public T PassThrough<T>(Func<T> impl) => throw new InvalidOperationException();
     }
 }
