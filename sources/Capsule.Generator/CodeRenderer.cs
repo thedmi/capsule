@@ -76,7 +76,7 @@ internal class CodeRenderer
               public static class {{extensionsClassName}}
               {
                   public static {{_definition.InterfaceName}} Encapsulate(this {{_classSymbol.Name}} impl, CapsuleRuntimeContext context) =>
-                      new Hull(impl, context.SynchronizerFactory.Create(impl, context));
+                      new Hull(impl, context.SynchronizerFactory.Create(impl, context.Host));
               
                   public class Hull : {{_definition.InterfaceName}} 
                   {
