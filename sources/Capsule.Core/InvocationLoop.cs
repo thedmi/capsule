@@ -2,7 +2,7 @@ using System.Threading.Channels;
 
 namespace Capsule;
 
-internal class CapsuleInvocationLoop(ChannelReader<Func<Task>> reader, ICapsuleLogger<ICapsuleInvocationLoop> logger)
+internal class InvocationLoop(ChannelReader<Func<Task>> reader, ICapsuleLogger<ICapsuleInvocationLoop> logger)
     : ICapsuleInvocationLoop
 {
     public async Task RunAsync(CancellationToken cancellationToken)
