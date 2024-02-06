@@ -43,7 +43,7 @@ internal class CapsuleInvocationLoop(ChannelReader<Func<Task>> reader, ICapsuleL
         }
         catch (OperationCanceledException e)
         {
-            logger.LogWarning(e, "An invocation loop task was cancelled.");
+            logger.LogWarning(e, "A loop-owned invocation was cancelled.");
         }
         catch (Exception e)
         {

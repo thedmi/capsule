@@ -24,7 +24,7 @@ public class CapsuleSynchronizerFactory(ICapsuleInvocationLoopFactory invocation
             synchronizer.EnqueueReturnInternal(i.InitializeAsync);
         }
         
-        context.Host.RegisterAsync(invocationLoopFactory.Create(channel.Reader));
+        context.Host.Register(invocationLoopFactory.Create(channel.Reader));
         
         return synchronizer;
     }

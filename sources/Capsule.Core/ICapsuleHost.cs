@@ -2,5 +2,5 @@
 
 public interface ICapsuleHost
 {
-    Task RegisterAsync(ICapsuleInvocationLoop capsuleInvocationLoop);
+    void Register(ICapsuleInvocationLoop capsuleInvocationLoop);
 }

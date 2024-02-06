@@ -73,7 +73,7 @@ public class CapsuleHost(ICapsuleLogger<CapsuleHost> logger) : ICapsuleHost
         }
     }
 
-    public async Task RegisterAsync(ICapsuleInvocationLoop capsuleInvocationLoop)
+    public void Register(ICapsuleInvocationLoop capsuleInvocationLoop)
     {
         // Wrap the run method in a local function to force async processing
         async Task RunInvocationLoopAsync()
@@ -81,6 +81,11 @@ public class CapsuleHost(ICapsuleLogger<CapsuleHost> logger) : ICapsuleHost
             await capsuleInvocationLoop.RunAsync(_shutdownCts.Token);
         }
 
-        _taskChannel.Writer.TryWrite(RunInvocationLoopAsync());
+        var success = _taskChannel.Writer.TryWrite(RunInvocationLoopAsync());
+
+        if (!success)
+        {
+            throw new CapsuleEncapsulationException($"Unable to register invocation loop.");
+        }
     }
 }

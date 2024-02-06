@@ -13,9 +13,9 @@ internal class CapsuleSynchronizer(ChannelWriter<Func<Task>> writer, Type capsul
         });
     }
 
-    public async Task<TResult> EnqueueAwaitResult<TResult>(Func<Task<TResult>> impl)
+    public async Task<T> EnqueueAwaitResult<T>(Func<Task<T>> impl)
     {
-        var tcs = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var tcs = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         async Task Func()
         {
@@ -71,7 +71,7 @@ internal class CapsuleSynchronizer(ChannelWriter<Func<Task>> writer, Type capsul
 
         if (!success)
         {
-            throw new CapsuleInvocationException($"Unable to enqueue invocation for capsule of type {capsuleType}");
+            throw new CapsuleInvocationException($"Unable to enqueue invocation for capsule of type {capsuleType}.");
         }
     }
 
