@@ -2,17 +2,10 @@
 
 namespace Capsule;
 
-public class CapsuleInvocationLoopFactory : ICapsuleInvocationLoopFactory
+public class CapsuleInvocationLoopFactory(ICapsuleLogger<ICapsuleInvocationLoop> logger) : ICapsuleInvocationLoopFactory
 {
-    private readonly ICapsuleLogger<ICapsuleInvocationLoop> _logger;
-
-    public CapsuleInvocationLoopFactory(ICapsuleLogger<ICapsuleInvocationLoop> logger)
-    {
-        _logger = logger;
-    }
-
     public ICapsuleInvocationLoop Create(ChannelReader<Func<Task>> reader)
     {
-        return new CapsuleInvocationLoop(reader, _logger);
+        return new CapsuleInvocationLoop(reader, logger);
     }
 }

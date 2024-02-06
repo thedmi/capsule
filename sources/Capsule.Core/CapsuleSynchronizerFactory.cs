@@ -1,16 +1,18 @@
-﻿using System.Threading.Channels;
+﻿namespace Capsule;
 
-namespace Capsule;
-
-public class CapsuleSynchronizerFactory(ICapsuleInvocationLoopFactory invocationLoopFactory)
+public class CapsuleSynchronizerFactory(ICapsuleQueueFactory queueFactory, ICapsuleInvocationLoopFactory invocationLoopFactory)
     : ICapsuleSynchronizerFactory
 {
     public ICapsuleSynchronizer Create(object capsuleImpl, CapsuleRuntimeContext context)
     {
-        var channel = Channel.CreateBounded<Func<Task>>(new BoundedChannelOptions(1023)
-            { SingleReader = true, SingleWriter = false, FullMode = BoundedChannelFullMode.Wait });
+        return CreateSynchronizer(capsuleImpl, context.Host);
+    }
 
-        var synchronizer = new CapsuleSynchronizer(channel.Writer, capsuleImpl.GetType());
+    private ICapsuleSynchronizer CreateSynchronizer(object capsuleImpl, ICapsuleHost host)
+    {
+        var queue = queueFactory.CreateSynchronizerQueue();
+
+        var synchronizer = new CapsuleSynchronizer(queue.Writer, capsuleImpl.GetType());
 
         // If the implementation uses timers, inject the timer service
         if (capsuleImpl is CapsuleFeature.ITimers t)
@@ -24,7 +26,7 @@ public class CapsuleSynchronizerFactory(ICapsuleInvocationLoopFactory invocation
             synchronizer.EnqueueReturnInternal(i.InitializeAsync);
         }
         
-        context.Host.Register(invocationLoopFactory.Create(channel.Reader));
+        host.Register(invocationLoopFactory.Create(queue.Reader));
         
         return synchronizer;
     }

@@ -12,6 +12,7 @@ public static class CapsuleServiceCollectionExtensions
         services.AddSingleton<ICapsuleHost>(p => p.GetRequiredService<CapsuleHost>());
         services.AddSingleton<ICapsuleSynchronizerFactory, CapsuleSynchronizerFactory>();
         services.AddSingleton<ICapsuleInvocationLoopFactory, CapsuleInvocationLoopFactory>();
+        services.AddSingleton<ICapsuleQueueFactory, CapsuleQueueFactory>();
         
         services.AddSingleton<CapsuleRuntimeContext>();
         
