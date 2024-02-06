@@ -2,7 +2,7 @@
 
 namespace Capsule;
 
-public class CapsuleQueueFactory(int? capacity = null, BoundedChannelFullMode? fullMode = null) : ICapsuleQueueFactory
+public class DefaultQueueFactory(int? capacity = null, BoundedChannelFullMode? fullMode = null) : ICapsuleQueueFactory
 {
     private const int DefaultCapacity = 1023;
 

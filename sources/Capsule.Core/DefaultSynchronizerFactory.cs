@@ -1,6 +1,6 @@
 ﻿namespace Capsule;
 
-public class CapsuleSynchronizerFactory(
+public class DefaultSynchronizerFactory(
     ICapsuleQueueFactory queueFactory,
     ICapsuleInvocationLoopFactory invocationLoopFactory) : ICapsuleSynchronizerFactory
 {

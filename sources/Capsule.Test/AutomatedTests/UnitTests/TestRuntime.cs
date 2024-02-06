@@ -13,9 +13,9 @@ public static class TestRuntime
 
         return new(
             host,
-            new CapsuleSynchronizerFactory(
-                new CapsuleQueueFactory(),
-                new CapsuleInvocationLoopFactory(
+            new DefaultSynchronizerFactory(
+                new DefaultQueueFactory(),
+                new DefaultInvocationLoopFactory(
                     loggerFactory.CreateLogger<ICapsuleInvocationLoop>().AsCapsuleLogger())));
     }
 }
