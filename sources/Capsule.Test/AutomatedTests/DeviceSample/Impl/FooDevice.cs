@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Capsule.Test.AutomatedTests.DeviceSample.Impl;
 
-[Capsule(InterfaceName = nameof(IDevice), GenerateInterface = false)]
+[Capsule(InterfaceName = nameof(IDevice), InterfaceGeneration = CapsuleInterfaceGeneration.Disable)]
 public class FooDevice : IDevice, CapsuleFeature.IInitializer, CapsuleFeature.ITimers
 {
     // ReSharper disable once NotAccessedField.Local

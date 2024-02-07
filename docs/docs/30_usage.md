@@ -23,15 +23,25 @@ The following subsections provide further details on these two parts.
 
 ### Interface Generation
 
-Capsule generator generates a capsule interface for each capsule implementation. By default, the interface has the implementation class' name with an "I" prefix. This can be customized through the `CapsuleAttribute.InterfaceName` property.
+Capsule generator is able to generate a capsule interface for each capsule implementation.
 
-Also, you can bring your own capsule interface. Capsule uses the following logic to decide interface generation:
+By default, Capsule considers the list of implemented interfaces on the Capsule implementation:
 
-1. If `CapsuleAttribute.GenerateInterface` is specified, that value determines if an interface is generated.
-1. If the implementation implements exactly one interface that is not `[CapsuleIgnore]` attributed, that interface will be used and no additional interface will be generated.
-1. Otherwise, the generator defaults to generating an interface.
+- If there is exactly one interface that is not `[CapsuleIgnore]` attributed, that interface is used and no additional interface is generated.
+- Otherwise, an interface with the same name as the implementation, but prefixed with an "I", will be generated.
 
-If you provide the interface yourself, you'll need to ensure it matches the exposed methods and properties.
+Interface generation can be customized through `CapsuleAttribute.InterfaceGeneration`:
+
+- `Enable`: Generate an interface.
+- `Disable`: Do not generate an interface.
+- `Auto`: The default behavior described above applied.
+
+The interface name can be customized through `CapsuleAttribute.InterfaceName`:
+
+- If this property is specified and non-null, that interface name will be used.
+- Otherwise, the default behavior applies.
+
+If you bring your own interface, you'll need to ensure it matches the exposed methods and properties.
 
 
 ### Exposing Methods & Properties
