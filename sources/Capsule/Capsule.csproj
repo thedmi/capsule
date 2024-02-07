@@ -15,6 +15,7 @@
     <Description>Automatic thread-safe objects</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <AssemblyTitle>Capsule</AssemblyTitle>
+    <PackageProjectUrl>https://github.com/thedmi/capsule</PackageProjectUrl>
   </PropertyGroup>
   
   <ItemGroup>

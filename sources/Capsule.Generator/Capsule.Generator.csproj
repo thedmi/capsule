@@ -19,6 +19,8 @@
     <Description>Automatic thread-safe objects</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <AssemblyTitle>Capsule Generator</AssemblyTitle>
+    <PackageProjectUrl>https://github.com/thedmi/capsule</PackageProjectUrl>
+    
     <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Do not include the generator as a lib dependency -->
   </PropertyGroup>
 
