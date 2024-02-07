@@ -6,10 +6,12 @@ public class DefaultQueueFactory(int? capacity = null, BoundedChannelFullMode? f
 {
     private const int DefaultCapacity = 1023;
 
-    public Channel<Func<Task>> CreateSynchronizerQueue() =>
-        Channel.CreateBounded<Func<Task>>(
+    public Channel<Func<Task>> CreateSynchronizerQueue()
+    {
+        return Channel.CreateBounded<Func<Task>>(
             new BoundedChannelOptions(capacity ?? DefaultCapacity)
             {
                 SingleReader = true, SingleWriter = false, FullMode = fullMode ?? BoundedChannelFullMode.Wait
             });
+    }
 }

@@ -1,5 +1,8 @@
 namespace Capsule;
 
+/// <summary>
+/// The synchronizer takes the invocations and enqueues them in the thread-safe queue.
+/// </summary>
 public interface ICapsuleSynchronizer
 {
     /// <summary>

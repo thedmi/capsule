@@ -14,8 +14,9 @@ public class Runner
 
         var runtimeContext = new CapsuleRuntimeContext(
             host,
-            new CapsuleSynchronizerFactory(
-                new CapsuleInvocationLoopFactory(
+            new DefaultSynchronizerFactory(
+                new DefaultQueueFactory(),
+                new DefaultInvocationLoopFactory(
                     loggerFactory.CreateLogger<ICapsuleInvocationLoop>().AsCapsuleLogger())));
         
         var factory = new SomeCapsule().Encapsulate(runtimeContext);

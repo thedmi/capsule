@@ -7,7 +7,8 @@
 public class TimerReference(Task timerTask, CancellationTokenSource cancellationTokenSource)
 {
     /// <summary>
-    /// The task that represents the delayed execution.
+    /// The task that represents the delay of the timer. This task completes when the timer's callback has been
+    /// enqueued.
     /// </summary>
     public Task TimerTask { get; } = timerTask;
 
