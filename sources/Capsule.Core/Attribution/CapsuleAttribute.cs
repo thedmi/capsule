@@ -16,5 +16,5 @@ public sealed class CapsuleAttribute : Attribute
     /// <summary>
     /// Whether or not to generate the capsule interface.
     /// </summary>
-    public bool GenerateInterface { get; init; } = true;
+    public CapsuleInterfaceGeneration InterfaceGeneration { get; init; } = CapsuleInterfaceGeneration.Auto;
 }

@@ -6,7 +6,7 @@ internal class CapsuleDefinitionResolver
 {
     private const string InterfaceNamePropertyName = "InterfaceName";
 
-    private const string GenerateInterfacePropertyName = "GenerateInterface";
+    private const string InterfaceGenerationPropertyName = "InterfaceGeneration";
 
     public CapsuleDefinition GetCapsuleDefinition(INamedTypeSymbol classSymbol)
     {
@@ -25,9 +25,19 @@ internal class CapsuleDefinitionResolver
         var interfaceName = capsuleAttribute.GetProperty(InterfaceNamePropertyName)?.Value as string ??
                             singleInterface?.Name ?? "I" + classSymbol.Name;
 
-        var generateInterface = capsuleAttribute.GetProperty(GenerateInterfacePropertyName)?.Value as bool? ??
-                                singleInterface == null;
+        var interfaceGeneration = DetermineInterfaceGeneration(capsuleAttribute) ??
+                                  (singleInterface == null
+                                      ? InterfaceGeneration.Enable
+                                      : InterfaceGeneration.Disable);
+
+        var generateInterface = interfaceGeneration == InterfaceGeneration.Enable ||
+                                (interfaceGeneration == InterfaceGeneration.Auto && singleInterface == null);
 
         return new(interfaceName, generateInterface);
     }
+
+    private static InterfaceGeneration? DetermineInterfaceGeneration(AttributeData capsuleAttribute) =>
+        capsuleAttribute.GetProperty(InterfaceGenerationPropertyName)?.Value is int intVal
+            ? (InterfaceGeneration)intVal
+            : null;
 }

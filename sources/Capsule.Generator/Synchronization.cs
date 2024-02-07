@@ -3,7 +3,7 @@
 internal enum Synchronization
 {
     // Enum literals must match method names in CapsuleSynchronizer, and int values
-    // must match those in CapsulSynchronization.
+    // must match those in CapsuleSynchronization.
     
     EnqueueAwaitResult,
     EnqueueAwaitReception,
