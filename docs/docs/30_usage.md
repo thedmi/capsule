@@ -3,7 +3,14 @@
 
 ## Installation
 
-Capsule is shipped as a set of Nuget packages. To get started quickly, just install the `Capsule` convenience package. If you need more control or have advanced use cases, packages can be used individually as well:
+Capsule is shipped as a set of Nuget packages:
+
+[![Capsule](https://img.shields.io/nuget/v/Capsule?label=Capsule)](https://www.nuget.org/packages/Capsule/)
+[![Capsule.Core](https://img.shields.io/nuget/v/Capsule.Core?label=Capsule.Core)](https://www.nuget.org/packages/Capsule.Core/)
+[![Capsule.Generator](https://img.shields.io/nuget/v/Capsule.Generator?label=Capsule.Generator)](https://www.nuget.org/packages/Capsule.Generator/)
+[![Capsule.Extensions.DependencyInjection](https://img.shields.io/nuget/v/Capsule.Extensions.DependencyInjection?label=Capsule.Extensions.DependencyInjection)](https://www.nuget.org/packages/Capsule.Extensions.DependencyInjection/)
+
+To get started quickly, just install the `Capsule` convenience package. If you need more control or have advanced use cases, packages can be used individually as well:
 
 - `Capsule.Core`: Core functionality such as invocation loop and synchronizer implementations. Lightweight library without upstream dependencies.
 - `Capsule.Generator`: C# source generator that generates interfaces and encapsulation boilerplate based on attributes.
