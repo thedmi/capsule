@@ -26,7 +26,7 @@ public class TimerServiceTest
         var callback = async Task () => callbackCalled = true;
 
         // Act 1 - start timer
-        var timerRef = sut.StartNew(TimeSpan.FromSeconds(30), callback);
+        var timerRef = sut.StartSingleShot(TimeSpan.FromSeconds(30), callback);
         await Task.Delay(100);
 
         // Assert 1 - awaiting delay, no invocation enqueued yet
@@ -72,7 +72,7 @@ public class TimerServiceTest
         var callback = async Task () => callbackCalled = true;
 
         // Act 1 - start timer
-        var timerRef = sut.StartNew(TimeSpan.FromSeconds(30), callback);
+        var timerRef = sut.StartSingleShot(TimeSpan.FromSeconds(30), callback);
         await Task.Delay(100);
 
         // Assert 1 - awaiting delay, no invocation enqueued yet

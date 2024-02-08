@@ -32,7 +32,7 @@ public class FooDevice : IDevice, CapsuleFeature.IInitializer, CapsuleFeature.IT
     [Expose]
     public async Task<bool> SetOutputAsync(string id, bool value)
     {
-        Timers!.StartNew(TimeSpan.FromSeconds(10), async () => await ReadIosAsync());
+        Timers!.StartSingleShot(TimeSpan.FromSeconds(10), async () => await ReadIosAsync());
         return true;
     }
 

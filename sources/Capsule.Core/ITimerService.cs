@@ -13,7 +13,7 @@ public interface ITimerService
     /// the capsule to guarantee thread-safety in timer callbacks.
     /// </summary>
     /// <returns>A reference to the timer that allows cancelling the timer before it expires.</returns>
-    TimerReference StartNew(TimeSpan timeout, Func<Task> callback);
+    TimerReference StartSingleShot(TimeSpan timeout, Func<Task> callback);
 
     /// <summary>
     /// Cancel all pending timers. 

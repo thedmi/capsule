@@ -21,7 +21,7 @@ internal class TimerService(
     // Internal for unit test access
     internal readonly List<TimerReference> Timers = [];
 
-    public TimerReference StartNew(TimeSpan timeout, Func<Task> callback)
+    public TimerReference StartSingleShot(TimeSpan timeout, Func<Task> callback)
     {
         if (timeout < TimeSpan.Zero)
         {
