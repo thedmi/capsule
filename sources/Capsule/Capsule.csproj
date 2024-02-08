@@ -16,7 +16,12 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <AssemblyTitle>Capsule</AssemblyTitle>
     <PackageProjectUrl>https://github.com/thedmi/capsule</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\release\nuget-readmes\Capsule.md" Pack="true" PackagePath="\README.md"/>
+  </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\Capsule.Core\Capsule.Core.csproj" />

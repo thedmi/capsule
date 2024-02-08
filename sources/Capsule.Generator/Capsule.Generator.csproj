@@ -20,9 +20,14 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <AssemblyTitle>Capsule Generator</AssemblyTitle>
     <PackageProjectUrl>https://github.com/thedmi/capsule</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     
     <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Do not include the generator as a lib dependency -->
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\release\nuget-readmes\Capsule.Generator.md" Pack="true" PackagePath="\README.md"/>
+  </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <NoWarn>1701;1702;NU5128</NoWarn>
