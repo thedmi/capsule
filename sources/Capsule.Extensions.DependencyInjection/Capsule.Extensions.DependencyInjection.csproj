@@ -15,8 +15,13 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <AssemblyTitle>Capsule.Extensions.DependencyInjection</AssemblyTitle>
     <PackageProjectUrl>https://github.com/thedmi/capsule</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
-  
+
+  <ItemGroup>
+    <None Include="..\..\release\nuget-readmes\Capsule.Extensions.DependencyInjection.md" Pack="true" PackagePath="\README.md"/>
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
