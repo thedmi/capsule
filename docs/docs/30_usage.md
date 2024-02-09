@@ -48,7 +48,8 @@ The interface name can be customized through `CapsuleAttribute.InterfaceName`:
 - If this property is specified and non-null, that interface name will be used.
 - Otherwise, the default behavior applies.
 
-If you bring your own interface, you'll need to ensure it matches the exposed methods and properties.
+!!! note
+    If you bring your own interface, you'll need to ensure it matches the exposed methods and properties. Otherwise, the build will fail.
 
 
 ### Exposing Methods & Properties
@@ -89,3 +90,26 @@ Capsule treats cancellation tokens on exposed parameters as any other parameter,
 In case the cancellation leads to an `OperationCanceledException` being thrown out of the capsule implementation, the same behavior as outlined in [excpetion handling](#exception-handling) applies.
 
 In any case, cancellation does not remove the invocation from the queue or otherwise change synchronization behavior.
+
+
+## Opt-In Features
+
+### Async Initializer
+
+Capsule implementations that need to perform asynchronous initialization can implement the `CapsuleFeature.IInitializer` interface, which defines a `Task InitializeAsync()` method.
+
+Capsule will enqueue a single call to this method when a capsule is instantiated through `Encapsulate()`, so the invocation is guaranteed to be the first one to end up in the invocation queue.
+
+
+### Timers
+
+Run-to-completion semantics dictate that individual runs should complete quickly. In other words, awaiting large delays or even sleeping is discouraged and will break responsiveness of the capsule.
+
+To work around this limitation, timers can be used by implementing `CapsuleFeature.ITimers`. When implemented, Capsule will inject an `ITimerService` during encapsulation.
+
+!!! note
+    The timer service will not be available when the constructor of the capsule implementation runs as this would create a chicken-and-egg problem. If you need to start timers when the capsule is instantiated, use an [async initializer](#async-initializer).
+
+You can then use the timer service to register callbacks with a timeout through `StartSingleShot()`. When the timeout expires, the callback will be enqueued as just another invocation. Timers thus adheres to the thread-safety guarantees of the capsule.
+
+Pending timers can also be cancelled. Either cancel a single timer through its `TimerReference`, or cancel all timers through `ITimerService.CancelAll()`.
