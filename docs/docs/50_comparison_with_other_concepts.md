@@ -17,9 +17,9 @@ Capsules, on the other hand, are explicitly created and destroyed, and they alwa
 
 ### Capsule vs. Akka.NET / Proto.Actor
 
-In contrast to "pure" actor implementations such as [Akka.NET](https://getakka.net/) or [Proto.Actor](https://proto.actor/), Capsule directly supports object-oriented interfaces where the caller receives return values directly. This avoids the request/response pattern of pure actors that often lead to accidental complexity in the form of synchronization state machines.
+In contrast to "pure" actor implementations such as [Akka.NET](https://getakka.net/) or [Proto.Actor](https://proto.actor/), Capsule supports ordinary object-oriented interfaces and doesn't force every interaction to go through `Tell()` or `Ask()` methods. So invoking a method on a Capsule vs on an ordinary object is *indistinguishable* from the caller's perspective.
 
-Capsule is meant to solve individual multi-threading problems where necessary, leaving the rest of the application unaffected. This is different from the "everything is an actor" approach that Akka.NET and Proto.Actor take.
+Also, Capsule is meant to solve individual multi-threading problems where necessary, leaving the rest of the application unaffected. This is different from the "everything is an actor" approach that Akka.NET and Proto.Actor take.
 
 So if you're looking for an all-in actor framework with lots of features geared towards that approach, use Akka.NET or Proto.Actor. If, on the other hand, you want to use actors only in a part of the application and have actor interfaces that feel object-oriented, Capsule is for you.
 
