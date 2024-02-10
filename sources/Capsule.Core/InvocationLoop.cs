@@ -11,7 +11,7 @@ internal class InvocationLoop(ChannelReader<Func<Task>> reader, ICapsuleLogger<I
         {
             try
             {
-                var channelStillOpen = await reader.WaitToReadAsync(cancellationToken);
+                var channelStillOpen = await reader.WaitToReadAsync(cancellationToken).ConfigureAwait(false);
 
                 // The synchronizer will close the channel when it is finalized. This avoids keeping invocation loop
                 // instances around for capsules that already have been GCed.
@@ -30,7 +30,7 @@ internal class InvocationLoop(ChannelReader<Func<Task>> reader, ICapsuleLogger<I
             // (BackgroundService does employ such a timeout).
             while (reader.TryRead(out var f))
             {
-                await ExecuteAsync(f);
+                await ExecuteAsync(f).ConfigureAwait(false);
             }
         }
     }
@@ -39,7 +39,7 @@ internal class InvocationLoop(ChannelReader<Func<Task>> reader, ICapsuleLogger<I
     {
         try
         {
-            await invocation();
+            await invocation().ConfigureAwait(false);
         }
         catch (OperationCanceledException e)
         {

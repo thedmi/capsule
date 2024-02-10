@@ -42,13 +42,13 @@ internal class TimerService(
         {
             try
             {
-                await _delayProvider(timeout, cts.Token);
+                await _delayProvider(timeout, cts.Token).ConfigureAwait(false);
 
                 if (!cts.IsCancellationRequested)
                 {
                     // We're in a "free floating" task, so awaiting the result doesn't make sense here. Instead,
                     // we ensure exceptions are handled by the invocation loop.
-                    await synchronizer.EnqueueReturn(callback);
+                    await synchronizer.EnqueueReturn(callback).ConfigureAwait(false);
                 }
             }
             catch (OperationCanceledException) { }
@@ -57,7 +57,7 @@ internal class TimerService(
                 // Enqueue a second invocation for timer management. We can't do this directly, as the callback
                 // (enqueued above) will likely not have completed yet. This is done in a finally block to ensure timers
                 // are cleaned up even when they are cancelled.
-                await synchronizer.EnqueueReturn(ClearElapsedTimersAsync);
+                await synchronizer.EnqueueReturn(ClearElapsedTimersAsync).ConfigureAwait(false);
             }
         }
     }
@@ -73,7 +73,7 @@ internal class TimerService(
     private async Task ClearElapsedTimersAsync()
     {
         var completed = TimerTasks.RemoveCompleted();
-        await Task.WhenAll(completed);
+        await Task.WhenAll(completed).ConfigureAwait(false);
 
         Timers.RemoveAll(t => completed.Contains(t.TimerTask));
     }

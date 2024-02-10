@@ -8,9 +8,9 @@ internal class CapsuleSynchronizer(ChannelWriter<Func<Task>> writer, Type capsul
     {
         await EnqueueAwaitResult<object?>(async () =>
         {
-            await impl();
+            await impl().ConfigureAwait(false);
             return null;
-        });
+        }).ConfigureAwait(false);
     }
 
     public async Task<T> EnqueueAwaitResult<T>(Func<Task<T>> impl)
@@ -21,7 +21,7 @@ internal class CapsuleSynchronizer(ChannelWriter<Func<Task>> writer, Type capsul
         {
             try
             {
-                var result = await impl();
+                var result = await impl().ConfigureAwait(false);
                 tcs.SetResult(result);
             }
             catch (Exception e)
@@ -32,7 +32,7 @@ internal class CapsuleSynchronizer(ChannelWriter<Func<Task>> writer, Type capsul
 
         Write(Func);
 
-        return await tcs.Task;
+        return await tcs.Task.ConfigureAwait(false);
     }
 
     public async Task EnqueueAwaitReception(Func<Task> impl)
@@ -42,12 +42,12 @@ internal class CapsuleSynchronizer(ChannelWriter<Func<Task>> writer, Type capsul
         async Task Func()
         {
             tcs.SetResult(null!);
-            await impl();
+            await impl().ConfigureAwait(false);
         }
 
         Write(Func);
 
-        await tcs.Task;
+        await tcs.Task.ConfigureAwait(false);
     }
 
     public async Task EnqueueReturn(Func<Task> impl)

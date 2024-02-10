@@ -28,14 +28,15 @@ public class CapsuleHost(ICapsuleLogger<CapsuleHost> logger) : ICapsuleHost
 
             try
             {
-                await Task.WhenAny(_taskChannel.Reader.WaitToReadAsync(stoppingToken).AsTask(), anyEventLoopTask);
+                await Task.WhenAny(_taskChannel.Reader.WaitToReadAsync(stoppingToken).AsTask(), anyEventLoopTask)
+                    .ConfigureAwait(false);
             }
             catch (OperationCanceledException) { }
 
             if (anyEventLoopTask.IsCompleted)
             {
                 // Handle completed tasks and remove them from the list, keep the still running ones
-                await SeparateCompletedTasksAsync();
+                await SeparateCompletedTasksAsync().ConfigureAwait(false);
             }
             
             while (_taskChannel.Reader.TryRead(out var newTask))
@@ -46,7 +47,7 @@ public class CapsuleHost(ICapsuleLogger<CapsuleHost> logger) : ICapsuleHost
         }
 
         // Shutting down, so await all tasks
-        await Task.WhenAll(_invocationLoopTasks);
+        await Task.WhenAll(_invocationLoopTasks).ConfigureAwait(false);
     }
 
     private async Task SeparateCompletedTasksAsync()
@@ -55,7 +56,7 @@ public class CapsuleHost(ICapsuleLogger<CapsuleHost> logger) : ICapsuleHost
         
         foreach (var completedTask in completed)
         {
-            await HandleCompletedTaskAsync(completedTask);
+            await HandleCompletedTaskAsync(completedTask).ConfigureAwait(false);
         }
     }
 
@@ -65,7 +66,7 @@ public class CapsuleHost(ICapsuleLogger<CapsuleHost> logger) : ICapsuleHost
         {
             // The invocation loop task should always complete successfully, otherwise there is an implementation error
             // in CapsuleInvocationLoop.
-            await task;
+            await task.ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -78,7 +79,7 @@ public class CapsuleHost(ICapsuleLogger<CapsuleHost> logger) : ICapsuleHost
         // Wrap the run method in a local function to force async processing
         async Task RunInvocationLoopAsync()
         {
-            await capsuleInvocationLoop.RunAsync(_shutdownCts.Token);
+            await capsuleInvocationLoop.RunAsync(_shutdownCts.Token).ConfigureAwait(false);
         }
 
         var success = _taskChannel.Writer.TryWrite(RunInvocationLoopAsync());
