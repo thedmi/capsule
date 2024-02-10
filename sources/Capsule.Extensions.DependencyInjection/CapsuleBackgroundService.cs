@@ -10,6 +10,6 @@ public class CapsuleBackgroundService(CapsuleHost host) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await host.RunAsync(stoppingToken);
+        await host.RunAsync(stoppingToken).ConfigureAwait(false);
     }
 }
