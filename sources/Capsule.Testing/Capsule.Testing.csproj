@@ -8,25 +8,30 @@
     <WarningsAsErrors>Nullable</WarningsAsErrors>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
-    <RootNamespace>Capsule</RootNamespace>
+    <RootNamespace>Capsule.Testing</RootNamespace>
 
-    <PackageId>Capsule</PackageId>
+    <PackageId>Capsule.Testing</PackageId>
     <Authors>Dani Michel</Authors>
-    <Description>Automatic thread-safe objects</Description>
+    <Description>Test support library for Capsule.Core</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <AssemblyTitle>Capsule</AssemblyTitle>
+    <AssemblyTitle>Capsule.Testing</AssemblyTitle>
     <PackageProjectUrl>https://github.com/thedmi/capsule</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\release\nuget-readmes\Capsule.md" Pack="true" PackagePath="\README.md"/>
+    <None Include="..\..\release\nuget-readmes\Capsule.Testing.md" Pack="true" PackagePath="\README.md"/>
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\Capsule.Core\Capsule.Core.csproj" />
-    <ProjectReference Include="..\Capsule.Extensions.DependencyInjection\Capsule.Extensions.DependencyInjection.csproj" />
-    
-    <ProjectReference Include="..\Capsule.Generator\Capsule.Generator.csproj" OutputItemType="Analyzer" />
   </ItemGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <NoWarn>1701;1702;1998</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <NoWarn>1701;1702;1998</NoWarn>
+  </PropertyGroup>
 </Project>
