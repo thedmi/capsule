@@ -19,7 +19,7 @@ public interface ITimerService
     /// Cancel all pending timers. 
     /// </summary>
     /// <remarks>
-    /// Callbacks that have been enqueued because their timer has elapsed will remain enqueued.
+    /// Callbacks that have already been enqueued because their timer has elapsed will remain enqueued.
     /// </remarks>
     void CancelAll();
 }

@@ -10,7 +10,7 @@ public class TimerReference(Task timerTask, CancellationTokenSource cancellation
     /// The task that represents the delay of the timer. This task completes when the timer's callback has been
     /// enqueued.
     /// </summary>
-    public Task TimerTask { get; } = timerTask;
+    internal Task TimerTask { get; } = timerTask;
 
     /// <summary>
     /// Cancel this timer. If the timer has already fired and the callback enqueued, this is a no-op.
