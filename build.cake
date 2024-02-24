@@ -11,6 +11,7 @@ var conveniencePackageProject = sourceDir + File("Capsule/Capsule.csproj");
 var testProject = sourceDir + File("Capsule.Test/Capsule.Test.csproj");
 var coreLibProject = sourceDir + File("Capsule.Core/Capsule.Core.csproj");
 var extensionsLibProject = sourceDir + File("Capsule.Extensions.DependencyInjection/Capsule.Extensions.DependencyInjection.csproj");
+var testSupportProject = sourceDir + File("Capsule.Testing/Capsule.Testing.csproj");
 var generatorProject = sourceDir + File("Capsule.Generator/Capsule.Generator.csproj");
 
 var releaseDir = Directory("./release/lib");
@@ -48,6 +49,7 @@ Task("Lib:Build")
     DotNetPack(conveniencePackageProject, libSettings);
     DotNetPack(coreLibProject, libSettings);
     DotNetPack(extensionsLibProject, libSettings);
+    DotNetPack(testSupportProject, libSettings);
         
     DotNetPack(generatorProject, new DotNetPackSettings {
         Configuration = configuration,
