@@ -113,3 +113,23 @@ To work around this limitation, timers can be used by implementing `CapsuleFeatu
 You can then use the timer service to register callbacks with a timeout through `StartSingleShot()`. When the timeout expires, the callback will be enqueued as just another invocation. Timers thus adheres to the thread-safety guarantees of the capsule.
 
 Pending timers can also be cancelled. Either cancel a single timer through its `TimerReference`, or cancel all timers through `ITimerService.CancelAll()`.
+
+
+## Testing
+
+One of the advantages of Capsule is that implementations remain free of synchronization code like locks or similar. Consequently, implementations can simply be unit tested by omitting the encapsulation in tests.
+
+Generally, the following approaches work best:
+
+- Use the unencapsulated implementation in unit tests.
+- Use the whole Capsule in integration tests (integration as in "tests the combination of several classes together").
+
+
+### Test Support Library
+
+[![Capsule.Testing](https://img.shields.io/nuget/v/Capsule.Testing?label=Capsule.Testing)](https://www.nuget.org/packages/Capsule.Testing/)
+
+A test support library called `Capsule.Testing` is available, but is not needed for most cases. It provides fake implementations of Capsule infrastructure that helps avoiding boilerplate in tests:
+
+- `FakeTimerService`: An `ITimerService` that can be injected into capsules that use [Timers](#timers). Timer firing can be controlled from test code to avoid delays in tests.
+- `FakeSynchronizer`: An `ICapsuleSynchronizer` that just executes invocations directly.
