@@ -6,12 +6,14 @@ public class DefaultSynchronizerFactory(
 {
     public ICapsuleSynchronizer Create(object capsuleImpl, ICapsuleHost host)
     {
+        var capsuleType = capsuleImpl.GetType();
+        
         var queue = queueFactory.CreateSynchronizerQueue();
-        var synchronizer = new CapsuleSynchronizer(queue.Writer, capsuleImpl.GetType());
+        var synchronizer = new CapsuleSynchronizer(queue.Writer, capsuleType);
 
         ApplyFeatures(capsuleImpl, synchronizer);
 
-        host.Register(invocationLoopFactory.Create(queue.Reader));
+        host.Register(invocationLoopFactory.Create(queue.Reader, capsuleType));
 
         return synchronizer;
     }

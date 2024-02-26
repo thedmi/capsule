@@ -48,6 +48,8 @@ public class CapsuleHost(ICapsuleLogger<CapsuleHost> logger) : ICapsuleHost
 
         // Shutting down, so await all tasks
         await Task.WhenAll(_invocationLoopTasks).ConfigureAwait(false);
+        
+        logger.LogDebug("Capsule host terminated");
     }
 
     private async Task SeparateCompletedTasksAsync()

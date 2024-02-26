@@ -4,9 +4,9 @@ namespace Capsule.Extensions.DependencyInjection;
 
 public class LoggingAdapter<T>(ILogger<T> logger) : ICapsuleLogger<T>
 {
-    public void LogDebug(string message)
+    public void LogDebug(string message, params object?[] args)
     {
-        logger.LogDebug(message);
+        logger.LogDebug(message, args);
     }
 
     public void LogWarning(Exception exception, string message)

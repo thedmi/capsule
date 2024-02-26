@@ -1,5 +1,9 @@
 ﻿using Capsule.Extensions.DependencyInjection;
 
+using Microsoft.Extensions.Logging;
+
+using Moq;
+
 using Shouldly;
 
 namespace Capsule.Test.AutomatedTests.UnitTests;
@@ -21,7 +25,9 @@ public class AwaitEnqueueingTest
     private static async Task TestSuccessful(Func<IAwaitEnqueueingTestSubject, Task> testSubjectCall)
     {
         var runtimeContext = TestRuntime.Create();
-        var hostedService = new CapsuleBackgroundService((CapsuleHost)runtimeContext.Host);
+        var hostedService = new CapsuleBackgroundService(
+            (CapsuleHost)runtimeContext.Host,
+            Mock.Of<ILogger<CapsuleBackgroundService>>());
         
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -76,7 +82,9 @@ public class AwaitEnqueueingTest
     private static async Task TestException(Func<IAwaitEnqueueingTestSubject, Task> testSubjectCall)
     {
         var runtimeContext = TestRuntime.Create();
-        var hostedService = new CapsuleBackgroundService((CapsuleHost)runtimeContext.Host);
+        var hostedService = new CapsuleBackgroundService(
+            (CapsuleHost)runtimeContext.Host,
+            Mock.Of<ILogger<CapsuleBackgroundService>>());
         
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         
@@ -116,7 +124,9 @@ public class AwaitEnqueueingTest
     private static async Task TestCancellation(Func<IAwaitEnqueueingTestSubject, Task> testSubjectCall)
     {
         var runtimeContext = TestRuntime.Create();
-        var hostedService = new CapsuleBackgroundService((CapsuleHost)runtimeContext.Host);
+        var hostedService = new CapsuleBackgroundService(
+            (CapsuleHost)runtimeContext.Host,
+            Mock.Of<ILogger<CapsuleBackgroundService>>());
         
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         

@@ -4,5 +4,5 @@ namespace Capsule;
 
 public interface ICapsuleInvocationLoopFactory
 {
-    ICapsuleInvocationLoop Create(ChannelReader<Func<Task>> reader);
+    ICapsuleInvocationLoop Create(ChannelReader<Func<Task>> reader, Type capsuleType);
 }
