@@ -1,5 +1,9 @@
 ﻿using Capsule.Extensions.DependencyInjection;
 
+using Microsoft.Extensions.Logging;
+
+using Moq;
+
 using Shouldly;
 
 namespace Capsule.Test.AutomatedTests.UnitTests;
@@ -10,7 +14,9 @@ public class AwaitReceptionTest
     public async Task Await_reception_returns_when_invocation_was_started()
     {
         var runtimeContext = TestRuntime.Create();
-        var hostedService = new CapsuleBackgroundService((CapsuleHost)runtimeContext.Host);
+        var hostedService = new CapsuleBackgroundService(
+            (CapsuleHost)runtimeContext.Host,
+            Mock.Of<ILogger<CapsuleBackgroundService>>());
         
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -53,7 +59,9 @@ public class AwaitReceptionTest
     public async Task Await_reception_does_not_throw_exception_when_capsule_method_throws()
     {
         var runtimeContext = TestRuntime.Create();
-        var hostedService = new CapsuleBackgroundService((CapsuleHost)runtimeContext.Host);
+        var hostedService = new CapsuleBackgroundService(
+            (CapsuleHost)runtimeContext.Host,
+            Mock.Of<ILogger<CapsuleBackgroundService>>());
         
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         
@@ -82,7 +90,9 @@ public class AwaitReceptionTest
     public async Task Await_reception_does_not_throw_exception_when_capsule_method_is_cancelled()
     {
         var runtimeContext = TestRuntime.Create();
-        var hostedService = new CapsuleBackgroundService((CapsuleHost)runtimeContext.Host);
+        var hostedService = new CapsuleBackgroundService(
+            (CapsuleHost)runtimeContext.Host,
+            Mock.Of<ILogger<CapsuleBackgroundService>>());
         
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         

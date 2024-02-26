@@ -2,11 +2,16 @@ using System.Threading.Channels;
 
 namespace Capsule;
 
-internal class InvocationLoop(ChannelReader<Func<Task>> reader, ICapsuleLogger<ICapsuleInvocationLoop> logger)
+internal class InvocationLoop(
+    ChannelReader<Func<Task>> reader,
+    Type capsuleType,
+    ICapsuleLogger<ICapsuleInvocationLoop> logger)
     : ICapsuleInvocationLoop
 {
     public async Task RunAsync(CancellationToken cancellationToken)
     {
+        logger.LogDebug("Starting invocation loop for capsule {CapsuleType}...", capsuleType.FullName);
+        
         while (!cancellationToken.IsCancellationRequested)
         {
             try
@@ -33,6 +38,8 @@ internal class InvocationLoop(ChannelReader<Func<Task>> reader, ICapsuleLogger<I
                 await ExecuteAsync(f).ConfigureAwait(false);
             }
         }
+        
+        logger.LogDebug("Invocation loop for capsule {CapsuleType} terminated", capsuleType.FullName);
     }
 
     private async Task ExecuteAsync(Func<Task> invocation)
