@@ -2,9 +2,9 @@
 
 public class FakeSynchronizer : ICapsuleSynchronizer
 {
-    public Task EnqueueAwaitResult(Func<Task> impl) => impl();
+    public Task EnqueueAwaitResult(Func<Task> impl, bool passThroughIfQueueClosed = false) => impl();
 
-    public Task<T> EnqueueAwaitResult<T>(Func<Task<T>> impl) => impl();
+    public Task<T> EnqueueAwaitResult<T>(Func<Task<T>> impl, bool passThroughIfQueueClosed = false) => impl();
 
     public Task EnqueueAwaitReception(Func<Task> impl) => impl();
 
