@@ -17,6 +17,7 @@
     <AssemblyTitle>Capsule.Core</AssemblyTitle>
     <PackageProjectUrl>https://github.com/thedmi/capsule</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIconUrl>https://raw.githubusercontent.com/thedmi/capsule/master/release/nuget-readmes/icon.png</PackageIconUrl>
   </PropertyGroup>
 
   <ItemGroup>
