@@ -114,9 +114,9 @@ public class TimerServiceTest
             }
         }
 
-        public async Task EnqueueAwaitResult(Func<Task> impl) => throw new InvalidOperationException();
+        public async Task EnqueueAwaitResult(Func<Task> impl, bool passThroughIfQueueClosed = false) => throw new InvalidOperationException();
 
-        public async Task<TResult> EnqueueAwaitResult<TResult>(Func<Task<TResult>> impl) => throw new InvalidOperationException();
+        public async Task<TResult> EnqueueAwaitResult<TResult>(Func<Task<TResult>> impl, bool passThroughIfQueueClosed = false) => throw new InvalidOperationException();
 
         public async Task EnqueueAwaitReception(Func<Task> impl) => throw new InvalidOperationException();
 

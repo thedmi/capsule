@@ -2,19 +2,31 @@
 
 namespace Capsule;
 
-internal class CapsuleSynchronizer(ChannelWriter<Func<Task>> writer, Type capsuleType) : ICapsuleSynchronizer
+internal class CapsuleSynchronizer(
+    ChannelWriter<Func<Task>> writer,
+    IInvocationLoopStatus invocationLoopStatus,
+    Type capsuleType) : ICapsuleSynchronizer
 {
-    public async Task EnqueueAwaitResult(Func<Task> impl)
+    public async Task EnqueueAwaitResult(Func<Task> impl, bool passThroughIfQueueClosed = false)
     {
-        await EnqueueAwaitResult<object?>(async () =>
-        {
-            await impl().ConfigureAwait(false);
-            return null;
-        }).ConfigureAwait(false);
+        await EnqueueAwaitResult<object?>(
+                async () =>
+                {
+                    await impl().ConfigureAwait(false);
+                    return null;
+                },
+                passThroughIfQueueClosed)
+            .ConfigureAwait(false);
     }
 
-    public async Task<T> EnqueueAwaitResult<T>(Func<Task<T>> impl)
+    public async Task<T> EnqueueAwaitResult<T>(Func<Task<T>> impl, bool passThroughIfQueueClosed = false)
     {
+        if (passThroughIfQueueClosed && invocationLoopStatus.Terminated)
+        {
+            // Queue has been closed, enqueuing will not work
+            return await impl();
+        }
+        
         var tcs = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         async Task Func()
@@ -67,11 +79,18 @@ internal class CapsuleSynchronizer(ChannelWriter<Func<Task>> writer, Type capsul
 
     private void Write(Func<Task> func)
     {
+        if (invocationLoopStatus.Terminated)
+        {
+            throw new CapsuleInvocationException(
+                $"Unable to enqueue invocation for capsule of type {capsuleType}, invocation loop has been terminated.");
+        }
+        
         var success = writer.TryWrite(func);
 
         if (!success)
         {
-            throw new CapsuleInvocationException($"Unable to enqueue invocation for capsule of type {capsuleType}.");
+            throw new CapsuleInvocationException(
+                $"Enqueuing invocation for capsule of type {capsuleType} failed, cannot write to queue.");
         }
     }
 

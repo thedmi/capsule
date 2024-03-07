@@ -10,16 +10,21 @@ namespace Capsule.Test.AutomatedTests.UnitTests;
 
 public class AwaitCompletionTest
 {
-    [Test]
-    public async Task Await_completion_returns_result_when_method_ran_to_completion_successfully()
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task Await_completion_returns_result_when_method_ran_to_completion_successfully(bool withFallback)
     {
-        await TestSuccessfulCompletion(s => s.ExecuteInnerAsync());
+        await TestSuccessfulCompletion(s => withFallback ? s.ExecuteWithFallbackAsync() : s.ExecuteInnerAsync());
     }
     
-    [Test]
-    public async Task Await_completion_returns_result_when_method_ran_to_completion_successfully_value_task()
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task Await_completion_returns_result_when_method_ran_to_completion_successfully_value_task(bool withFallback)
     {
-        await TestSuccessfulCompletion(s => s.ExecuteInnerValueTaskAsync().AsTask());
+        await TestSuccessfulCompletion(
+            s => withFallback
+                ? s.ExecuteValueTaskWithFallbackAsync().AsTask()
+                : s.ExecuteInnerValueTaskAsync().AsTask());
     }
 
     private static async Task TestSuccessfulCompletion(Func<IAwaitCompletionTestSubject, Task<int>> testSubjectCall)

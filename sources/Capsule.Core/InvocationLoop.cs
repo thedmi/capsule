@@ -4,6 +4,7 @@ namespace Capsule;
 
 internal class InvocationLoop(
     ChannelReader<Func<Task>> reader,
+    InvocationLoopStatus status,
     Type capsuleType,
     ICapsuleLogger<ICapsuleInvocationLoop> logger)
     : ICapsuleInvocationLoop
@@ -11,7 +12,20 @@ internal class InvocationLoop(
     public async Task RunAsync(CancellationToken cancellationToken)
     {
         logger.LogDebug("Starting invocation loop for capsule {CapsuleType}...", capsuleType.FullName);
-        
+
+        try
+        {
+            await RunLoopAsync(cancellationToken);
+        }
+        finally
+        {
+            status.SetTerminated();
+            logger.LogDebug("Invocation loop for capsule {CapsuleType} terminated", capsuleType.FullName);
+        }
+    }
+
+    private async Task RunLoopAsync(CancellationToken cancellationToken)
+    {
         while (!cancellationToken.IsCancellationRequested)
         {
             try
@@ -38,8 +52,6 @@ internal class InvocationLoop(
                 await ExecuteAsync(f).ConfigureAwait(false);
             }
         }
-        
-        logger.LogDebug("Invocation loop for capsule {CapsuleType} terminated", capsuleType.FullName);
     }
 
     private async Task ExecuteAsync(Func<Task> invocation)
