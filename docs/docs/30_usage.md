@@ -72,6 +72,7 @@ However, other synchronization modes are available that provide different synchr
 - `AwaitReception`: The hull will await reception of the invocation by the capsule implementation and then return. Such methods cannot return a value.
 - `AwaitEnqueueing`: The hull will enqueue the invocation and return immediately. Such methods cannot return a value. This mode is a good choice for "fire and forget" calls, e.g. offloading work to other activity contexts.
 - `PassThrough`: The hull will invoke the capsule implementation directly and thus bypass all thread-safety mechanisms that the Capsule library provides. This is *only* safe for immutable operations and is typically used with get-only properties that return an immutable field of the capsule implementation (e.g. an ID).
+- `AwaitCompletionOrPassThroughIfQueueClosed`: This is a special case synchronization mode that behaves as `AwaitCompletion`, but falls back to `PassThrough` if the invocation queue has been closed. This is useful for `DisposeAsync()` operations, where `DisposeAsync()` may be called by DI infrastructure just before shutdown. At that point, the invocation queue has already been terminated and `AwaitCompletion` would throw a `CapsuleInvocationException`.
 
 All synchronization modes except `PassThrough` will ensure thread-safety by handling one invocation at a time (aka [run-to-completion scheduling](https://en.wikipedia.org/wiki/Run_to_completion_scheduling)). Make sure that your implementation completes quickly, as a blocked or delayed implementation will delay all pending invocations. This means that it is generally not a good idea to use `Task.Delay()` in capsule implementations.
 
@@ -90,6 +91,15 @@ Capsule treats cancellation tokens on exposed parameters as any other parameter,
 In case the cancellation leads to an `OperationCanceledException` being thrown out of the capsule implementation, the same behavior as outlined in [excpetion handling](#exception-handling) applies.
 
 In any case, cancellation does not remove the invocation from the queue or otherwise change synchronization behavior.
+
+
+### Disposable Capsules
+
+In case your capsule implementation manages disposable resources, you may need to make the capsule disposable, too. Depending on your usage patterns, there are two possibilities to achieve this:
+
+The recommended approach is to implement `IAsyncDisposable`. Like this, you'll be able to treat the dispose operation the same way as other methods. The `DisposeAsync()` method can be exposed with `[Expose]`, invocations will then flow through the invocation queue as expected. In case the capsules are registered with DI, you may want to use `AwaitCompletionOrPassThroughIfQueueClosed` synchronization mode to avoid deadlocks on app shutdown (see [synchronization modes](#synchronization-modes) for details).
+
+Another possibility is to implement `IDisposable` and expose the `Dispose()` method with synchronization mode `PassThrough`. With this approach, `Dispose()` will be called synchronously, thread-safety is not guaranteed. However, for cases where `Dispose()` is only called by DI on app shutdown, this may be a suitable solution for you, because Capsule hosting will have terminated and processed all invocation queue by the time DI calls `Dispose()`.
 
 
 ## Opt-In Features
