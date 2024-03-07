@@ -9,6 +9,7 @@ theme:
     accent: green
   icon:
     repo: fontawesome/brands/github
+    logo: material/rocket
     
   features:
     - navigation.instant
