@@ -8,5 +8,6 @@ internal enum Synchronization
     EnqueueAwaitResult,
     EnqueueAwaitReception,
     EnqueueReturn,
-    PassThrough
+    PassThrough,
+    EnqueueAwaitResultOrPassThroughIfQueueClosed
 }

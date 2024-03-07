@@ -103,7 +103,7 @@ internal class CodeRenderer
     {
         return exposeDefinition.Symbol switch
         {
-            IMethodSymbol m => RenderHullMethod(m, exposeDefinition.Synchronization, renderImplementation),
+            IMethodSymbol m => RenderHullMethod(m, exposeDefinition.Synchronization, exposeDefinition.PassThroughIfQueueClosed, renderImplementation),
             IPropertySymbol p => RenderHullProperty(p, exposeDefinition.Synchronization, renderImplementation),
             _ => throw new ArgumentOutOfRangeException(nameof(exposeDefinition.Symbol))
         };
@@ -112,6 +112,7 @@ internal class CodeRenderer
     private static string RenderHullMethod(
         IMethodSymbol method,
         Synchronization proxyMethod,
+        bool passThroughIfQueueClosed,
         bool renderImplementation)
     {
         var parameterDeclarations = string.Join(
@@ -122,9 +123,11 @@ internal class CodeRenderer
 
         var signature = $"    public {method.ReturnType} {method.Name}({parameterDeclarations})";
 
+        var passThrough = passThroughIfQueueClosed ? ", true" : "";
+
         var synchronizerCall = IsValueTask(method.ReturnType)
-            ? $"new {method.ReturnType}(_synchronizer.{proxyMethod}(() => _impl.{method.Name}({arguments}).AsTask()))"
-            : $"_synchronizer.{proxyMethod}(() => _impl.{method.Name}({arguments}))";
+            ? $"new {method.ReturnType}(_synchronizer.{proxyMethod}(() => _impl.{method.Name}({arguments}).AsTask(){passThrough}))"
+            : $"_synchronizer.{proxyMethod}(() => _impl.{method.Name}({arguments}){passThrough})";
         
         var body = renderImplementation ? $" =>\n            {synchronizerCall};" : ";";
 

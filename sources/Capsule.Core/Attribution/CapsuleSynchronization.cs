@@ -24,5 +24,13 @@ public enum CapsuleSynchronization
     /// Directly invoke the capsule implementation, thus bypassing the thread-safe queue. This synchronization mode
     /// is only safe on immutable properties.
     /// </summary>
-    PassThrough
+    PassThrough,
+    
+    /// <summary>
+    /// Synchronization mode depends on the invocation queue status. If the queue is live and ready to receive
+    /// invocations, <see cref="AwaitCompletion"/> is used. Otherwise, <see cref="PassThrough"/> is used. In the latter
+    /// case, make sure the method is not used concurrently, as there are no thread-safety guarantees with
+    /// <see cref="PassThrough"/>.
+    /// </summary>
+    AwaitCompletionOrPassThroughIfQueueClosed
 }

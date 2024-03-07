@@ -44,9 +44,12 @@ internal class ExposeDefinitionResolver
     {
         var attr = symbol.GetAttributes().Single(a => a.AttributeClass!.Name == ExposeAttributeName);
 
-        var synchronization = SynchronizerMethod(attr.GetProperty(SynchronizationPropertyName)?.Value as int?);
+        var synchronizationPropertyValue = attr.GetProperty(SynchronizationPropertyName)?.Value as int?;
+        
+        var synchronization = SynchronizerMethod(synchronizationPropertyValue);
+        var fallbackToPassThrough = PassThroughAsFallback(synchronizationPropertyValue);
 
-        return new (symbol, synchronization);
+        return new (symbol, synchronization, fallbackToPassThrough);
     }
 
 
@@ -136,6 +139,14 @@ internal class ExposeDefinitionResolver
             1 => Synchronization.EnqueueAwaitReception,
             2 => Synchronization.EnqueueReturn,
             3 => Synchronization.PassThrough,
+            4 => Synchronization.EnqueueAwaitResult, // CapsuleSynchronization.AwaitCompletionOrPassThroughIfQueueClosed
             _ => Synchronization.EnqueueAwaitResult
+        };
+
+    private static bool PassThroughAsFallback(int? enumValue) =>
+        enumValue switch
+        {
+            4 => true, // Corresponds to CapsuleSynchronization.AwaitCompletionOrPassThroughIfQueueClosed
+            _ => false
         };
 }

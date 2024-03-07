@@ -2,4 +2,4 @@
 
 namespace Capsule.Generator;
 
-internal record ExposeDefinition(ISymbol Symbol, Synchronization Synchronization);
+internal record ExposeDefinition(ISymbol Symbol, Synchronization Synchronization, bool PassThroughIfQueueClosed);
