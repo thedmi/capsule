@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Capsule.Extensions.DependencyInjection;
+namespace Capsule.GenericHosting;
 
 /// <summary>
 /// A hosted service that contains an <see cref="ICapsuleHost"/> and shuts it down when application shutdown is

@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Capsule.GenericHosting;
 
-namespace Capsule.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Capsule.DependencyInjection;
 
 public static class CapsuleServiceCollectionExtensions
 {

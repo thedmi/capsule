@@ -1,4 +1,4 @@
-﻿using Capsule.Extensions.DependencyInjection;
+﻿using Capsule.GenericHosting;
 
 using Microsoft.Extensions.Logging;
 

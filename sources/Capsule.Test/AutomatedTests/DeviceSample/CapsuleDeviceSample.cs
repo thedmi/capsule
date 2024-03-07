@@ -1,4 +1,4 @@
-﻿using Capsule.Extensions.DependencyInjection;
+﻿using Capsule.DependencyInjection;
 using Capsule.Test.AutomatedTests.DeviceSample.Impl;
 
 using Microsoft.Extensions.DependencyInjection;
