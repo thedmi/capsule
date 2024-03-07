@@ -1,9 +1,9 @@
 
 # Quick Start
 
-First, install the `Capsule` Nuget package. This package installs the runtime library as well as the source generator.
+First, install the `Capsule.Core` and `Capsule.Generator` Nuget packages.
 
-Now define a capsule implementation that should be wrapped in a thread-safe way:
+Now define a capsule implementation that you want to wrap in a thread-safe way:
 
 ```csharp
 [Capsule]
@@ -48,7 +48,7 @@ Note the usage of `IMemoryCache` (capsule interface) instead of `MemoryCache`. T
 
 As you can see, the only thing we need to make the implementation thread-safe are the `[Capsule]` and `[Expose]` attributes. Neither locks nor concurrent collections (that are hard to use correctly) are needed.
 
-Typically, you'll register the capsule in DI. Capsule comes with support for Microsoft dependency injection through the `Capsule.Extensions.DependencyInjection` package, which is already included when using the `Capsule` nuget package.
+Typically, you'll register the capsule in DI. Capsule comes with support for Microsoft dependency injection, which is included in the `Capsule.Core` nuget package.
 
 Assuming `MemoryCache` has already been properly registered in DI, the following registers `IMemoryCache` capsules:
 

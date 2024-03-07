@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Capsule.GenericHosting;
 
-namespace Capsule.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Capsule.DependencyInjection;
 
 public static class CapsuleServiceCollectionExtensions
 {
@@ -14,8 +16,6 @@ public static class CapsuleServiceCollectionExtensions
     /// </remarks>
     public static IServiceCollection AddCapsuleHost(this IServiceCollection services)
     {
-        services.AddSingleton(typeof(ICapsuleLogger<>), typeof(LoggingAdapter<>));
-        
         services.AddSingleton<CapsuleHost>();
         services.AddSingleton<ICapsuleHost>(p => p.GetRequiredService<CapsuleHost>());
         

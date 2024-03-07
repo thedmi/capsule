@@ -1,4 +1,4 @@
-﻿using Capsule.Extensions.DependencyInjection;
+﻿using Capsule.DependencyInjection;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
