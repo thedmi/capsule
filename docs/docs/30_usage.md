@@ -5,13 +5,11 @@
 
 Capsule is shipped as a set of Nuget packages:
 
-[![Capsule.Core](https://img.shields.io/nuget/v/Capsule.Core?label=Capsule.Core)](https://www.nuget.org/packages/Capsule.Core/)
-[![Capsule.Generator](https://img.shields.io/nuget/v/Capsule.Generator?label=Capsule.Generator)](https://www.nuget.org/packages/Capsule.Generator/)
+- [![Capsule.Core](https://img.shields.io/nuget/v/Capsule.Core?label=Capsule.Core)](https://www.nuget.org/packages/Capsule.Core/) Core functionality such as invocation loop and synchronizer implementations. Also contains dependency injection registration extensions.
+- [![Capsule.Generator](https://img.shields.io/nuget/v/Capsule.Generator?label=Capsule.Generator)](https://www.nuget.org/packages/Capsule.Generator/) C# source generator that generates interfaces and encapsulation boilerplate based on attributes.
+- [![Capsule.Testing](https://img.shields.io/nuget/v/Capsule.Testing?label=Capsule.Testing)](https://www.nuget.org/packages/Capsule.Testing/) Test support library.
 
-To get started quickly, just install the `Capsule` convenience package. If you need more control or have advanced use cases, packages can be used individually as well:
-
-- `Capsule.Core`: Core functionality such as invocation loop and synchronizer implementations. Also contains dependency injection registration extensions.
-- `Capsule.Generator`: C# source generator that generates interfaces and encapsulation boilerplate based on attributes.
+To get started, install the `Capsule.Core` and `Capsule.Generator` packages. Then, register the necessary dependencies with the `AddCapsuleHost()` DI extension method.
 
 
 ## Implementing Capsules
@@ -135,9 +133,7 @@ Generally, the following approaches work best:
 
 ### Test Support Library
 
-[![Capsule.Testing](https://img.shields.io/nuget/v/Capsule.Testing?label=Capsule.Testing)](https://www.nuget.org/packages/Capsule.Testing/)
-
-A test support library called `Capsule.Testing` is available, but is not needed for most cases. It provides fake implementations of Capsule infrastructure that helps avoiding boilerplate in tests:
+A test support library called [![Capsule.Testing](https://img.shields.io/nuget/v/Capsule.Testing?label=Capsule.Testing)](https://www.nuget.org/packages/Capsule.Testing/) is available, but is not needed for most cases. It provides fake implementations of Capsule infrastructure that helps avoiding boilerplate in tests:
 
 - `FakeTimerService`: An `ITimerService` that can be injected into capsules that use [Timers](#timers). Timer firing can be controlled from test code to avoid delays in tests.
 - `FakeSynchronizer`: An `ICapsuleSynchronizer` that just executes invocations directly.

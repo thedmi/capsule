@@ -1,7 +1,7 @@
 
 # Quick Start
 
-First, install the `Capsule.Core` and `Capsule.Generator` Nuget packages.
+First, install the [![Capsule.Core](https://img.shields.io/nuget/v/Capsule.Core?label=Capsule.Core)](https://www.nuget.org/packages/Capsule.Core/) and [![Capsule.Generator](https://img.shields.io/nuget/v/Capsule.Generator?label=Capsule.Generator)](https://www.nuget.org/packages/Capsule.Generator/) Nuget packages.
 
 Now define a capsule implementation that you want to wrap in a thread-safe way:
 
