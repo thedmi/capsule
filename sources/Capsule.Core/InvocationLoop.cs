@@ -1,12 +1,14 @@
 using System.Threading.Channels;
 
+using Microsoft.Extensions.Logging;
+
 namespace Capsule;
 
 internal class InvocationLoop(
     ChannelReader<Func<Task>> reader,
     InvocationLoopStatus status,
     Type capsuleType,
-    ICapsuleLogger<ICapsuleInvocationLoop> logger)
+    ILogger<ICapsuleInvocationLoop> logger)
     : ICapsuleInvocationLoop
 {
     public async Task RunAsync(CancellationToken cancellationToken)

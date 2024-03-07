@@ -14,8 +14,6 @@ public static class CapsuleServiceCollectionExtensions
     /// </remarks>
     public static IServiceCollection AddCapsuleHost(this IServiceCollection services)
     {
-        services.AddSingleton(typeof(ICapsuleLogger<>), typeof(LoggingAdapter<>));
-        
         services.AddSingleton<CapsuleHost>();
         services.AddSingleton<ICapsuleHost>(p => p.GetRequiredService<CapsuleHost>());
         

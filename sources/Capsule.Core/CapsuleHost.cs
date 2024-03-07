@@ -1,8 +1,10 @@
 ﻿using System.Threading.Channels;
 
+using Microsoft.Extensions.Logging;
+
 namespace Capsule;
 
-public class CapsuleHost(ICapsuleLogger<CapsuleHost> logger) : ICapsuleHost
+public class CapsuleHost(ILogger<CapsuleHost> logger) : ICapsuleHost
 {
     private readonly Channel<Task> _taskChannel = Channel.CreateBounded<Task>(
         new BoundedChannelOptions(1023)
