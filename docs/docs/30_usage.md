@@ -5,16 +5,13 @@
 
 Capsule is shipped as a set of Nuget packages:
 
-[![Capsule](https://img.shields.io/nuget/v/Capsule?label=Capsule)](https://www.nuget.org/packages/Capsule/)
 [![Capsule.Core](https://img.shields.io/nuget/v/Capsule.Core?label=Capsule.Core)](https://www.nuget.org/packages/Capsule.Core/)
 [![Capsule.Generator](https://img.shields.io/nuget/v/Capsule.Generator?label=Capsule.Generator)](https://www.nuget.org/packages/Capsule.Generator/)
-[![Capsule.Extensions.DependencyInjection](https://img.shields.io/nuget/v/Capsule.Extensions.DependencyInjection?label=Capsule.Extensions.DependencyInjection)](https://www.nuget.org/packages/Capsule.Extensions.DependencyInjection/)
 
 To get started quickly, just install the `Capsule` convenience package. If you need more control or have advanced use cases, packages can be used individually as well:
 
-- `Capsule.Core`: Core functionality such as invocation loop and synchronizer implementations. Lightweight library without upstream dependencies.
+- `Capsule.Core`: Core functionality such as invocation loop and synchronizer implementations. Also contains dependency injection registration extensions.
 - `Capsule.Generator`: C# source generator that generates interfaces and encapsulation boilerplate based on attributes.
-- `Capsule.Extensions.DependencyInjection`: Integrates the core library with [.NET generic hosting](https://learn.microsoft.com/en-us/dotnet/core/extensions/generic-host) and .NET logging. Provides extension methods to register dependencies.
 
 
 ## Implementing Capsules
@@ -27,6 +24,7 @@ By adding he `[Capsule]` attribute to that class, the Capsule generator is instr
 - A static extension class is generated, containing the hull and an `Encapsulate()` extension method.
 
 The following subsections provide further details on these two parts.
+
 
 ### Interface Generation
 
