@@ -2,7 +2,10 @@
 # Capsule
 
 ![dotnet workflow](https://github.com/thedmi/capsule/actions/workflows/dotnet.yml/badge.svg)
-[![NuGet packages](https://img.shields.io/nuget/v/capsule.svg)](https://www.nuget.org/packages/Capsule/)
+
+[![NuGet packages](https://img.shields.io/nuget/v/Capsule.Core.svg?label=nuget%20Capsule.Core)](https://www.nuget.org/packages/Capsule.Core/)
+[![NuGet packages](https://img.shields.io/nuget/v/Capsule.Generator.svg?label=nuget%20Capsule.Generator)](https://www.nuget.org/packages/Capsule.Generator/)
+[![NuGet packages](https://img.shields.io/nuget/v/Capsule.Testing.svg?label=nuget%20Capsule.Testing)](https://www.nuget.org/packages/Capsule.Testing/)
 
 Capsule is a .NET library and C# source generator that provides thread-safe object encapsulation in an automatic and boilerplate-free way.
 
