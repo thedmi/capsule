@@ -21,13 +21,14 @@
     <AssemblyTitle>Capsule Generator</AssemblyTitle>
     <PackageProjectUrl>https://github.com/thedmi/capsule</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageIconUrl>https://raw.githubusercontent.com/thedmi/capsule/master/release/nuget-readmes/icon.png</PackageIconUrl>
+    <PackageIcon>icon.png</PackageIcon>
     
     <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Do not include the generator as a lib dependency -->
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\..\release\nuget-readmes\Capsule.Generator.md" Pack="true" PackagePath="\README.md"/>
+    <None Include="..\..\release\nuget-readmes\icon.png" Pack="true" PackagePath="\icon.png"/>
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
