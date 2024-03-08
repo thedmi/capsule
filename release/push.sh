@@ -1,10 +1,9 @@
 #!/bin/bash
 
-# Pushes all built nuget packages to nuget.org. 
+# Pushes built nuget packages to nuget.org. 
 #
 # Usage:
-#   NUGET_API_KEY=the_key ./push.sh
+#   NUGET_API_KEY=the_key ./push.sh package.nupkg
 #
 
-SCRIPT_DIR=$(dirname "$0")
-dotnet nuget push -s nuget.org -k $NUGET_API_KEY $SCRIPT_DIR/lib/*.nupkg
+dotnet nuget push -s nuget.org -k $NUGET_API_KEY $@
