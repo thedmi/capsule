@@ -9,4 +9,4 @@ When a capsule is instantiated, the following infrastructure is created:
 - a hull that implements the capsule interface and passes invocations to its synchronizer, which in turn passes them to the channel
 - an invocation loop that executes invocations read from the channel
 
-To ensure the invocation loops remain active, they are registered with a capsule host. By default, this is an `IHostedService` that runs and monitors the invocation loops. The host is registered with the `AddCapsuleHost()` DI extension method.
+To ensure the invocation loops remain active, they are registered with a capsule host. This is a service that runs and monitors the invocation loops. When using `AddCapsuleHost()` to register dependencies, the capsule host is started and stopped from `CapsuleBackgroundService`, an `IHostedService` implementation.
