@@ -42,11 +42,17 @@
     </PackageReference>
     <PackageReference Include="Shouldly" Version="4.2.1" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\Capsule.Core\Capsule.Core.csproj" />
     <ProjectReference Include="..\Capsule.Generator\Capsule.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\Capsule.Testing\Capsule.Testing.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <!-- Conditionally reference either the project or the package. This enables integrated development of features
+         that span multiple projects, while still resorting to package references for the published nuget packages. -->
+    <ProjectReference Include="..\Capsule.Testing\Capsule.Testing.csproj" Condition=" '$(Configuration)' == 'Debug' " />
+    <PackageReference Include="Capsule.Testing" Version="1.0.0" Condition=" '$(Configuration)' == 'Release' " />
   </ItemGroup>
 
 </Project>
