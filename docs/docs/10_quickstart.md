@@ -48,9 +48,7 @@ Note the usage of `IMemoryCache` (capsule interface) instead of `MemoryCache`. T
 
 As you can see, the only thing we need to make the implementation thread-safe are the `[Capsule]` and `[Expose]` attributes. Neither locks nor concurrent collections (that are hard to use correctly) are needed.
 
-Typically, you'll register the capsule in DI. Capsule comes with support for Microsoft dependency injection, which is included in the `Capsule.Core` nuget package.
-
-Assuming `MemoryCache` has already been properly registered in DI, the following registers `IMemoryCache` capsules:
+Typically, you'll register the capsule in DI. Capsule comes with support for Microsoft dependency injection, which is included in the `Capsule.Core` nuget package:
 
 ```csharp
 services.AddCapsuleHost();
