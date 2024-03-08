@@ -24,4 +24,4 @@ jobs:
     - name: Test
       run: dotnet test -c debug --filter "FullyQualifiedName~AutomatedTests"
     - name: Build
-      run: dotnet build --no-restore -c release
+      run: dotnet build -c release
