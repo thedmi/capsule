@@ -14,6 +14,7 @@ public class CapsuleCacheSample
     public async Task Use_cache_concurrently()
     {
         using var app = ConfigureHost();
+        await app.StartAsync();
         
         var cache = app.Services.GetRequiredService<IMemoryCache>();
 
