@@ -19,8 +19,6 @@ public class ConcurrencyTest
             (CapsuleHost)runtimeContext.Host,
             Mock.Of<ILogger<CapsuleBackgroundService>>());
         
-        await hostedService.StartAsync(CancellationToken.None);
-
         var sut = new ConcurrencyTestSubject().Encapsulate(runtimeContext);
 
         var taskRes1 = sut.IncrementAwaitResultAsync();
@@ -32,8 +30,9 @@ public class ConcurrencyTest
         var taskRes3 = sut.IncrementAwaitResultAsync();
         var taskRes4 = sut.IncrementAwaitResultAsync();
         
-        sut.GetStateUnsafe().ShouldBe(10);
+        sut.GetStateUnsafe().ShouldBe(0);
 
+        await hostedService.StartAsync(CancellationToken.None);
         await Task.WhenAll(taskRes1, taskRes2, taskRes3, taskRes4, taskE1, taskE2, taskRec1, taskRec2);
         
         taskRes1.Result.ShouldBe(11);

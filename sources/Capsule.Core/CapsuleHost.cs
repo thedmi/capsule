@@ -6,7 +6,8 @@ namespace Capsule;
 
 public class CapsuleHost(ILogger<CapsuleHost> logger) : ICapsuleHost
 {
-    private readonly Channel<Task> _taskChannel = Channel.CreateBounded<Task>(
+    // The task channel contains Func<Task> instead of Task to ensure the tasks are started as part of RunAsync(), not before
+    private readonly Channel<Func<Task>> _taskChannel = Channel.CreateBounded<Func<Task>>(
         new BoundedChannelOptions(1023)
         {
             SingleReader = true, SingleWriter = false, FullMode = BoundedChannelFullMode.Wait
@@ -41,10 +42,10 @@ public class CapsuleHost(ILogger<CapsuleHost> logger) : ICapsuleHost
                 await SeparateCompletedTasksAsync().ConfigureAwait(false);
             }
             
-            while (_taskChannel.Reader.TryRead(out var newTask))
+            while (_taskChannel.Reader.TryRead(out var taskFactory))
             {
                 // Add newly received tasks one by one
-                _invocationLoopTasks.Add(newTask);
+                _invocationLoopTasks.Add(taskFactory());
             }
         }
 
@@ -74,7 +75,7 @@ public class CapsuleHost(ILogger<CapsuleHost> logger) : ICapsuleHost
         }
         catch (Exception e)
         {
-            throw new ArgumentException("Capsule invocation loop terminated abnormally", e);
+            throw new ArgumentException("Capsule invocation loop terminated abnormally.", e);
         }
     }
 
@@ -86,7 +87,7 @@ public class CapsuleHost(ILogger<CapsuleHost> logger) : ICapsuleHost
             await capsuleInvocationLoop.RunAsync(_shutdownCts.Token).ConfigureAwait(false);
         }
 
-        var success = _taskChannel.Writer.TryWrite(RunInvocationLoopAsync());
+        var success = _taskChannel.Writer.TryWrite(RunInvocationLoopAsync);
 
         if (!success)
         {

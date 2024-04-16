@@ -13,13 +13,11 @@ public class CapsuleDeviceSample
     public async Task RunAsync()
     {
         using var app = ConfigureHost();
+        await app.StartAsync();
 
         var controller = app.Services.GetRequiredService<ListDevicesController>();
         
         await RunExample(controller);
-
-        await app.StopAsync(CancellationToken.None);
-        await Task.Delay(100);
     }
 
     private static IHost ConfigureHost()
