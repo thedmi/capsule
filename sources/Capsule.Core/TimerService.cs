@@ -31,7 +31,7 @@ internal class TimerService(
         var cts = new CancellationTokenSource();
 
         var timerTask = EnqueueCallbackDelayed();
-        var timerReference = new TimerReference(timerTask, cts);
+        var timerReference = new TimerReference(timeout, timerTask, cts);
         
         TimerTasks.Add(timerTask);
         Timers.Add(timerReference);
