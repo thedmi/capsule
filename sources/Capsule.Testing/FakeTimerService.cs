@@ -17,7 +17,7 @@ public class FakeTimerService : ITimerService
     public TimerReference StartSingleShot(TimeSpan timeout, Func<Task> callback)
     {
         var cancellationTokenSource = new CancellationTokenSource();
-        var timerReference = new TimerReference(Task.CompletedTask, cancellationTokenSource);
+        var timerReference = new TimerReference(timeout, Task.CompletedTask, cancellationTokenSource);
 
         _callbacks.Add(timerReference, callback);
         
