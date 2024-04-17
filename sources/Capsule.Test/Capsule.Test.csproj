@@ -52,7 +52,7 @@
     <!-- Conditionally reference either the project or the package. This enables integrated development of features
          that span multiple projects, while still resorting to package references for the published nuget packages. -->
     <ProjectReference Include="..\Capsule.Testing\Capsule.Testing.csproj" Condition=" '$(Configuration)' == 'Debug' " />
-    <PackageReference Include="Capsule.Testing" Version="1.0.0" Condition=" '$(Configuration)' == 'Release' " />
+    <PackageReference Include="Capsule.Testing" Version="2.0.0" Condition=" '$(Configuration)' == 'Release' " />
   </ItemGroup>
 
 </Project>
