@@ -1,4 +1,6 @@
-﻿using Shouldly;
+﻿using Microsoft.Extensions.Logging.Abstractions;
+
+using Shouldly;
 
 namespace Capsule.Test.AutomatedTests.UnitTests;
 
@@ -15,6 +17,7 @@ public class TimerServiceTest
 
         var sut = new TimerService(
             synchronizer,
+            new NullLogger<TimerService>(),
             (ts, ct) =>
             {
                 timeSpan = ts;
@@ -62,6 +65,7 @@ public class TimerServiceTest
 
         var sut = new TimerService(
             synchronizer,
+            new NullLogger<TimerService>(),
             (_, ct) =>
             {
                 ct.Register((_, t) => taskCompletionSource.SetCanceled(t), null);

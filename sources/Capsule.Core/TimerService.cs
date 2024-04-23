@@ -1,4 +1,6 @@
-﻿namespace Capsule;
+﻿using Microsoft.Extensions.Logging;
+
+namespace Capsule;
 
 /// <summary>
 /// A timer service for use in capsule implementations. Typically injected through <see cref="CapsuleFeature.ITimers"/>.
@@ -11,6 +13,7 @@
 /// <param name="delayProvider">Optional delay provider for testing. Should be left null in non-test contexts.</param>
 internal class TimerService(
     ICapsuleSynchronizer synchronizer,
+    ILogger<TimerService> logger,
     Func<TimeSpan, CancellationToken, Task>? delayProvider = null) : ITimerService
 {
     private readonly Func<TimeSpan, CancellationToken, Task> _delayProvider = delayProvider ?? Task.Delay;
@@ -36,6 +39,11 @@ internal class TimerService(
         TimerTasks.Add(timerTask);
         Timers.Add(timerReference);
 
+        logger.LogDebug(
+            "Timer with timeout {Timeout} started & registered, {TimerCount} timers are now pending",
+            timeout,
+            Timers.Count);
+
         return timerReference;
 
         async Task EnqueueCallbackDelayed()
@@ -44,11 +52,19 @@ internal class TimerService(
             {
                 await _delayProvider(timeout, cts.Token).ConfigureAwait(false);
 
-                if (!cts.IsCancellationRequested)
+                if (cts.IsCancellationRequested)
                 {
-                    // We're in a "free floating" task, so awaiting the result doesn't make sense here. Instead,
-                    // we ensure exceptions are handled by the invocation loop.
+                    logger.LogDebug(
+                        "Timer with timeout {Timeout} was cancelled and the associated callback dropped",
+                        timeout);
+                }
+                else
+                {
                     await synchronizer.EnqueueReturn(callback).ConfigureAwait(false);
+                    
+                    logger.LogDebug(
+                        "Timer with timeout {Timeout} has fired and its callback enqueued",
+                        timeout);
                 }
             }
             catch (OperationCanceledException) { }
