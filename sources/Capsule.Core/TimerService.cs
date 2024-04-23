@@ -16,7 +16,7 @@ internal class TimerService(
     ILogger<TimerService> logger,
     Func<TimeSpan, CancellationToken, Task>? delayProvider = null) : ITimerService
 {
-    private readonly Func<TimeSpan, CancellationToken, Task> _delayProvider = delayProvider ?? Task.Delay;
+    private readonly Func<TimeSpan, CancellationToken, Task> _delayProvider = delayProvider ?? DefaultDelayImpl;
 
     // Internal for unit test access
     internal readonly TaskCollection TimerTasks = [];
@@ -93,4 +93,11 @@ internal class TimerService(
 
         Timers.RemoveAll(t => completed.Contains(t.TimerTask));
     }
+
+    /// <summary>
+    /// The default delay implementation uses Task.Delay but adds 1ms to the delay. The added delay ensures that timers
+    /// never fire early (under normal circumstances).
+    /// </summary>
+    private static async Task DefaultDelayImpl(TimeSpan delay, CancellationToken cancellationToken) =>
+        await Task.Delay(delay + TimeSpan.FromMilliseconds(1), cancellationToken).ConfigureAwait(false);
 }

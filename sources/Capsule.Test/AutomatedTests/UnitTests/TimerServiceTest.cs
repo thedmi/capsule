@@ -1,4 +1,10 @@
-﻿using Microsoft.Extensions.Logging.Abstractions;
+﻿using System.Diagnostics;
+
+using Capsule.Testing;
+
+using MathNet.Numerics.Statistics;
+
+using Microsoft.Extensions.Logging.Abstractions;
 
 using Shouldly;
 
@@ -10,7 +16,7 @@ public class TimerServiceTest
     public async Task Timers_enqueue_the_callback_after_the_timeout_has_elapsed_and_timers_are_cleaned_up()
     {
         var taskCompletionSource = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var synchronizer = new FakeSynchronizer();
+        var synchronizer = new ManualSynchronizer();
 
         var timeSpan = TimeSpan.Zero;
         var cancellationToken = new CancellationToken();
@@ -61,7 +67,7 @@ public class TimerServiceTest
     public async Task Cleanup_is_triggered_even_when_timers_are_cancelled()
     {
         var taskCompletionSource = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var synchronizer = new FakeSynchronizer();
+        var synchronizer = new ManualSynchronizer();
 
         var sut = new TimerService(
             synchronizer,
@@ -102,7 +108,45 @@ public class TimerServiceTest
         sut.Timers.ShouldBeEmpty();
     }
 
-    private class FakeSynchronizer : ICapsuleSynchronizer
+    [Test]
+    public async Task Timers_dont_fire_early()
+    {
+        const int numberOfRuns = 200;
+        
+        var synchronizer = new FakeSynchronizer();
+        var sut = new TimerService(synchronizer, new NullLogger<TimerService>());
+
+        var stopwatch = new Stopwatch();
+
+        var runs = new List<double>(numberOfRuns);
+
+        for (var i = 0; i < numberOfRuns; i++)
+        {
+            stopwatch.Reset();
+            stopwatch.Start();
+
+            var timerRef = sut.StartSingleShot(
+                TimeSpan.FromMilliseconds(14),
+                () =>
+                {
+                    var elapsed = stopwatch.Elapsed;
+                    elapsed.ShouldBeGreaterThan(TimeSpan.FromMilliseconds(5));
+                    runs.Add(elapsed.TotalSeconds);
+                    return Task.CompletedTask;
+                });
+
+            await timerRef.TimerTask;
+        }
+        
+        Console.WriteLine("Mean: " + runs.Mean());
+        Console.WriteLine("StdDev: " + runs.StandardDeviation());
+        Console.WriteLine("Min: " + runs.Min());
+        Console.WriteLine("Max: " + runs.Max());
+        
+        runs.Count.ShouldBe(numberOfRuns);
+    }
+
+    private class ManualSynchronizer : ICapsuleSynchronizer
     {
         public Queue<Func<Task>> InvocationQueue { get; } = new();
 
