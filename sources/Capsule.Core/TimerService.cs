@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Diagnostics;
+
+using Microsoft.Extensions.Logging;
 
 namespace Capsule;
 
@@ -10,13 +12,16 @@ namespace Capsule;
 /// thread-safe, so it must be used only from within the owning capsule.
 /// </remarks>
 /// <param name="synchronizer">The synchronizer of the capsule this service is used with.</param>
-/// <param name="delayProvider">Optional delay provider for testing. Should be left null in non-test contexts.</param>
+/// <param name="delayProvider">
+/// Optional delay provider for testing purposes. If left null, the default delay implementation will be used, which
+/// is based on Task.Delay but ensures timers don't fire early. 
+/// </param>
 internal class TimerService(
     ICapsuleSynchronizer synchronizer,
     ILogger<TimerService> logger,
     Func<TimeSpan, CancellationToken, Task>? delayProvider = null) : ITimerService
 {
-    private readonly Func<TimeSpan, CancellationToken, Task> _delayProvider = delayProvider ?? DefaultDelayImpl;
+    private readonly Func<TimeSpan, CancellationToken, Task> _delayProvider = delayProvider ?? DelayAtLeastAsync;
 
     // Internal for unit test access
     internal readonly TaskCollection TimerTasks = [];
@@ -94,10 +99,22 @@ internal class TimerService(
         Timers.RemoveAll(t => completed.Contains(t.TimerTask));
     }
 
-    /// <summary>
-    /// The default delay implementation uses Task.Delay but adds 1ms to the delay. The added delay ensures that timers
-    /// never fire early (under normal circumstances).
-    /// </summary>
-    private static async Task DefaultDelayImpl(TimeSpan delay, CancellationToken cancellationToken) =>
-        await Task.Delay(delay + TimeSpan.FromMilliseconds(1), cancellationToken).ConfigureAwait(false);
+    private static async Task DelayAtLeastAsync(TimeSpan delay, CancellationToken cancellationToken)
+    {
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+        await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+
+        var i = 0;
+        
+        while (stopwatch.Elapsed < delay)
+        {
+            var furtherDelay = delay - stopwatch.Elapsed + TimeSpan.FromMilliseconds(2 ^ i);
+            await Task.Delay(furtherDelay, cancellationToken).ConfigureAwait(false);
+
+            i++;
+        }
+        
+        stopwatch.Stop();
+    }
 }
