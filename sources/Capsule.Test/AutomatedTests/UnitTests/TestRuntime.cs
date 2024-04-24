@@ -13,7 +13,7 @@ public static class TestRuntime
             host,
             new DefaultSynchronizerFactory(
                 new DefaultQueueFactory(),
-                new DefaultInvocationLoopFactory(
-                    loggerFactory.CreateLogger<ICapsuleInvocationLoop>())));
+                new DefaultInvocationLoopFactory(loggerFactory.CreateLogger<ICapsuleInvocationLoop>()),
+                loggerFactory));
     }
 }

@@ -1,9 +1,21 @@
-﻿namespace Capsule;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+
+namespace Capsule;
 
 public class DefaultSynchronizerFactory(
     ICapsuleQueueFactory queueFactory,
-    ICapsuleInvocationLoopFactory invocationLoopFactory) : ICapsuleSynchronizerFactory
+    ICapsuleInvocationLoopFactory invocationLoopFactory,
+    ILoggerFactory loggerFactory) : ICapsuleSynchronizerFactory
 {
+    [Obsolete("Use overload with logger factory parameter instead")]
+    public DefaultSynchronizerFactory(
+        ICapsuleQueueFactory queueFactory,
+        ICapsuleInvocationLoopFactory invocationLoopFactory) : this(
+        queueFactory,
+        invocationLoopFactory,
+        new NullLoggerFactory()) { }
+
     public ICapsuleSynchronizer Create(object capsuleImpl, ICapsuleHost host)
     {
         var capsuleType = capsuleImpl.GetType();
@@ -20,12 +32,12 @@ public class DefaultSynchronizerFactory(
         return synchronizer;
     }
 
-    private static void ApplyFeatures(object capsuleImpl, CapsuleSynchronizer synchronizer)
+    private void ApplyFeatures(object capsuleImpl, CapsuleSynchronizer synchronizer)
     {
         // If the implementation uses timers, inject the timer service
         if (capsuleImpl is CapsuleFeature.ITimers t)
         {
-            t.Timers = new TimerService(synchronizer);
+            t.Timers = new TimerService(synchronizer, loggerFactory.CreateLogger<TimerService>());
         }
 
         // If the implementation requires initialization, ensure this is the first call in the invocation queue
