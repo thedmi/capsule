@@ -67,16 +67,13 @@ public class CapsuleHost(ILogger<CapsuleHost> logger) : ICapsuleHost
 
     private static async Task HandleCompletedTaskAsync(Task task)
     {
-        try
-        {
-            // The invocation loop task should always complete successfully, otherwise there is an implementation error
-            // in CapsuleInvocationLoop.
-            await task.ConfigureAwait(false);
-        }
-        catch (Exception e)
-        {
-            throw new ArgumentException("Capsule invocation loop terminated abnormally.", e);
-        }
+        // Await task to unwrap exceptions, if any. The invocation loop task will throw in case a loop-owned invocation
+        // produced an exception and CapsuleFailureMode.Abort has been specified. Consequently, the capsule host will
+        // throw here and, if the capsule host is managed by a hosted service (the default), crash the app. 
+        // This failure behavior is intentional and is consistent with how uncaught exceptions in hosted services are
+        // handled in .NET 6 and newer. The rationale behind this logic is that uncaught exceptions are a major issue
+        // and should never go unnoticed.
+        await task.ConfigureAwait(false);
     }
 
     public void Register(ICapsuleInvocationLoop capsuleInvocationLoop)

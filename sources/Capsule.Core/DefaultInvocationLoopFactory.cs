@@ -4,13 +4,22 @@ using Microsoft.Extensions.Logging;
 
 namespace Capsule;
 
-public class DefaultInvocationLoopFactory(ILogger<ICapsuleInvocationLoop> logger) : ICapsuleInvocationLoopFactory
+/// <summary>
+/// A factory for invocation loops. Used when encapsulating capsules.
+/// </summary>
+/// <param name="logger">The logger</param>
+/// <param name="failureMode">
+/// How the invocation loop shall treat uncaught exceptions from loop-owned invocations
+/// </param>
+public class DefaultInvocationLoopFactory(
+    ILogger<ICapsuleInvocationLoop> logger,
+    CapsuleFailureMode failureMode = CapsuleFailureMode.Continue) : ICapsuleInvocationLoopFactory
 {
     public ICapsuleInvocationLoop Create(
         ChannelReader<Func<Task>> reader,
         InvocationLoopStatus status,
         Type capsuleType)
     {
-        return new InvocationLoop(reader, status, capsuleType, logger);
+        return new InvocationLoop(reader, status, capsuleType, logger, failureMode);
     }
 }

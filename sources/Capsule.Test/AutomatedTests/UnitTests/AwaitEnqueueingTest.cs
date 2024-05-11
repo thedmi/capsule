@@ -68,13 +68,13 @@ public class AwaitEnqueueingTest
     }
 
     [Test]
-    public async Task Await_enqueueing_does_not_throw_exception_when_capsule_method_throws()
+    public async Task Await_enqueueing_does_not_throw_exception_when_capsule_method_throws_but_host_throws()
     {
         await TestException(s => s.ExecuteInnerAsync());
     }
 
     [Test]
-    public async Task Await_enqueueing_does_not_throw_exception_when_capsule_method_throws_value_task()
+    public async Task Await_enqueueing_does_not_throw_exception_when_capsule_method_throws_but_host_throws_value_task()
     {
         await TestException(s => s.ExecuteInnerValueTaskAsync().AsTask());
     }
@@ -101,22 +101,22 @@ public class AwaitEnqueueingTest
         sutInvocationTask.IsCompleted.ShouldBeTrue();
         sutInvocationTask.IsCompletedSuccessfully.ShouldBeTrue();
         
-        // Ensure that the loop is still active and is able to handle a second invocation
-        (await sut.SucceedAlwaysAsync()).ShouldBeTrue();
+        // Ensure that the loop has been terminated
+        await Should.ThrowAsync<CapsuleInvocationException>(async () => await sut.SucceedAlwaysAsync());
         
         await hostedService.StopAsync(CancellationToken.None);
         await Task.Delay(100);
-        await hostedService.ExecuteTask!;
+        await Should.ThrowAsync<InvalidOperationException>(async () => await hostedService.ExecuteTask);
     }
 
     [Test]
-    public async Task Await_enqueueing_does_not_throw_exception_when_capsule_method_is_cancelled()
+    public async Task Await_enqueueing_does_not_throw_exception_when_capsule_method_is_cancelled_but_host_throws()
     {
         await TestCancellation(s => s.ExecuteInnerAsync());
     }
 
     [Test]
-    public async Task Await_enqueueing_does_not_throw_exception_when_capsule_method_is_cancelled_value_task()
+    public async Task Await_enqueueing_does_not_throw_exception_when_capsule_method_is_cancelled_but_host_throws_value_task()
     {
         await TestCancellation(s => s.ExecuteInnerValueTaskAsync().AsTask());
     }
@@ -142,11 +142,11 @@ public class AwaitEnqueueingTest
         sutInvocationTask.IsCompleted.ShouldBeTrue();
         sutInvocationTask.IsCompletedSuccessfully.ShouldBeTrue();
         
-        // Ensure that the loop is still active and is able to handle a second invocation
-        (await sut.SucceedAlwaysAsync()).ShouldBeTrue();
+        // Ensure that the loop has been terminated
+        await Should.ThrowAsync<CapsuleInvocationException>(async () => await sut.SucceedAlwaysAsync());
         
         await hostedService.StopAsync(CancellationToken.None);
         await Task.Delay(100);
-        await hostedService.ExecuteTask!;
+        await Should.ThrowAsync<OperationCanceledException>(async () => await hostedService.ExecuteTask);
     }
 }

@@ -56,7 +56,7 @@ public class AwaitReceptionTest
     }
     
     [Test]
-    public async Task Await_reception_does_not_throw_exception_when_capsule_method_throws()
+    public async Task Await_reception_does_not_throw_exception_when_capsule_method_throws_but_host_throws()
     {
         var runtimeContext = TestRuntime.Create();
         var hostedService = new CapsuleBackgroundService(
@@ -78,16 +78,16 @@ public class AwaitReceptionTest
         sutInvocationTask.IsCompleted.ShouldBeTrue();
         sutInvocationTask.IsCompletedSuccessfully.ShouldBeTrue();
         
-        // Ensure that the loop is still active and is able to handle a second invocation
-        (await sut.SucceedAlwaysAsync()).ShouldBeTrue();
+        // Ensure that the loop has been terminated
+        await Should.ThrowAsync<CapsuleInvocationException>(async () => await sut.SucceedAlwaysAsync());
         
         await hostedService.StopAsync(CancellationToken.None);
         await Task.Delay(100);
-        await hostedService.ExecuteTask!;
+        await Should.ThrowAsync<InvalidOperationException>(async () => await hostedService.ExecuteTask);
     }
     
     [Test]
-    public async Task Await_reception_does_not_throw_exception_when_capsule_method_is_cancelled()
+    public async Task Await_reception_does_not_throw_exception_when_capsule_method_is_cancelled_but_host_throws()
     {
         var runtimeContext = TestRuntime.Create();
         var hostedService = new CapsuleBackgroundService(
@@ -108,11 +108,11 @@ public class AwaitReceptionTest
         sutInvocationTask.IsCompleted.ShouldBeTrue();
         sutInvocationTask.IsCompletedSuccessfully.ShouldBeTrue();
         
-        // Ensure that the loop is still active and is able to handle a second invocation
-        (await sut.SucceedAlwaysAsync()).ShouldBeTrue();
+        // Ensure that the loop has been terminated
+        await Should.ThrowAsync<CapsuleInvocationException>(async () => await sut.SucceedAlwaysAsync());
         
         await hostedService.StopAsync(CancellationToken.None);
         await Task.Delay(100);
-        await hostedService.ExecuteTask!;
+        await Should.ThrowAsync<OperationCanceledException>(async () => await hostedService.ExecuteTask);
     }
 }
