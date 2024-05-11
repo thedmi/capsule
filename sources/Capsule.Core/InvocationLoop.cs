@@ -8,7 +8,8 @@ internal class InvocationLoop(
     ChannelReader<Func<Task>> reader,
     InvocationLoopStatus status,
     Type capsuleType,
-    ILogger<ICapsuleInvocationLoop> logger)
+    ILogger<ICapsuleInvocationLoop> logger,
+    CapsuleFailureMode failureMode)
     : ICapsuleInvocationLoop
 {
     public async Task RunAsync(CancellationToken cancellationToken)
@@ -62,13 +63,19 @@ internal class InvocationLoop(
         {
             await invocation().ConfigureAwait(false);
         }
-        catch (OperationCanceledException e)
+        catch (Exception e) when (ShouldCatch(e))
         {
-            logger.LogWarning(e, "A loop-owned invocation was cancelled.");
+            // Intentionally left empty. Logging is done from ShouldCatch() to avoid stack trace changes. So if we do
+            // catch the exception, there is nothing left to do except continue with the next invocation.
         }
-        catch (Exception e)
-        {
-            logger.LogError(e, "Exception during capsule invocation loop processing.");
-        }
+    }
+
+    private bool ShouldCatch(Exception e)
+    {
+        var nextStep = failureMode == CapsuleFailureMode.Abort ? " Aborting." : "";
+        
+        logger.LogError(e, "Exception during capsule invocation loop processing." + nextStep);
+        
+        return failureMode == CapsuleFailureMode.Continue;
     }
 }
