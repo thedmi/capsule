@@ -19,7 +19,7 @@ The *capsule implementation* is the class that needs to be made thread-safe. You
 By adding he `[Capsule]` attribute to that class, the Capsule generator is instructed to add the following parts:
 
 - The capsule interface is generated or referenced.
-- A static extension class is generated, containing the hull and an `Encapsulate()` extension method.
+- A static extension class is generated, containing the hull and an `Encapsulate()` extension method. This is what turns your capsule implementation into a thread-safe object.
 
 The following subsections provide further details on these two parts.
 

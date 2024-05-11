@@ -17,4 +17,4 @@ To create a capsule, you provide an implementation (green) and specify how the m
 
 Apart from a few attributes and the requirement to make methods `async`, implementations remain free of synchronization code. This keeps code readable and focused. It also improves testability because synchronization concerns are separated.
 
-See [docs](https://thedmi.github.com/capsule) for more information.
+See [docs](https://thedmi.github.io/capsule) for more information.
