@@ -64,21 +64,21 @@ internal class ExposeDefinitionResolver
             context.ReportDiagnostic(
                 Diagnostic.Create(
                     UnexposableMethodError,
-                    Location.None,
+                    method.Locations.FirstOrDefault(),
                     method.ToDisplayString(),
-                    "Only ordinary methods can be exposed"));
+                    "Only ordinary methods can be exposed."));
 
             exposable = false;
         }
 
-        if (method.DeclaredAccessibility != Accessibility.Public)
+        if (method.DeclaredAccessibility is not Accessibility.Public and not Accessibility.Internal)
         {
             context.ReportDiagnostic(
                 Diagnostic.Create(
                     UnexposableMethodError,
-                    Location.None,
+                    method.Locations.FirstOrDefault(),
                     method.ToDisplayString(),
-                    "Exposed methods must be public."));
+                    "Exposed methods must have public or internal accessibility."));
 
             exposable = false;
         }
@@ -98,21 +98,21 @@ internal class ExposeDefinitionResolver
             context.ReportDiagnostic(
                 Diagnostic.Create(
                     UnexposablePropertyError,
-                    Location.None,
+                    property.Locations.FirstOrDefault(),
                     property.Name,
                     "Exposed properties must have a getter."));
 
             exposable = false;
         }
 
-        if (property.DeclaredAccessibility != Accessibility.Public)
+        if (property.DeclaredAccessibility is not Accessibility.Public and not Accessibility.Internal)
         {
             context.ReportDiagnostic(
                 Diagnostic.Create(
                     UnexposablePropertyError,
-                    Location.None,
+                    property.Locations.FirstOrDefault(),
                     property.Name,
-                    "Exposed properties must be public."));
+                    "Exposed properties must have public or internal accessibility."));
 
             exposable = false;
         }
@@ -122,7 +122,7 @@ internal class ExposeDefinitionResolver
             context.ReportDiagnostic(
                 Diagnostic.Create(
                     UnexposablePropertyError,
-                    Location.None,
+                    property.Locations.FirstOrDefault(),
                     property.Name,
                     "Only Synchronization.PassThrough synchronization mode is supported for properties."));
 
