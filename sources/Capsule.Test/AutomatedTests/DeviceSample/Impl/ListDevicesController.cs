@@ -1,18 +1,11 @@
 ﻿
 namespace Capsule.Test.AutomatedTests.DeviceSample.Impl;
 
-public class ListDevicesController
+public class ListDevicesController(IDeviceCoordinator coordinator)
 {
-    private readonly IDeviceCoordinator _coordinator;
-
-    public ListDevicesController(IDeviceCoordinator coordinator)
-    {
-        _coordinator = coordinator;
-    }
-
     public async Task<string[]> GetDevicesAsync()
     {
-        var devices = await _coordinator.GetDevicesAsync();
+        var devices = await coordinator.GetDevicesAsync();
 
         return devices.Select(device => device.Id).ToArray();
     }
