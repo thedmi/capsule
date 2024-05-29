@@ -37,7 +37,7 @@ Interface generation can be customized through `CapsuleAttribute.InterfaceGenera
 
 - `Enable`: Generate an interface.
 - `Disable`: Do not generate an interface.
-- `Auto`: The default behavior described above applied.
+- `Auto`: The default behavior described above applies.
 
 The interface name can be customized through `CapsuleAttribute.InterfaceName`:
 
