@@ -168,7 +168,15 @@ public class TimerServiceTest
 
         public async Task EnqueueAwaitReception(Func<Task> impl) => throw new InvalidOperationException();
 
-        public async Task EnqueueReturn(Func<Task> impl) => InvocationQueue.Enqueue(impl);
+        public async void EnqueueReturn(Func<Task> impl) => InvocationQueue.Enqueue(impl);
+
+        public void EnqueueReturn(Action impl) =>
+            EnqueueReturn(
+                () =>
+                {
+                    impl();
+                    return Task.CompletedTask;
+                });
 
         public T PassThrough<T>(Func<T> impl) => throw new InvalidOperationException();
     }

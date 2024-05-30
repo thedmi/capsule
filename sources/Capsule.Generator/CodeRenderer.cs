@@ -107,21 +107,26 @@ internal class CodeRenderer(
         bool passThroughIfQueueClosed,
         bool renderImplementation)
     {
+        var returnType = proxyMethod == Synchronization.EnqueueReturn ? "void" : method.ReturnType.ToDisplayString();
+        
         var parameterDeclarations = string.Join(
             ", ",
             method.Parameters.Select(p => $"{p.Type.ToDisplayString()} {p.Name}"));
 
         var arguments = string.Join(", ", method.Parameters.Select(p => $"{p.Name}"));
 
-        var signature = $"    public {method.ReturnType} {method.Name}({parameterDeclarations})";
+        var signature = $"    public {returnType} {method.Name}({parameterDeclarations})";
 
         var passThrough = passThroughIfQueueClosed ? ", true" : "";
+        var asTask = IsValueTask(method.ReturnType) ? ".AsTask()" : "";
 
-        var synchronizerCall = IsValueTask(method.ReturnType)
-            ? $"new {method.ReturnType}(_synchronizer.{proxyMethod}(() => _impl.{method.Name}({arguments}).AsTask(){passThrough}))"
-            : $"_synchronizer.{proxyMethod}(() => _impl.{method.Name}({arguments}){passThrough})";
+        var synchronizerCall = $"_synchronizer.{proxyMethod}(() => _impl.{method.Name}({arguments}){asTask}{passThrough})";
+
+        var wrappedSynchronizerCall = proxyMethod != Synchronization.EnqueueReturn && IsValueTask(method.ReturnType)
+            ? $"new {method.ReturnType}({synchronizerCall})"
+            : synchronizerCall;
         
-        var body = renderImplementation ? $" =>\n            {synchronizerCall};" : ";";
+        var body = renderImplementation ? $" =>\n            {wrappedSynchronizerCall};" : ";";
 
         return $"{signature}{body}";
     }

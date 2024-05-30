@@ -62,14 +62,19 @@ internal class CapsuleSynchronizer(
         await tcs.Task.ConfigureAwait(false);
     }
 
-    public async Task EnqueueReturn(Func<Task> impl)
-    {
-        EnqueueReturnInternal(impl);
-    }
-    
-    public void EnqueueReturnInternal(Func<Task> impl)
+    public void EnqueueReturn(Func<Task> impl)
     {
         Write(impl);
+    }
+
+    public void EnqueueReturn(Action impl)
+    {
+        EnqueueReturn(
+            () =>
+            {
+                impl();
+                return Task.CompletedTask;
+            });
     }
     
     public T PassThrough<T>(Func<T> impl)

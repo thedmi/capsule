@@ -43,7 +43,7 @@ public class DefaultSynchronizerFactory(
         // If the implementation requires initialization, ensure this is the first call in the invocation queue
         if (capsuleImpl is CapsuleFeature.IInitializer i)
         {
-            synchronizer.EnqueueReturnInternal(i.InitializeAsync);
+            synchronizer.EnqueueReturn(i.InitializeAsync);
         }
     }
 }

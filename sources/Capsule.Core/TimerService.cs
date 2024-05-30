@@ -65,7 +65,7 @@ internal class TimerService(
                 }
                 else
                 {
-                    await synchronizer.EnqueueReturn(callback).ConfigureAwait(false);
+                    synchronizer.EnqueueReturn(callback);
                     
                     logger.LogDebug(
                         "Timer with timeout {Timeout} has fired and its callback enqueued",
@@ -78,7 +78,7 @@ internal class TimerService(
                 // Enqueue a second invocation for timer management. We can't do this directly, as the callback
                 // (enqueued above) will likely not have completed yet. This is done in a finally block to ensure timers
                 // are cleaned up even when they are cancelled.
-                await synchronizer.EnqueueReturn(ClearElapsedTimersAsync).ConfigureAwait(false);
+                synchronizer.EnqueueReturn(ClearElapsedTimersAsync);
             }
         }
     }
