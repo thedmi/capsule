@@ -1,4 +1,5 @@
-﻿using Capsule.GenericHosting;
+﻿using Capsule.Attribution;
+using Capsule.GenericHosting;
 
 using Microsoft.Extensions.Logging;
 
@@ -38,7 +39,7 @@ public class AwaitCompletionTest
         
         await hostedService.StartAsync(CancellationToken.None);
 
-        var sut = new AwaitCompletionTestSubject(tcs.Task, () => 42).Encapsulate(runtimeContext);
+        var sut = new TestSubject(tcs.Task, () => 42).Encapsulate(runtimeContext);
 
         var sutInvocationTask = testSubjectCall(sut);
 
@@ -86,7 +87,7 @@ public class AwaitCompletionTest
         
         await hostedService.StartAsync(CancellationToken.None);
 
-        var sut = new AwaitCompletionTestSubject(tcs.Task, () => throw exception).Encapsulate(runtimeContext);
+        var sut = new TestSubject(tcs.Task, () => throw exception).Encapsulate(runtimeContext);
 
         var sutInvocationTask = testSubjectCall(sut);
 
@@ -132,7 +133,7 @@ public class AwaitCompletionTest
         
         await hostedService.StartAsync(CancellationToken.None);
 
-        var sut = new AwaitCompletionTestSubject(tcs.Task, () => 42).Encapsulate(runtimeContext);
+        var sut = new TestSubject(tcs.Task, () => 42).Encapsulate(runtimeContext);
 
         var sutInvocationTask = testSubjectCall(sut);
 
@@ -153,4 +154,41 @@ public class AwaitCompletionTest
         await Task.Delay(100);
         await hostedService.ExecuteTask!;
     }
+    
+    [Capsule(InterfaceName = "IAwaitCompletionTestSubject")]
+    public class TestSubject(Task innerTask, Func<int> innerFunc)
+    {
+        [Expose]
+        public async Task<int> ExecuteInnerAsync()
+        {
+            await innerTask;
+            return innerFunc();
+        }
+    
+        [Expose(Synchronization = CapsuleSynchronization.AwaitCompletionOrPassThroughIfQueueClosed)]
+        public async Task<int> ExecuteWithFallbackAsync()
+        {
+            await innerTask;
+            return innerFunc();
+        }
+
+        [Expose]
+        public async ValueTask<int> ExecuteInnerValueTaskAsync()
+        {
+            return await ExecuteInnerAsync();
+        }
+
+        [Expose(Synchronization = CapsuleSynchronization.AwaitCompletionOrPassThroughIfQueueClosed)]
+        public async ValueTask<int> ExecuteValueTaskWithFallbackAsync()
+        {
+            return await ExecuteInnerAsync();
+        }
+
+        [Expose]
+        public async Task<bool> SucceedAlwaysAsync()
+        {
+            return true;
+        }
+    }
+
 }

@@ -6,38 +6,22 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace Capsule.Generator;
 
-internal class CodeRenderer
+internal class CodeRenderer(
+    SourceProductionContext context,
+    CapsuleDefinition definition,
+    INamedTypeSymbol classSymbol,
+    ImmutableArray<ExposeDefinition> exposedMethods)
 {
-    private readonly SourceProductionContext _context;
-
-    private readonly CapsuleDefinition _definition;
-
-    private readonly INamedTypeSymbol _classSymbol;
-
-    private readonly ImmutableArray<ExposeDefinition> _exposedMethods;
-
-    public CodeRenderer(
-        SourceProductionContext context,
-        CapsuleDefinition definition,
-        INamedTypeSymbol classSymbol,
-        ImmutableArray<ExposeDefinition> exposedMethods)
-    {
-        _context = context;
-        _definition = definition;
-        _classSymbol = classSymbol;
-        _exposedMethods = exposedMethods;
-    }
-
     public void RenderCapsuleInterface()
     {
-        if (!_definition.GenerateInterface)
+        if (!definition.GenerateInterface)
         {
             return;
         }
         
-        var namespaceName = _classSymbol.ContainingNamespace.ToDisplayString();
+        var namespaceName = classSymbol.ContainingNamespace.ToDisplayString();
 
-        var methods = _exposedMethods.Select(d => RenderHullMethodOrProperty(d, false));
+        var methods = exposedMethods.Select(d => RenderHullMethodOrProperty(d, false));
         
         var code =
             $$"""
@@ -46,22 +30,24 @@ internal class CodeRenderer
 
               namespace {{namespaceName}};
 
-              public interface {{_definition.InterfaceName}}
+              public interface {{definition.InterfaceName}}
               {
               {{string.Join("\n\n", methods)}}
               }
               """;
         
-        _context.AddSource($"{_definition.InterfaceName}.g.cs", SourceText.From(code, Encoding.UTF8));
+        context.AddSource($"{definition.InterfaceName}.g.cs", SourceText.From(code, Encoding.UTF8));
     }
 
     public void RenderExtensions()
     {
-        var namespaceName = _classSymbol.ContainingNamespace.ToDisplayString();
-
-        var extensionsClassName = _classSymbol.Name + "CapsuleExtensions";
+        var implClassName = NestedTypeFqn(classSymbol);
         
-        var methods = _exposedMethods
+        var namespaceName = classSymbol.ContainingNamespace.ToDisplayString();
+
+        var extensionsClassName = implClassName.Replace(".", "") + "CapsuleExtensions";
+        
+        var methods = exposedMethods
             .Select(d => RenderHullMethodOrProperty(d, true));
         
         var code =
@@ -75,16 +61,16 @@ internal class CodeRenderer
 
               public static class {{extensionsClassName}}
               {
-                  public static {{_definition.InterfaceName}} Encapsulate(this {{_classSymbol.Name}} impl, CapsuleRuntimeContext context) =>
+                  public static {{definition.InterfaceName}} Encapsulate(this {{implClassName}} impl, CapsuleRuntimeContext context) =>
                       new Hull(impl, context.SynchronizerFactory.Create(impl, context.Host));
               
-                  public class Hull : {{_definition.InterfaceName}} 
+                  public class Hull : {{definition.InterfaceName}} 
                   {
-                      private readonly {{_classSymbol.Name}} _impl;
+                      private readonly {{implClassName}} _impl;
                       
                       private readonly ICapsuleSynchronizer _synchronizer;
                       
-                      public Hull({{_classSymbol.Name}} impl, ICapsuleSynchronizer synchronizer)
+                      public Hull({{implClassName}} impl, ICapsuleSynchronizer synchronizer)
                       {
                           _impl = impl;
                           _synchronizer = synchronizer;
@@ -96,7 +82,7 @@ internal class CodeRenderer
               """;
 
         // Add the source code to the compilation.
-        _context.AddSource($"{extensionsClassName}.g.cs", SourceText.From(code, Encoding.UTF8));
+        context.AddSource($"{extensionsClassName}.g.cs", SourceText.From(code, Encoding.UTF8));
     }
     
     private static string RenderHullMethodOrProperty(ExposeDefinition exposeDefinition, bool renderImplementation)
@@ -152,4 +138,7 @@ internal class CodeRenderer
 
     private static bool IsValueTask(ITypeSymbol typeSymbol) =>
         typeSymbol.Name == "ValueTask" && typeSymbol.ContainingNamespace.ToDisplayString() == "System.Threading.Tasks";
+    
+    private static string NestedTypeFqn(INamedTypeSymbol symbol) =>
+        symbol.ContainingType == null ? symbol.Name : $"{NestedTypeFqn(symbol.ContainingType)}.{symbol.Name}";
 }
