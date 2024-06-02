@@ -1,4 +1,5 @@
-﻿using Capsule.GenericHosting;
+﻿using Capsule.Attribution;
+using Capsule.GenericHosting;
 
 using Microsoft.Extensions.Logging;
 
@@ -115,4 +116,22 @@ public class AwaitReceptionTest
         await Task.Delay(100);
         await Should.ThrowAsync<OperationCanceledException>(async () => await hostedService.ExecuteTask);
     }
+    
+    [Capsule(InterfaceName = "IAwaitReceptionTestSubject")]
+    public class AwaitReceptionTestSubject(Task innerTask, Action preAction)
+    {
+        [Expose(Synchronization = CapsuleSynchronization.AwaitReception)]
+        public async Task ExecuteInnerAsync()
+        {
+            preAction();
+            await innerTask;
+        }
+
+        [Expose]
+        public async Task<bool> SucceedAlwaysAsync()
+        {
+            return true;
+        }
+    }
+
 }
