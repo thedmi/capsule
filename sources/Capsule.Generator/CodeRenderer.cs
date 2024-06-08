@@ -8,18 +8,17 @@ namespace Capsule.Generator;
 
 internal class CodeRenderer(
     SourceProductionContext context,
-    CapsuleDefinition definition,
-    INamedTypeSymbol classSymbol,
-    ImmutableArray<ExposeDefinition> exposedMethods)
+    CapsuleSpec spec,
+    ImmutableArray<ExposeSpec> exposedMethods)
 {
     public void RenderCapsuleInterface()
     {
-        if (!definition.GenerateInterface)
+        if (spec.Interface is not CapsuleSpec.GeneratedInterface i)
         {
             return;
         }
-        
-        var namespaceName = classSymbol.ContainingNamespace.ToDisplayString();
+
+        var namespaceName = spec.CapsuleClass.ContainingNamespace.ToDisplayString();
 
         var methods = exposedMethods.Select(d => RenderHullMethodOrProperty(d, false));
         
@@ -30,20 +29,27 @@ internal class CodeRenderer(
 
               namespace {{namespaceName}};
 
-              public interface {{definition.InterfaceName}}
+              public interface {{i.Name}}
               {
               {{string.Join("\n\n", methods)}}
               }
               """;
         
-        context.AddSource($"{definition.InterfaceName}.g.cs", SourceText.From(code, Encoding.UTF8));
+        context.AddSource($"{i.Name}.g.cs", SourceText.From(code, Encoding.UTF8));
     }
 
     public void RenderExtensions()
     {
-        var implClassName = NestedTypeFqn(classSymbol);
+        var implClassName = spec.CapsuleClass.NestedTypeQualifiedName();
+        var interfaceName = spec.Interface switch
+        {
+            CapsuleSpec.ResolvedInterface i => i.Symbol.NestedTypeQualifiedName(),
+            CapsuleSpec.GeneratedInterface i => i.Name,
+            CapsuleSpec.ProvidedInterface i => i.Name,
+            _ => throw new ArgumentOutOfRangeException()
+        };
         
-        var namespaceName = classSymbol.ContainingNamespace.ToDisplayString();
+        var namespaceName = spec.CapsuleClass.ContainingNamespace.ToDisplayString();
 
         var extensionsClassName = implClassName.Replace(".", "") + "CapsuleExtensions";
         
@@ -61,10 +67,10 @@ internal class CodeRenderer(
 
               public static class {{extensionsClassName}}
               {
-                  public static {{definition.InterfaceName}} Encapsulate(this {{implClassName}} impl, CapsuleRuntimeContext context) =>
+                  public static {{interfaceName}} Encapsulate(this {{implClassName}} impl, CapsuleRuntimeContext context) =>
                       new Hull(impl, context.SynchronizerFactory.Create(impl, context.Host));
               
-                  public class Hull : {{definition.InterfaceName}} 
+                  public class Hull : {{interfaceName}} 
                   {
                       private readonly {{implClassName}} _impl;
                       
@@ -85,13 +91,13 @@ internal class CodeRenderer(
         context.AddSource($"{extensionsClassName}.g.cs", SourceText.From(code, Encoding.UTF8));
     }
     
-    private static string RenderHullMethodOrProperty(ExposeDefinition exposeDefinition, bool renderImplementation)
+    private static string RenderHullMethodOrProperty(ExposeSpec spec, bool renderImplementation)
     {
-        return exposeDefinition.Symbol switch
+        return spec.MemberSymbol switch
         {
-            IMethodSymbol m => RenderHullMethod(m, exposeDefinition.Synchronization, exposeDefinition.PassThroughIfQueueClosed, renderImplementation),
-            IPropertySymbol p => RenderHullProperty(p, exposeDefinition.Synchronization, renderImplementation),
-            _ => throw new ArgumentOutOfRangeException(nameof(exposeDefinition.Symbol))
+            IMethodSymbol m => RenderHullMethod(m, spec.Synchronization, spec.PassThroughIfQueueClosed, renderImplementation),
+            IPropertySymbol p => RenderHullProperty(p, spec.Synchronization, renderImplementation),
+            _ => throw new ArgumentOutOfRangeException(nameof(spec.MemberSymbol))
         };
     }
 
@@ -138,7 +144,4 @@ internal class CodeRenderer(
 
     private static bool IsValueTask(ITypeSymbol typeSymbol) =>
         typeSymbol.Name == "ValueTask" && typeSymbol.ContainingNamespace.ToDisplayString() == "System.Threading.Tasks";
-    
-    private static string NestedTypeFqn(INamedTypeSymbol symbol) =>
-        symbol.ContainingType == null ? symbol.Name : $"{NestedTypeFqn(symbol.ContainingType)}.{symbol.Name}";
 }
