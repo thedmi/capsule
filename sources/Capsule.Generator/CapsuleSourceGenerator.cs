@@ -8,10 +8,6 @@ namespace Capsule.Generator;
 [Generator]
 public class CapsuleSourceGenerator : IIncrementalGenerator
 {
-    private readonly CapsuleDefinitionResolver _capsuleDefinitionResolver = new();
-
-    private readonly ExposeDefinitionResolver _exposeDefinitionResolver = new();
-    
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // Only filtered Syntax Nodes can trigger code generation
@@ -57,14 +53,19 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
 
     /// <summary>
     /// Generate code action.
-    /// It will be executed on specific nodes (ClassDeclarationSyntax annotated with the [Report] attribute) changed by the user.
+    /// It will be executed on specific nodes (ClassDeclarationSyntax annotated with the [Capsule] attribute) changed by the user.
     /// </summary>
     /// <param name="context">Source generation context used to add source files.</param>
     /// <param name="compilation">Compilation used to provide access to the Semantic Model.</param>
-    /// <param name="classDeclarations">Nodes annotated with the [Report] attribute that trigger the generate action.</param>
-    private void GenerateCode(SourceProductionContext context, Compilation compilation,
+    /// <param name="classDeclarations">Nodes annotated with the [Capsule] attribute that trigger the generate action.</param>
+    private void GenerateCode(
+        SourceProductionContext context,
+        Compilation compilation,
         ImmutableArray<ClassDeclarationSyntax> classDeclarations)
     {
+        var capsuleSpecResolver = new CapsuleSpecResolver();
+        var exposeSpecResolver = new ExposeSpecResolver();
+
         // Go through all filtered class declarations.
         foreach (var classDeclarationSyntax in classDeclarations)
         {
@@ -74,17 +75,15 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
             // Symbols allow us to get the compile-time information.
             if (semanticModel.GetDeclaredSymbol(classDeclarationSyntax) is INamedTypeSymbol classSymbol)
             {
-                var spec = _capsuleDefinitionResolver.GetCapsuleDefinition(classSymbol);
+                var capsuleSpec = capsuleSpecResolver.GetCapsuleDefinition(classSymbol);
 
-                var exposeDefinitions = _exposeDefinitionResolver.GetExposeDefinitions(context, classSymbol)
-                    .ToImmutableArray();
+                var exposeSpecs = exposeSpecResolver.GetExposeSpecs(context, classSymbol).ToImmutableArray();
 
-                var renderer = new CodeRenderer(context, spec, classSymbol, exposeDefinitions);
-                
+                var renderer = new CodeRenderer(context, capsuleSpec, exposeSpecs);
+
                 renderer.RenderCapsuleInterface();
                 renderer.RenderExtensions();
             }
         }
     }
-
 }

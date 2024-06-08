@@ -2,7 +2,7 @@
 
 namespace Capsule.Generator;
 
-internal class ExposeDefinitionResolver
+internal class ExposeSpecResolver
 {
     private const string ExposeAttributeName = "ExposeAttribute";
 
@@ -24,7 +24,9 @@ internal class ExposeDefinitionResolver
         isEnabledByDefault: true);
 #pragma warning restore RS2008
     
-    public IEnumerable<ExposeDefinition> GetExposeDefinitions(SourceProductionContext context, INamedTypeSymbol classSymbol)
+    public IEnumerable<ExposeSpec> GetExposeSpecs(
+        SourceProductionContext context,
+        INamedTypeSymbol classSymbol)
     {
         var exposedSymbols = classSymbol.GetMembers()
             .Where(
@@ -35,12 +37,12 @@ internal class ExposeDefinitionResolver
 
         return
         [
-            ..exposedSymbols.Where(s => s.Symbol is IPropertySymbol p && IsExposable(context, p, s.Synchronization)),
-            ..exposedSymbols.Where(s => s.Symbol is IMethodSymbol m && IsExposable(context, m))
+            ..exposedSymbols.Where(s => s.MemberSymbol is IPropertySymbol p && IsExposable(context, p, s.Synchronization)),
+            ..exposedSymbols.Where(s => s.MemberSymbol is IMethodSymbol m && IsExposable(context, m))
         ];
     }
     
-    private static ExposeDefinition GetExposeSpec(ISymbol symbol)
+    private ExposeSpec GetExposeSpec(ISymbol symbol)
     {
         var attr = symbol.GetAttributes().Single(a => a.AttributeClass!.Name == ExposeAttributeName);
 
@@ -51,8 +53,7 @@ internal class ExposeDefinitionResolver
 
         return new (symbol, synchronization, fallbackToPassThrough);
     }
-
-
+    
     private static bool IsExposable(
         SourceProductionContext context,
         IMethodSymbol method)
