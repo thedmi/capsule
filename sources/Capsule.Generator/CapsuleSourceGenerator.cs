@@ -64,7 +64,7 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
         ImmutableArray<ClassDeclarationSyntax> classDeclarations)
     {
         var capsuleSpecResolver = new CapsuleSpecResolver();
-        var exposeSpecResolver = new ExposeSpecResolver();
+        var exposeSpecResolver = new ExposeSpecResolver(compilation);
 
         // Go through all filtered class declarations.
         foreach (var classDeclarationSyntax in classDeclarations)

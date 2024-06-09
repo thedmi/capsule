@@ -38,7 +38,13 @@ public interface ICapsuleSynchronizer
     /// Enqueues an invocation and returns immediately. Completion of the invocation is not awaited, so exceptions (if
     /// any) will be routed to the invocation loop. 
     /// </summary>
-    Task EnqueueReturn(Func<Task> impl);
+    void EnqueueReturn(Func<Task> impl);
+    
+    /// <summary>
+    /// Enqueues an invocation and returns immediately. Completion of the invocation is not awaited, so exceptions (if
+    /// any) will be routed to the invocation loop. 
+    /// </summary>
+    void EnqueueReturn(Action impl);
     
     /// <summary>
     /// Directly invokes the underlying implementation, bypassing any thread-safety mechanisms. This is only safe

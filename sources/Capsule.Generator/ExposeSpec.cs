@@ -5,4 +5,5 @@ namespace Capsule.Generator;
 internal record ExposeSpec(
     ISymbol MemberSymbol,
     Synchronization Synchronization,
-    bool PassThroughIfQueueClosed);
+    bool PassThroughIfQueueClosed,
+    bool IsAsync);

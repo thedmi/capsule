@@ -52,30 +52,61 @@ The interface name can be customized through `CapsuleAttribute.InterfaceName`:
 
 In addition to the `[Capule]` attribute on the implementation class, you'll need to add the `[Expose]` attribute to all methods and properties that you want to make accessible through the capsule interface. The following restrictions apply:
 
-- The exposed methods need to be `async` (unless synchronization mode `PassThrough` is specified).
+- The exposed methods must have a return type that is compatible with the chosen synchronization mode (see below).
 - Properties are restricted to immutable getters and `PassThrough` synchronization mode must be used.
 
 The synchronization mode defaults to `AwaitCompletion`. Different modes can be specified through the `ExposeAttribute.Synchronization` property.
 
 
-## Synchronization Modes
+## Synchronization
 
-The synchronization mode controls if/how invocations are awaited and whether thread-safety is guaranteed. Capsule defaults to "await completion" synchronization. This is the only mode that is thread-safe *and* makes encapsulated objects behave in an object-oriented way from the caller's perspective.
+Capsule can expose methods in different ways to match different use cases. The synchronization mode controls if/how invocations are awaited and whether thread-safety is guaranteed. Capsule defaults to "await completion" synchronization. This is the only mode that is thread-safe *and* makes encapsulated objects behave in an object-oriented way from the caller's perspective.
 
-Here is the full list of synchronization modes that Capsule supports:
 
-- `AwaitCompletion` (caller-owned; default): The hull will await completion of invocation processing by the capsule implementation. This is the only thread-safe synchronization mode that is able to return values and throw exceptions back to the caller.
-- `AwaitReception` (loop-owned): The hull will await reception of the invocation by the capsule implementation and then return. Such methods cannot return a value.
-- `AwaitEnqueueing` (loop-owned): The hull will enqueue the invocation and return immediately. Such methods cannot return a value. This mode is a good choice for "fire and forget" calls, e.g. offloading work to other activity contexts.
-- `PassThrough` (caller-owned): The hull will invoke the capsule implementation directly and thus bypass all thread-safety mechanisms that the Capsule library provides. This is *only* safe for immutable operations and is typically used with get-only properties that return an immutable field of the capsule implementation (e.g. an ID).
-- `AwaitCompletionOrPassThroughIfQueueClosed` (caller-owned): This is a special case synchronization mode that behaves as `AwaitCompletion`, but falls back to `PassThrough` if the invocation queue has been closed. This is useful for `DisposeAsync()` operations, where `DisposeAsync()` may be called by DI infrastructure just before shutdown. At that point, the invocation queue has already been terminated and `AwaitCompletion` would throw a `CapsuleInvocationException`.
+### Synchronization Modes
 
-All synchronization modes except `PassThrough` will ensure thread-safety by executing one invocation at a time (aka [run-to-completion scheduling](https://en.wikipedia.org/wiki/Run_to_completion_scheduling)). Make sure that your implementation completes quickly, as a blocked or delayed implementation will delay all pending invocations. This means that it is generally not a good idea to use `Task.Delay()` in capsule implementations (use a [timer](#timers) instead).
+The following synchronization modes are supported:
+
+| Synchronization Mode                        | Completes when               | Sync / Async                      | Behavior                                                                                             |
+|---------------------------------------------|------------------------------|-----------------------------------|------------------------------------------------------------------------------------------------------|
+| `AwaitCompletion` (default)                 | implementation completes     | async                             | :fontawesome-regular-user:{title="caller-owned"} :octicons-shield-check-16:{title="thread-safe"}     |
+| `AwaitEnqueueing`                           | invocation has been enqueued | sync or async (details see below) | :material-reload:{title="loop-owned"} :octicons-shield-check-16:{title="thread-safe"}                |
+| `AwaitReception`                            | invocation has been dequeued | async                             | :material-reload:{title="loop-owned"} :octicons-shield-check-16:{title="thread-safe"}                |
+| `PassThrough`                               | implementation completes     | sync or async                     | :fontawesome-regular-user:{title="caller-owned"} :octicons-shield-slash-16:{title="not thread-safe"} |
+| `AwaitCompletionOrPassThroughIfQueueClosed` | implementation completes     | async                             | :fontawesome-regular-user:{title="caller-owned"} :octicons-shield-slash-16:{title="not thread-safe"} |
+
+
+### Invocation Owner
+
+Invocations are either caller-owned :fontawesome-regular-user: or loop-owned :material-reload:. Caller-owned invocations behave the same way as you'd expect any invocation on an object would behave: Results and exceptions are passed back to the caller.
+
+Loop-owned invocations enable a "fire and forget" communication between objects. The caller can continue before the invocation has been executed, but as a result won't receive return values or exceptions. `AwaitEnqueueing` is the recommended synchronization mode for "fire and forget" style communication.
+
+
+### Sync / Async
+
+Caller-owned invocations must be async. This is due to the fact that the caller will need to be suspended until the invocation can be dequeued/executed.
+
+A special case regarding sync/async is `AwaitEnqueueing` synchronization mode. This mode only needs to enqueue the invocation, which is a synchronous operation. Thus, such methods will be exposed as synchronous on the interface, unless the interface was resolved from the list of implemented interfaces on the Capsule (see [interface generation](#interface-generation) for details).
+
+
+### Thread-Safety
+
+`AwaitCompletion`, `AwaitEnqueueing` and `AwaitReception` modes provide thread safety :octicons-shield-check-16:, `PassThrough` does not :octicons-shield-slash-16:.
+
+`PassThrough` is not thread-safe because it doesn't enqueue the invocation, but executes it directly. It is *only* safe for immutable operations and is typically used with get-only properties that return an immutable field of the capsule implementation (e.g. an ID).
+
+`AwaitCompletionOrPassThroughIfQueueClosed` is a special case synchronization mode that behaves as `AwaitCompletion`, but falls back to `PassThrough` if the invocation queue has been closed. This is useful for `DisposeAsync()` operations, where `DisposeAsync()` may be called by DI infrastructure just before shutdown. At that point, the invocation queue has already been terminated and `AwaitCompletion` would throw a `CapsuleInvocationException`. When it falls back to `PassThrough`, thread-safety is not guaranteed.
+
+
+### Run to Completion Semantics
+
+All synchronization modes except `PassThrough` will execute one invocation at a time (aka [run-to-completion scheduling](https://en.wikipedia.org/wiki/Run_to_completion_scheduling)). Make sure that your implementation completes quickly, as a blocked or delayed implementation will delay all pending invocations. This means that it is generally not a good idea to use `Task.Delay()` in capsule implementations (use a [timer](#timers) instead).
 
 
 ### Exception Handling
 
-Exceptions that throw out of capsule implementations are routed the same way as return values are, so caller-owned will throw exceptions back to the caller.
+Exceptions that throw out of capsule implementations are routed the same way as return values are, so caller-owned invocations will throw exceptions back to the caller.
 
 Loop-owned synchronization modes throw exceptions back into the invocation loop. In a default Capsule setup, such exceptions will be logged and then ignored. This behavior can be customized, see `CapsuleOptions.FailureMode`.
 

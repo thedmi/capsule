@@ -8,7 +8,9 @@ public class FakeSynchronizer : ICapsuleSynchronizer
 
     public Task EnqueueAwaitReception(Func<Task> impl) => impl();
 
-    public Task EnqueueReturn(Func<Task> impl) => impl();
+    public void EnqueueReturn(Func<Task> impl) => impl();
+
+    public void EnqueueReturn(Action impl) => impl();
 
     public T PassThrough<T>(Func<T> impl) => impl();
 }

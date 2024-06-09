@@ -23,9 +23,9 @@ public class ConcurrencyTest
 
         var taskRes1 = sut.IncrementAwaitResultAsync();
         var taskRes2 = sut.IncrementAwaitResultAsync();
-        var taskE1 = sut.IncrementAwaitEnqueueingAsync();
+        sut.IncrementAwaitEnqueueingAsync();
         var taskRec1 = sut.IncrementAwaitReceptionAsync();
-        var taskE2 = sut.IncrementAwaitEnqueueingAsync();
+        sut.IncrementAwaitEnqueueingAsync();
         var taskRec2 = sut.IncrementAwaitReceptionAsync();
         var taskRes3 = sut.IncrementAwaitResultAsync();
         var taskRes4 = sut.IncrementAwaitResultAsync();
@@ -33,7 +33,7 @@ public class ConcurrencyTest
         sut.GetStateUnsafe().ShouldBe(0);
 
         await hostedService.StartAsync(CancellationToken.None);
-        await Task.WhenAll(taskRes1, taskRes2, taskRes3, taskRes4, taskE1, taskE2, taskRec1, taskRec2);
+        await Task.WhenAll(taskRes1, taskRes2, taskRes3, taskRes4, taskRec1, taskRec2);
         
         taskRes1.Result.ShouldBe(11);
         taskRes2.Result.ShouldBe(12);
