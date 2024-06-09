@@ -91,23 +91,37 @@ internal class CodeRenderer(
         context.AddSource($"{extensionsClassName}.g.cs", SourceText.From(code, Encoding.UTF8));
     }
     
-    private static string RenderHullMethodOrProperty(ExposeSpec spec, bool renderImplementation)
+    private string RenderHullMethodOrProperty(ExposeSpec exposeSpec, bool renderImplementation)
     {
-        return spec.MemberSymbol switch
+        return exposeSpec.MemberSymbol switch
         {
-            IMethodSymbol m => RenderHullMethod(m, spec.Synchronization, spec.PassThroughIfQueueClosed, renderImplementation),
-            IPropertySymbol p => RenderHullProperty(p, spec.Synchronization, renderImplementation),
-            _ => throw new ArgumentOutOfRangeException(nameof(spec.MemberSymbol))
+            IMethodSymbol m => RenderHullMethod(
+                m,
+                exposeSpec.Synchronization,
+                exposeSpec.PassThroughIfQueueClosed,
+                exposeSpec.IsAsync,
+                renderImplementation),
+            IPropertySymbol p => RenderHullProperty(p, exposeSpec.Synchronization, renderImplementation),
+            _ => throw new ArgumentOutOfRangeException(nameof(exposeSpec.MemberSymbol))
         };
     }
 
-    private static string RenderHullMethod(
+    private string RenderHullMethod(
         IMethodSymbol method,
         Synchronization proxyMethod,
         bool passThroughIfQueueClosed,
+        bool isAsync,
         bool renderImplementation)
     {
-        var returnType = proxyMethod == Synchronization.EnqueueReturn ? "void" : method.ReturnType.ToDisplayString();
+        var returnType =
+            proxyMethod == Synchronization.EnqueueReturn && spec.Interface is CapsuleSpec.GeneratedInterface
+                ? "void"
+                : method.ReturnType.ToDisplayString();
+        
+        // The method can usually just pass the task back to the caller. However, with enqueue return and a
+        // user-provided interface, we cannot guarantee that the types match, so we need an async operation to ensure
+        // proper task encapsulation in all cases.
+        var async = isAsync && proxyMethod == Synchronization.EnqueueReturn && renderImplementation ? "async " : "";
         
         var parameterDeclarations = string.Join(
             ", ",
@@ -115,7 +129,7 @@ internal class CodeRenderer(
 
         var arguments = string.Join(", ", method.Parameters.Select(p => $"{p.Name}"));
 
-        var signature = $"    public {returnType} {method.Name}({parameterDeclarations})";
+        var signature = $"    public {async}{returnType} {method.Name}({parameterDeclarations})";
 
         var passThrough = passThroughIfQueueClosed ? ", true" : "";
         var asTask = IsValueTask(method.ReturnType) ? ".AsTask()" : "";

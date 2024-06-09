@@ -67,13 +67,13 @@ Capsule can expose methods in different ways to match different use cases. The s
 
 The following synchronization modes are supported:
 
-| Synchronization Mode                        | Completes when                                              | Sync / Async                                                               | Behavior                                                                                             |
-|---------------------------------------------|-------------------------------------------------------------|----------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
-| `AwaitCompletion` (default)                 | invocation has been processed by the Capsule implementation | async                                                                      | :fontawesome-regular-user:{title="caller-owned"} :octicons-shield-check-16:{title="thread-safe"}     |
-| `AwaitEnqueueing`                           | invocation has been enqueued                                | sync or async implementation; exposed interface method will always be sync | :material-reload:{title="loop-owned"} :octicons-shield-check-16:{title="thread-safe"}                |
-| `AwaitReception`                            | invocation has been dequeued                                | async                                                                      | :material-reload:{title="loop-owned"} :octicons-shield-check-16:{title="thread-safe"}                |
-| `PassThrough`                               | implementation completes                                    | sync or async                                                              | :fontawesome-regular-user:{title="caller-owned"} :octicons-shield-slash-16:{title="not thread-safe"} |
-| `AwaitCompletionOrPassThroughIfQueueClosed` | implementation completes                                    | async                                                                      | :fontawesome-regular-user:{title="caller-owned"} :octicons-shield-slash-16:{title="not thread-safe"} |
+| Synchronization Mode                        | Completes when               | Sync / Async                      | Behavior                                                                                             |
+|---------------------------------------------|------------------------------|-----------------------------------|------------------------------------------------------------------------------------------------------|
+| `AwaitCompletion` (default)                 | implementation completes     | async                             | :fontawesome-regular-user:{title="caller-owned"} :octicons-shield-check-16:{title="thread-safe"}     |
+| `AwaitEnqueueing`                           | invocation has been enqueued | sync or async (details see below) | :material-reload:{title="loop-owned"} :octicons-shield-check-16:{title="thread-safe"}                |
+| `AwaitReception`                            | invocation has been dequeued | async                             | :material-reload:{title="loop-owned"} :octicons-shield-check-16:{title="thread-safe"}                |
+| `PassThrough`                               | implementation completes     | sync or async                     | :fontawesome-regular-user:{title="caller-owned"} :octicons-shield-slash-16:{title="not thread-safe"} |
+| `AwaitCompletionOrPassThroughIfQueueClosed` | implementation completes     | async                             | :fontawesome-regular-user:{title="caller-owned"} :octicons-shield-slash-16:{title="not thread-safe"} |
 
 
 ### Invocation Owner
@@ -81,6 +81,13 @@ The following synchronization modes are supported:
 Invocations are either caller-owned :fontawesome-regular-user: or loop-owned :material-reload:. Caller-owned invocations behave the same way as you'd expect any invocation on an object would behave: Results and exceptions are passed back to the caller.
 
 Loop-owned invocations enable a "fire and forget" communication between objects. The caller can continue before the invocation has been executed, but as a result won't receive return values or exceptions. `AwaitEnqueueing` is the recommended synchronization mode for "fire and forget" style communication.
+
+
+### Sync / Async
+
+Caller-owned invocations must be async. This is due to the fact that the caller will need to be suspended until the invocation can be dequeued/executed.
+
+A special case regarding sync/async is `AwaitEnqueueing` synchronization mode. This mode only needs to enqueue the invocation, which is a synchronous operation. Thus, such methods will be exposed as synchronous on the interface, unless the interface was resolved from the list of implemented interfaces on the Capsule (see [interface generation](#interface-generation) for details).
 
 
 ### Thread-Safety

@@ -23,7 +23,18 @@ internal class ExposeSpecResolver
         DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 #pragma warning restore RS2008
-    
+
+    private readonly HashSet<INamedTypeSymbol> _taskTypeSymbols;
+
+    public ExposeSpecResolver(Compilation compilation)
+    {
+        _taskTypeSymbols =
+        [
+            .. compilation.GetTypesByMetadataName("System.Threading.Tasks.Task"),
+            .. compilation.GetTypesByMetadataName("System.Threading.Tasks.ValueTask")
+        ];
+    }
+
     public IEnumerable<ExposeSpec> GetExposeSpecs(
         SourceProductionContext context,
         INamedTypeSymbol classSymbol)
@@ -51,7 +62,10 @@ internal class ExposeSpecResolver
         var synchronization = SynchronizerMethod(synchronizationPropertyValue);
         var fallbackToPassThrough = PassThroughAsFallback(synchronizationPropertyValue);
 
-        return new (symbol, synchronization, fallbackToPassThrough);
+        // Determine asyncness based on return type (there seems to be no better way)
+        var isAsync = symbol is IMethodSymbol { ReturnType: INamedTypeSymbol t } && _taskTypeSymbols.Contains(t);
+
+        return new (symbol, synchronization, fallbackToPassThrough, isAsync);
     }
     
     private static bool IsExposable(
