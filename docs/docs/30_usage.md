@@ -108,19 +108,18 @@ All synchronization modes except `PassThrough` will execute one invocation at a 
 
 Exceptions that throw out of capsule implementations are routed the same way as return values are, so caller-owned invocations will throw exceptions back to the caller.
 
-Loop-owned synchronization modes throw exceptions back into the invocation loop. In a default Capsule setup, such exceptions will be logged and then ignored. This behavior can be customized, see `CapsuleOptions.FailureMode`.
+Loop-owned synchronization modes throw exceptions back into the invocation loop, because there is no caller that waits for the invocation to complete. In a default Capsule setup, such exceptions will abort the invocation loop and consequently the hosted service that runs it. This in turn will terminate the application.
 
-It is recommended to use `CapsuleFailureMode.Abort` and handle all expected exceptions in the capsule implementation. This ensures that uncaught loop-owned exceptions don't go unnoticed.
+This behavior is consistent with how .NET background services treat uncaught exceptions in .NET 6 and newer. The rationale for this is that uncaught exceptions must not go unnoticed. Consequently, you'll need to ensure that *expected* exceptions are caught and handled in capsule implementations.
 
-!!! note
-    The default failure mode `Continue` may change with a future major release to `Abort` to align failure behavior with how .NET background services treat uncaught exceptions in .NET 6 and newer.
+Optionally, the failure mode can be changed to `Continue` through `CapsuleOptions.FailureMode`. With this failure mode, uncaught loop-owned exceptions will be logged and then ignored.
 
 
 ### Cancellation
 
 Capsule treats cancellation tokens on exposed methods as any other parameter, so the tokens flow through to the capsule implementation unmodified and cancellation can be realized in the capsule implementation.
 
-In case the cancellation leads to an `OperationCanceledException` being thrown out of the capsule implementation, the same behavior as outlined in [excpetion handling](#exception-handling) applies.
+In case the cancellation leads to an `OperationCanceledException` being thrown out of the capsule implementation, the same behavior as outlined in [excpetion handling](#exception-handling) applies, so you'll probably want to catch these exceptions.
 
 In any case, cancellation does not remove the invocation from the queue or otherwise change synchronization behavior.
 

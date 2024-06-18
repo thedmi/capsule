@@ -7,7 +7,8 @@ public record CapsuleOptions
 {
     /// <summary>
     /// The failure mode that instantiated control loops should use. Defaults to
-    /// <see cref="CapsuleFailureMode.Continue"/>.
+    /// <see cref="CapsuleFailureMode.Abort"/> to provide consistent behavior with
+    /// .NET background services.
     /// </summary>
-    public CapsuleFailureMode FailureMode { get; set; } = CapsuleFailureMode.Continue;
+    public CapsuleFailureMode FailureMode { get; set; } = CapsuleFailureMode.Abort;
 }
