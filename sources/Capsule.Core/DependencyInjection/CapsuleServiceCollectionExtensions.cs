@@ -35,9 +35,7 @@ public static class CapsuleServiceCollectionExtensions
         
         services.AddSingleton<ICapsuleSynchronizerFactory, DefaultSynchronizerFactory>();
         services.AddSingleton<ICapsuleInvocationLoopFactory>(
-            p => new DefaultInvocationLoopFactory(
-                p.GetRequiredService<ILogger<ICapsuleInvocationLoop>>(),
-                options.FailureMode));
+            p => new DefaultInvocationLoopFactory(p.GetRequiredService<ILoggerFactory>(), options.FailureMode));
         services.AddSingleton<ICapsuleQueueFactory, DefaultQueueFactory>();
         
         services.AddSingleton<CapsuleRuntimeContext>();

@@ -8,7 +8,7 @@ internal class InvocationLoop(
     ChannelReader<Func<Task>> reader,
     InvocationLoopStatus status,
     Type capsuleType,
-    ILogger<ICapsuleInvocationLoop> logger,
+    ILogger<InvocationLoop> logger,
     CapsuleFailureMode failureMode)
     : ICapsuleInvocationLoop
 {
