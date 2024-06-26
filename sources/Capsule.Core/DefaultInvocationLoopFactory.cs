@@ -7,12 +7,12 @@ namespace Capsule;
 /// <summary>
 /// A factory for invocation loops. Used when encapsulating capsules.
 /// </summary>
-/// <param name="logger">The logger</param>
+/// <param name="loggerFactory">The logger factory</param>
 /// <param name="failureMode">
 /// How the invocation loop shall treat uncaught exceptions from loop-owned invocations
 /// </param>
 public class DefaultInvocationLoopFactory(
-    ILogger<ICapsuleInvocationLoop> logger,
+    ILoggerFactory loggerFactory,
     CapsuleFailureMode failureMode = CapsuleFailureMode.Continue) : ICapsuleInvocationLoopFactory
 {
     public ICapsuleInvocationLoop Create(
@@ -20,6 +20,11 @@ public class DefaultInvocationLoopFactory(
         InvocationLoopStatus status,
         Type capsuleType)
     {
-        return new InvocationLoop(reader, status, capsuleType, logger, failureMode);
+        return new InvocationLoop(
+            reader,
+            status,
+            capsuleType,
+            loggerFactory.CreateLogger<InvocationLoop>(),
+            failureMode);
     }
 }

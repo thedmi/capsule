@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Capsule;
 
@@ -8,14 +7,6 @@ public class DefaultSynchronizerFactory(
     ICapsuleInvocationLoopFactory invocationLoopFactory,
     ILoggerFactory loggerFactory) : ICapsuleSynchronizerFactory
 {
-    [Obsolete("Use overload with logger factory parameter instead")]
-    public DefaultSynchronizerFactory(
-        ICapsuleQueueFactory queueFactory,
-        ICapsuleInvocationLoopFactory invocationLoopFactory) : this(
-        queueFactory,
-        invocationLoopFactory,
-        new NullLoggerFactory()) { }
-
     public ICapsuleSynchronizer Create(object capsuleImpl, ICapsuleHost host)
     {
         var capsuleType = capsuleImpl.GetType();

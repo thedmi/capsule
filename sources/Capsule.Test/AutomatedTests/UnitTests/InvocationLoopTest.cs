@@ -20,7 +20,7 @@ public class InvocationLoopTest
             channel.Reader,
             status,
             typeof(object),
-            Mock.Of<ILogger<ICapsuleInvocationLoop>>(),
+            Mock.Of<ILogger<InvocationLoop>>(),
             CapsuleFailureMode.Continue);
 
         var invocationCounter = 0;
@@ -55,7 +55,7 @@ public class InvocationLoopTest
             channel.Reader,
             status,
             typeof(object),
-            Mock.Of<ILogger<ICapsuleInvocationLoop>>(),
+            Mock.Of<ILogger<InvocationLoop>>(),
             CapsuleFailureMode.Abort);
 
         var invocationException = new Exception("the exception");
