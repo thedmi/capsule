@@ -38,11 +38,14 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <NoWarn>1701;1702;NU5128</NoWarn>
   </PropertyGroup>
-
+  
   <ItemGroup>
+    <!-- WARNING: Do not update these packages unless absolutely necessary. Upgrading them will require
+         users to install a newer .NET SDK. See https://github.com/dotnet/roslyn/blob/main/docs/wiki/NuGet-packages.md 
+         for more information. -->
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.10.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.2.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.2.0" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
