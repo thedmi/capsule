@@ -5,8 +5,7 @@ name: Docs
 
 on:
   push:
-    # TODO Update to 'master' once v3 is released, then add backlink to the v2 branch from the docs
-    branches: [ "v2" ]
+    branches: [ "master" ]
 
 permissions:
   contents: write
