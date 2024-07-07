@@ -26,14 +26,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- TODO Revert to to package reference for release builds once 3.0 is ready -->
-    <ProjectReference Include="..\Capsule.Core\Capsule.Core.csproj" />
     <!-- Conditionally reference either the project or the package. This enables integrated development of features
          that span multiple projects, while still resorting to package references for the published nuget packages. -->
-    <!-- 
     <ProjectReference Include="..\Capsule.Core\Capsule.Core.csproj" Condition=" '$(Configuration)' == 'Debug' " />
-    <PackageReference Include="Capsule.Core" Version="2.0.0" Condition=" '$(Configuration)' == 'Release' " /> 
-    -->
+    <PackageReference Include="Capsule.Core" Version="3.0.0" Condition=" '$(Configuration)' == 'Release' " /> 
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
