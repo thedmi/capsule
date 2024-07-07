@@ -1,9 +1,9 @@
 
 # Introduction
 
-Capsule is a .NET library and C# source generator that provides thread-safe object encapsulation in an automatic and boilerplate-free way.
+Capsule is a .NET library and C# source generator that provides thread-safe object encapsulation in an automatic and boilerplate-free way. It can be used as run-to-completion runtime for state machines, as actor library or just to avoid manual locking and synchronization code.
 
-It turns ordinary objects into thread-safe *capsules*. A capsule can be used *concurrently* without the risk of race conditions. The original interface is retained, so this is *transparent* for callers.
+Capsule turns ordinary objects into thread-safe *capsules*. A capsule can be used *concurrently* without the risk of race conditions. The original interface is retained, so this is *transparent* for callers.
 
 ![Encapsulating an object](capsule.drawio.svg)
 
