@@ -42,8 +42,7 @@ public class TimerServiceTest
         timeSpan.ShouldBe(TimeSpan.FromSeconds(30));
         callbackCalled.ShouldBeFalse();
         synchronizer.InvocationQueue.ShouldBeEmpty();
-        sut.TimerTasks.Count().ShouldBe(1);
-        sut.Timers.ShouldBe([timerRef]);
+        sut.Timers.ToList().ShouldBe([timerRef]);
         cancellationToken.ShouldBe(timerRef.CancellationToken);
         
         // Act 2 - the delay elapsed
@@ -59,7 +58,6 @@ public class TimerServiceTest
         
         // Assert 3 - callback executed and timers cleaned up
         callbackCalled.ShouldBeTrue();
-        sut.TimerTasks.ShouldBeEmpty();
         sut.Timers.ShouldBeEmpty();
     }
     
@@ -88,8 +86,7 @@ public class TimerServiceTest
         // Assert 1 - awaiting delay, no invocation enqueued yet
         callbackCalled.ShouldBeFalse();
         synchronizer.InvocationQueue.ShouldBeEmpty();
-        sut.TimerTasks.Count().ShouldBe(1);
-        sut.Timers.ShouldBe([timerRef]);
+        sut.Timers.ToList().ShouldBe([timerRef]);
         
         // Act 2 - cancel the timer
         timerRef.Cancel();
@@ -104,7 +101,6 @@ public class TimerServiceTest
         
         // Assert 3 - callback executed and timers cleaned up
         callbackCalled.ShouldBeFalse();
-        sut.TimerTasks.ShouldBeEmpty();
         sut.Timers.ShouldBeEmpty();
     }
 
