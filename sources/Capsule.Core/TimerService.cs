@@ -26,6 +26,8 @@ internal class TimerService(
     // Internal for unit test access
     internal readonly TaskHandlingCollection<TimerReference> Timers = new(tr => tr.TimerTask);
 
+    public int Count => Timers.Count;
+    
     public TimerReference StartSingleShot(TimeSpan timeout, Func<Task> callback)
     {
         if (timeout < TimeSpan.Zero)
@@ -43,7 +45,7 @@ internal class TimerService(
         logger.LogDebug(
             "Timer with timeout {Timeout} started & registered, {TimerCount} timers are now pending",
             timeout,
-            Timers.Count());
+            Timers.Count);
 
         return timerReference;
 

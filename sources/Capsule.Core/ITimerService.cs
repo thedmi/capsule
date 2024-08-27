@@ -22,4 +22,9 @@ public interface ITimerService
     /// Callbacks that have already been enqueued because their timer has elapsed will remain enqueued.
     /// </remarks>
     void CancelAll();
+    
+    /// <summary>
+    /// The number of timers that this service currently manages. This may include timers that just expired.
+    /// </summary>
+    int Count { get; }
 }

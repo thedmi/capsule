@@ -32,6 +32,8 @@ public class FakeTimerService : ITimerService
         _callbacks.Clear();
     }
 
+    public int Count => _callbacks.Count;
+
     /// <summary>
     /// Simulates timer expiration for the timer represented by <paramref name="timerReference"/> and invokes its
     /// callback.

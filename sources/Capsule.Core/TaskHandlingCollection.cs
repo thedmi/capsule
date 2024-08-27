@@ -29,6 +29,8 @@ public class TaskHandlingCollection<T>(Func<T, Task> taskSelector) : IEnumerable
         return taskCompletions.Where(c => c.completed).Select(c => c.item).ToList();
     }
 
+    public int Count => _items.Count;
+
     public IEnumerator<T> GetEnumerator() => _items.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
