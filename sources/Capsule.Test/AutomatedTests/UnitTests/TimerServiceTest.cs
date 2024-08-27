@@ -142,6 +142,33 @@ public class TimerServiceTest
         runs.Count.ShouldBe(numberOfRuns);
     }
 
+    [Test]
+    public async Task Existing_timers_are_cancelled_when_the_discriminator_matches()
+    {
+        var taskCompletionSource = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var synchronizer = new ManualSynchronizer();
+
+        var callback1Called = false;
+        var callback2Called = false;
+        var callback3Called = false;
+
+        var sut = new TimerService(synchronizer, new NullLogger<TimerService>(), (_, _) => taskCompletionSource.Task);
+
+        sut.StartSingleShot(TimeSpan.FromSeconds(10), async () => callback1Called = true, "d1");
+        sut.StartSingleShot(TimeSpan.FromSeconds(20), async () => callback2Called = true, "d1");
+        sut.StartSingleShot(TimeSpan.FromSeconds(10), async () => callback3Called = true, "d2");
+        
+        // Act
+        taskCompletionSource.SetResult();
+        await Task.Delay(100);
+        await synchronizer.ExecuteInvocationsAsync();
+
+        // Assert
+        callback1Called.ShouldBeFalse();
+        callback2Called.ShouldBeTrue();
+        callback3Called.ShouldBeTrue();
+    }
+
     private class ManualSynchronizer : ICapsuleSynchronizer
     {
         public Queue<Func<Task>> InvocationQueue { get; } = new();

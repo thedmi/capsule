@@ -28,7 +28,7 @@ internal class TimerService(
 
     public int Count => Timers.Count;
     
-    public TimerReference StartSingleShot(TimeSpan timeout, Func<Task> callback)
+    public TimerReference StartSingleShot(TimeSpan timeout, Func<Task> callback, string? discriminator = null)
     {
         if (timeout < TimeSpan.Zero)
         {
@@ -38,8 +38,21 @@ internal class TimerService(
         var cts = new CancellationTokenSource();
 
         var timerTask = EnqueueCallbackDelayed();
-        var timerReference = new TimerReference(timeout, timerTask, cts);
-        
+        var timerReference = new TimerReference(timeout, timerTask, cts, discriminator);
+
+        if (discriminator != null)
+        {
+            foreach (var existing in Timers.Where(t => t.Discriminator == discriminator))
+            {
+                logger.LogDebug(
+                    "Existing timer with matching discriminator '{Discriminator}' found (timeout {Timeout}), cancelling existing timer...",
+                    discriminator,
+                    existing.Timeout);
+            
+                existing.Cancel();
+            }
+        }
+
         Timers.Add(timerReference);
 
         logger.LogDebug(
@@ -66,7 +79,7 @@ internal class TimerService(
                     synchronizer.EnqueueReturn(callback);
                     
                     logger.LogDebug(
-                        "Timer with timeout {Timeout} has fired and its callback enqueued",
+                        "Timer with timeout {Timeout} has fired and its callback been enqueued",
                         timeout);
                 }
             }
