@@ -144,9 +144,9 @@ Capsule will enqueue a single call to this method when a capsule is instantiated
 
 ### Timers
 
-Run-to-completion semantics dictate that individual runs should complete quickly. In other words, awaiting large delays or even sleeping is discouraged and will break responsiveness of the capsule.
+Run-to-completion semantics dictate that individual runs should complete quickly. In other words, awaiting large delays or even sleeping is discouraged and will break responsiveness of the capsule, potentially leading to invocation queue exhaustion.
 
-To work around this limitation, timers can be used by implementing `CapsuleFeature.ITimers`. When implemented, Capsule will inject an `ITimerService` during encapsulation.
+To work around this limitation, Capsule provides a timer service. The service can be used by making capsules implement `CapsuleFeature.ITimers`. When implemented, Capsule will inject an `ITimerService` during encapsulation.
 
 !!! note
     The timer service will not be available when the constructor of the capsule implementation runs as this would create a chicken-and-egg problem. If you need to start timers when the capsule is instantiated, use an [async initializer](#async-initializer).
@@ -154,6 +154,8 @@ To work around this limitation, timers can be used by implementing `CapsuleFeatu
 You can then use the timer service to register callbacks with a timeout through `StartSingleShot()`. When the timeout expires, the callback will be enqueued as just another invocation. Timers thus adheres to the thread-safety guarantees of the capsule.
 
 Pending timers can also be cancelled. Either cancel a single timer through its `TimerReference`, or cancel all timers through `ITimerService.CancelAll()`.
+
+For cases where only a single timer is needed, but that timer may be restarted multiple times, consider passing a `discriminator` to `StartSingleShot()`. The timer service will then ensure that at most one timer with the same discriminator exists, previous ones will be cancelled.
 
 
 ## Testing
