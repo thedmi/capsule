@@ -15,7 +15,7 @@ public class CapsuleHost(ILogger<CapsuleHost> logger) : ICapsuleHost
 
     private readonly CancellationTokenSource _shutdownCts = new();
 
-    private readonly TaskCollection _invocationLoopTasks = [];
+    private readonly TaskHandlingCollection<Task> _invocationLoopTasks = new(t => t);
 
     public async Task RunAsync(CancellationToken stoppingToken)
     {

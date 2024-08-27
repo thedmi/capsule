@@ -24,11 +24,10 @@ internal class TimerService(
     private readonly Func<TimeSpan, CancellationToken, Task> _delayProvider = delayProvider ?? DelayAtLeastAsync;
 
     // Internal for unit test access
-    internal readonly TaskCollection TimerTasks = [];
+    internal readonly TaskHandlingCollection<TimerReference> Timers = new(tr => tr.TimerTask);
 
-    // Internal for unit test access
-    internal readonly List<TimerReference> Timers = [];
-
+    public int Count => Timers.Count;
+    
     public TimerReference StartSingleShot(TimeSpan timeout, Func<Task> callback)
     {
         if (timeout < TimeSpan.Zero)
@@ -41,7 +40,6 @@ internal class TimerService(
         var timerTask = EnqueueCallbackDelayed();
         var timerReference = new TimerReference(timeout, timerTask, cts);
         
-        TimerTasks.Add(timerTask);
         Timers.Add(timerReference);
 
         logger.LogDebug(
@@ -93,10 +91,8 @@ internal class TimerService(
 
     private async Task ClearElapsedTimersAsync()
     {
-        var completed = TimerTasks.RemoveCompleted();
-        await Task.WhenAll(completed).ConfigureAwait(false);
-
-        Timers.RemoveAll(t => completed.Contains(t.TimerTask));
+        var completed = Timers.RemoveCompleted();
+        await Task.WhenAll(completed.Select(tr => tr.TimerTask)).ConfigureAwait(false);
     }
 
     private static async Task DelayAtLeastAsync(TimeSpan delay, CancellationToken cancellationToken)
