@@ -12,6 +12,7 @@ namespace Capsule;
 /// thread-safe, so it must be used only from within the owning capsule.
 /// </remarks>
 /// <param name="synchronizer">The synchronizer of the capsule this service is used with.</param>
+/// <param name="logger">The logger for this service.</param>
 /// <param name="delayProvider">
 /// Optional delay provider for testing purposes. If left null, the default delay implementation will be used, which
 /// is based on Task.Delay but ensures timers don't fire early. 
