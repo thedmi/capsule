@@ -26,11 +26,13 @@
   </ItemGroup>
   
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <NoWarn>1701;1702;1998</NoWarn>
+    <NoWarn>1591;1701;1702;1998</NoWarn>
+    <DocumentationFile>bin\Debug\Capsule.Core.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <NoWarn>1701;1702;1998</NoWarn>
+    <NoWarn>1591;1701;1702;1998</NoWarn>
+    <DocumentationFile>bin\Release\Capsule.Core.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
