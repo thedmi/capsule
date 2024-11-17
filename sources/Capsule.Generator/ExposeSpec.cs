@@ -6,4 +6,5 @@ internal record ExposeSpec(
     ISymbol MemberSymbol,
     Synchronization Synchronization,
     bool PassThroughIfQueueClosed,
-    bool IsAsync);
+    bool IsAsync
+);

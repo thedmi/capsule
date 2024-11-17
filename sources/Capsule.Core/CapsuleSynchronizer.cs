@@ -5,7 +5,8 @@ namespace Capsule;
 internal class CapsuleSynchronizer(
     ChannelWriter<Func<Task>> writer,
     IInvocationLoopStatus invocationLoopStatus,
-    Type capsuleType) : ICapsuleSynchronizer
+    Type capsuleType
+) : ICapsuleSynchronizer
 {
     public async Task EnqueueAwaitResult(Func<Task> impl, bool passThroughIfQueueClosed = false)
     {
@@ -15,7 +16,8 @@ internal class CapsuleSynchronizer(
                     await impl().ConfigureAwait(false);
                     return null;
                 },
-                passThroughIfQueueClosed)
+                passThroughIfQueueClosed
+            )
             .ConfigureAwait(false);
     }
 
@@ -26,7 +28,7 @@ internal class CapsuleSynchronizer(
             // Queue has been closed, enqueuing will not work
             return await impl();
         }
-        
+
         var tcs = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         async Task Func()
@@ -69,14 +71,13 @@ internal class CapsuleSynchronizer(
 
     public void EnqueueReturn(Action impl)
     {
-        EnqueueReturn(
-            () =>
-            {
-                impl();
-                return Task.CompletedTask;
-            });
+        EnqueueReturn(() =>
+        {
+            impl();
+            return Task.CompletedTask;
+        });
     }
-    
+
     public T PassThrough<T>(Func<T> impl)
     {
         return impl();
@@ -87,15 +88,17 @@ internal class CapsuleSynchronizer(
         if (invocationLoopStatus.Terminated)
         {
             throw new CapsuleInvocationException(
-                $"Unable to enqueue invocation for capsule of type {capsuleType}, invocation loop has been terminated.");
+                $"Unable to enqueue invocation for capsule of type {capsuleType}, invocation loop has been terminated."
+            );
         }
-        
+
         var success = writer.TryWrite(func);
 
         if (!success)
         {
             throw new CapsuleInvocationException(
-                $"Enqueuing invocation for capsule of type {capsuleType} failed, cannot write to queue.");
+                $"Enqueuing invocation for capsule of type {capsuleType} failed, cannot write to queue."
+            );
         }
     }
 

@@ -5,14 +5,15 @@ namespace Capsule;
 public class DefaultSynchronizerFactory(
     ICapsuleQueueFactory queueFactory,
     ICapsuleInvocationLoopFactory invocationLoopFactory,
-    ILoggerFactory loggerFactory) : ICapsuleSynchronizerFactory
+    ILoggerFactory loggerFactory
+) : ICapsuleSynchronizerFactory
 {
     public ICapsuleSynchronizer Create(object capsuleImpl, ICapsuleHost host)
     {
         var capsuleType = capsuleImpl.GetType();
-        
+
         var invocationLoopStatus = new InvocationLoopStatus();
-        
+
         var queue = queueFactory.CreateSynchronizerQueue();
         var synchronizer = new CapsuleSynchronizer(queue.Writer, invocationLoopStatus, capsuleType);
 

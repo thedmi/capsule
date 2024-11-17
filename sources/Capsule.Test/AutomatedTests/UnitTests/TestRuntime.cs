@@ -14,6 +14,8 @@ public static class TestRuntime
             new DefaultSynchronizerFactory(
                 new DefaultQueueFactory(),
                 new DefaultInvocationLoopFactory(loggerFactory, CapsuleFailureMode.Abort),
-                loggerFactory));
+                loggerFactory
+            )
+        );
     }
 }

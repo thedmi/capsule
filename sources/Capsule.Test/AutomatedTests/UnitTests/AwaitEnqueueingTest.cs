@@ -1,10 +1,7 @@
 ﻿using Capsule.Attribution;
 using Capsule.GenericHosting;
-
 using Microsoft.Extensions.Logging;
-
 using Moq;
-
 using Shouldly;
 
 namespace Capsule.Test.AutomatedTests.UnitTests;
@@ -16,13 +13,13 @@ public class AwaitEnqueueingTest
     {
         await TestSuccessful(s => s.ExecuteInnerAsync());
     }
-    
+
     [Test]
     public async Task Await_enqueueing_returns_when_invocation_was_enqueued_value_task()
     {
         await TestSuccessful(s => s.ExecuteInnerValueTaskAsync());
     }
-    
+
     [Test]
     public async Task Await_enqueueing_returns_when_invocation_was_enqueued_sync()
     {
@@ -34,39 +31,45 @@ public class AwaitEnqueueingTest
         var runtimeContext = TestRuntime.Create();
         var hostedService = new CapsuleBackgroundService(
             (CapsuleHost)runtimeContext.Host,
-            Mock.Of<ILogger<CapsuleBackgroundService>>());
-        
+            Mock.Of<ILogger<CapsuleBackgroundService>>()
+        );
+
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
         await hostedService.StartAsync(CancellationToken.None);
 
         var methodRunStarted = false;
 
-        var sut =
-            new TestSubject(tcs.Task, () => { methodRunStarted = true; }).Encapsulate(runtimeContext);
+        var sut = new TestSubject(
+            tcs.Task,
+            () =>
+            {
+                methodRunStarted = true;
+            }
+        ).Encapsulate(runtimeContext);
 
         testSubjectCall(sut);
 
         methodRunStarted.ShouldBeFalse();
-        
+
         var awaitCompletionTask = sut.SucceedAlwaysAsync();
         await Task.Delay(100);
-        
+
         methodRunStarted.ShouldBeTrue();
-        
+
         // The second invocation, this time with await completion, should still be pending because the first one hasn't
         // finished yet
         awaitCompletionTask.Status.ShouldBe(TaskStatus.WaitingForActivation);
-        
+
         // Now let the first invocation finish
         tcs.SetResult();
         await Task.Delay(100);
-        
+
         awaitCompletionTask.IsCompleted.ShouldBeTrue();
         awaitCompletionTask.IsCompletedSuccessfully.ShouldBeTrue();
 
         (await awaitCompletionTask).ShouldBeTrue();
-        
+
         await hostedService.StopAsync(CancellationToken.None);
         await Task.Delay(100);
         await hostedService.ExecuteTask!;
@@ -95,12 +98,13 @@ public class AwaitEnqueueingTest
         var runtimeContext = TestRuntime.Create();
         var hostedService = new CapsuleBackgroundService(
             (CapsuleHost)runtimeContext.Host,
-            Mock.Of<ILogger<CapsuleBackgroundService>>());
-        
+            Mock.Of<ILogger<CapsuleBackgroundService>>()
+        );
+
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        
+
         var exception = new InvalidOperationException("oh no");
-        
+
         await hostedService.StartAsync(CancellationToken.None);
 
         var sut = new TestSubject(tcs.Task, () => throw exception).Encapsulate(runtimeContext);
@@ -108,10 +112,10 @@ public class AwaitEnqueueingTest
         testSubjectCall(sut);
 
         await Task.Delay(100);
-        
+
         // Ensure that the loop has been terminated
         await Should.ThrowAsync<CapsuleInvocationException>(async () => await sut.SucceedAlwaysAsync());
-        
+
         await hostedService.StopAsync(CancellationToken.None);
         await Task.Delay(100);
         await Should.ThrowAsync<InvalidOperationException>(async () => await hostedService.ExecuteTask);
@@ -134,10 +138,11 @@ public class AwaitEnqueueingTest
         var runtimeContext = TestRuntime.Create();
         var hostedService = new CapsuleBackgroundService(
             (CapsuleHost)runtimeContext.Host,
-            Mock.Of<ILogger<CapsuleBackgroundService>>());
-        
+            Mock.Of<ILogger<CapsuleBackgroundService>>()
+        );
+
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        
+
         await hostedService.StartAsync(CancellationToken.None);
 
         var sut = new TestSubject(tcs.Task, () => { }).Encapsulate(runtimeContext);
@@ -146,15 +151,15 @@ public class AwaitEnqueueingTest
         tcs.SetCanceled();
 
         await Task.Delay(100);
-        
+
         // Ensure that the loop has been terminated
         await Should.ThrowAsync<CapsuleInvocationException>(async () => await sut.SucceedAlwaysAsync());
-        
+
         await hostedService.StopAsync(CancellationToken.None);
         await Task.Delay(100);
         await Should.ThrowAsync<OperationCanceledException>(async () => await hostedService.ExecuteTask);
     }
-    
+
     [Capsule(InterfaceName = "IAwaitEnqueueingTestSubject")]
     public class TestSubject(Task innerTask, Action preAction)
     {
@@ -184,5 +189,4 @@ public class AwaitEnqueueingTest
             return true;
         }
     }
-
 }

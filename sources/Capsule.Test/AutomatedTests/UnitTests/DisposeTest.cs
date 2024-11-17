@@ -1,8 +1,6 @@
 ﻿using Capsule.Attribution;
 using Capsule.GenericHosting;
-
 using Microsoft.Extensions.Logging;
-
 using Moq;
 
 namespace Capsule.Test.AutomatedTests.UnitTests;
@@ -21,11 +19,12 @@ public class DisposeTest
         var runtimeContext = TestRuntime.Create();
         var hostedService = new CapsuleBackgroundService(
             (CapsuleHost)runtimeContext.Host,
-            Mock.Of<ILogger<CapsuleBackgroundService>>());
+            Mock.Of<ILogger<CapsuleBackgroundService>>()
+        );
 
         var sutImpl = new DisposeTestSubject();
         var sut = sutImpl.Encapsulate(runtimeContext);
-        
+
         await hostedService.StartAsync(CancellationToken.None);
 
         await hostedService.StopAsync(CancellationToken.None);
@@ -39,7 +38,5 @@ public class DisposeTest
 public class DisposeTestSubject : IAsyncDisposable
 {
     [Expose(Synchronization = CapsuleSynchronization.AwaitCompletionOrPassThroughIfQueueClosed)]
-    public async ValueTask DisposeAsync()
-    {
-    }
+    public async ValueTask DisposeAsync() { }
 }

@@ -1,5 +1,4 @@
 ﻿using System.Threading.Channels;
-
 using Microsoft.Extensions.Logging;
 
 namespace Capsule;
@@ -13,18 +12,21 @@ namespace Capsule;
 /// </param>
 public class DefaultInvocationLoopFactory(
     ILoggerFactory loggerFactory,
-    CapsuleFailureMode failureMode = CapsuleFailureMode.Continue) : ICapsuleInvocationLoopFactory
+    CapsuleFailureMode failureMode = CapsuleFailureMode.Continue
+) : ICapsuleInvocationLoopFactory
 {
     public ICapsuleInvocationLoop Create(
         ChannelReader<Func<Task>> reader,
         InvocationLoopStatus status,
-        Type capsuleType)
+        Type capsuleType
+    )
     {
         return new InvocationLoop(
             reader,
             status,
             capsuleType,
             loggerFactory.CreateLogger<InvocationLoop>(),
-            failureMode);
+            failureMode
+        );
     }
 }

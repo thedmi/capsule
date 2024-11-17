@@ -1,10 +1,7 @@
 ﻿using Capsule.Attribution;
 using Capsule.GenericHosting;
-
 using Microsoft.Extensions.Logging;
-
 using Moq;
-
 using Shouldly;
 
 namespace Capsule.Test.AutomatedTests.UnitTests;
@@ -17,8 +14,9 @@ public class ConcurrencyTest
         var runtimeContext = TestRuntime.Create();
         var hostedService = new CapsuleBackgroundService(
             (CapsuleHost)runtimeContext.Host,
-            Mock.Of<ILogger<CapsuleBackgroundService>>());
-        
+            Mock.Of<ILogger<CapsuleBackgroundService>>()
+        );
+
         var sut = new ConcurrencyTestSubject().Encapsulate(runtimeContext);
 
         var taskRes1 = sut.IncrementAwaitResultAsync();
@@ -29,18 +27,18 @@ public class ConcurrencyTest
         var taskRec2 = sut.IncrementAwaitReceptionAsync();
         var taskRes3 = sut.IncrementAwaitResultAsync();
         var taskRes4 = sut.IncrementAwaitResultAsync();
-        
+
         sut.GetStateUnsafe().ShouldBe(0);
 
         await hostedService.StartAsync(CancellationToken.None);
         await Task.WhenAll(taskRes1, taskRes2, taskRes3, taskRes4, taskRec1, taskRec2);
-        
+
         taskRes1.Result.ShouldBe(11);
         taskRes2.Result.ShouldBe(12);
-        
+
         taskRes3.Result.ShouldBe(17);
         taskRes4.Result.ShouldBe(18);
-        
+
         await hostedService.StopAsync(CancellationToken.None);
         await hostedService.ExecuteTask!;
     }
@@ -50,12 +48,12 @@ public class ConcurrencyTest
 public class ConcurrencyTestSubject : CapsuleFeature.IInitializer
 {
     private int _someState;
-    
+
     public async Task InitializeAsync()
     {
         _someState = 10;
     }
-    
+
     [Expose]
     public async Task<int> IncrementAwaitResultAsync()
     {
@@ -63,13 +61,13 @@ public class ConcurrencyTestSubject : CapsuleFeature.IInitializer
 
         return _someState;
     }
-    
+
     [Expose(Synchronization = CapsuleSynchronization.AwaitReception)]
     public async Task IncrementAwaitReceptionAsync()
     {
         await IncrementAsync();
     }
-    
+
     [Expose(Synchronization = CapsuleSynchronization.AwaitEnqueueing)]
     public async Task IncrementAwaitEnqueueingAsync()
     {

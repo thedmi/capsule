@@ -12,9 +12,9 @@ public class CapsuleBackgroundService(CapsuleHost host, ILogger<CapsuleBackgroun
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         logger.LogDebug("Starting Capsule background service...");
-        
+
         await host.RunAsync(stoppingToken).ConfigureAwait(false);
-        
+
         logger.LogDebug("Capsule background service terminated");
     }
 }

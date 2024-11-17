@@ -1,5 +1,4 @@
 ﻿using Capsule.Testing;
-
 using Shouldly;
 
 namespace Capsule.Test.AutomatedTests.UnitTests;
@@ -14,7 +13,7 @@ public class FakeTimerServiceTest
 
         sut.StartSingleShot(TimeSpan.FromMilliseconds(1), async () => flag = true);
         await Task.Delay(50);
-        
+
         flag.ShouldBeFalse();
     }
 
@@ -28,15 +27,15 @@ public class FakeTimerServiceTest
         var timer1 = sut.StartSingleShot(TimeSpan.Zero, async () => i += 1);
         sut.StartSingleShot(TimeSpan.Zero, async () => i += 2);
         await Task.Delay(50);
-        
+
         i.ShouldBe(0);
-        
+
         await sut.ExecuteAsync(timer1);
-        
+
         i.ShouldBe(1);
 
         await sut.ExecuteAllAsync();
-        
+
         i.ShouldBe(3);
     }
 }

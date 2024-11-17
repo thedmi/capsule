@@ -11,7 +11,10 @@ public class DefaultQueueFactory(int? capacity = null, BoundedChannelFullMode? f
         return Channel.CreateBounded<Func<Task>>(
             new BoundedChannelOptions(capacity ?? DefaultCapacity)
             {
-                SingleReader = true, SingleWriter = false, FullMode = fullMode ?? BoundedChannelFullMode.Wait
-            });
+                SingleReader = true,
+                SingleWriter = false,
+                FullMode = fullMode ?? BoundedChannelFullMode.Wait,
+            }
+        );
     }
 }

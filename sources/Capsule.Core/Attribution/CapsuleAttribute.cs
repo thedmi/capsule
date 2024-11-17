@@ -1,5 +1,4 @@
-﻿
-namespace Capsule.Attribution;
+﻿namespace Capsule.Attribution;
 
 /// <summary>
 /// Enables encapsulation for a class. By adding this attribute, the Capsule generator will generate an extension class

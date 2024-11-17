@@ -1,5 +1,4 @@
 ﻿using System.Threading.Channels;
-
 using Microsoft.Extensions.Logging;
 
 namespace Capsule;
@@ -10,8 +9,11 @@ public class CapsuleHost(ILogger<CapsuleHost> logger) : ICapsuleHost
     private readonly Channel<Func<Task>> _taskChannel = Channel.CreateBounded<Func<Task>>(
         new BoundedChannelOptions(1023)
         {
-            SingleReader = true, SingleWriter = false, FullMode = BoundedChannelFullMode.Wait
-        });
+            SingleReader = true,
+            SingleWriter = false,
+            FullMode = BoundedChannelFullMode.Wait,
+        }
+    );
 
     private readonly CancellationTokenSource _shutdownCts = new();
 
@@ -41,7 +43,7 @@ public class CapsuleHost(ILogger<CapsuleHost> logger) : ICapsuleHost
                 // Handle completed tasks and remove them from the list, keep the still running ones
                 await SeparateCompletedTasksAsync().ConfigureAwait(false);
             }
-            
+
             while (_taskChannel.Reader.TryRead(out var taskFactory))
             {
                 // Add newly received tasks one by one
@@ -51,14 +53,14 @@ public class CapsuleHost(ILogger<CapsuleHost> logger) : ICapsuleHost
 
         // Shutting down, so await all tasks
         await Task.WhenAll(_invocationLoopTasks).ConfigureAwait(false);
-        
+
         logger.LogDebug("Capsule host terminated");
     }
 
     private async Task SeparateCompletedTasksAsync()
     {
         var completed = _invocationLoopTasks.RemoveCompleted();
-        
+
         foreach (var completedTask in completed)
         {
             await HandleCompletedTaskAsync(completedTask).ConfigureAwait(false);
@@ -69,7 +71,7 @@ public class CapsuleHost(ILogger<CapsuleHost> logger) : ICapsuleHost
     {
         // Await task to unwrap exceptions, if any. The invocation loop task will throw in case a loop-owned invocation
         // produced an exception and CapsuleFailureMode.Abort has been specified. Consequently, the capsule host will
-        // throw here and, if the capsule host is managed by a hosted service (the default), crash the app. 
+        // throw here and, if the capsule host is managed by a hosted service (the default), crash the app.
         // This failure behavior is intentional and is consistent with how uncaught exceptions in hosted services are
         // handled in .NET 6 and newer. The rationale behind this logic is that uncaught exceptions are a major issue
         // and should never go unnoticed.

@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -11,15 +10,18 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // Only filtered Syntax Nodes can trigger code generation
-        var provider = context.SyntaxProvider
-            .CreateSyntaxProvider(
+        var provider = context
+            .SyntaxProvider.CreateSyntaxProvider(
                 (s, _) => s is ClassDeclarationSyntax c && c.AttributeLists.Any(),
-                (ctx, _) => GetClassDeclarationForSourceGen(ctx))
+                (ctx, _) => GetClassDeclarationForSourceGen(ctx)
+            )
             .Where(static m => m is not null);
 
         // Generate the source code
-        context.RegisterSourceOutput(context.CompilationProvider.Combine(provider.Collect()),
-            (ctx, t) => GenerateCode(ctx, t.Left, t.Right!));
+        context.RegisterSourceOutput(
+            context.CompilationProvider.Combine(provider.Collect()),
+            (ctx, t) => GenerateCode(ctx, t.Left, t.Right!)
+        );
     }
 
     /// <summary>
@@ -27,8 +29,7 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
     /// </summary>
     /// <param name="context">Syntax context, based on CreateSyntaxProvider predicate</param>
     /// <returns>The specific cast and whether the attribute was found.</returns>
-    private static ClassDeclarationSyntax? GetClassDeclarationForSourceGen(
-        GeneratorSyntaxContext context)
+    private static ClassDeclarationSyntax? GetClassDeclarationForSourceGen(GeneratorSyntaxContext context)
     {
         var classDeclarationSyntax = (ClassDeclarationSyntax)context.Node;
 
@@ -61,7 +62,8 @@ public class CapsuleSourceGenerator : IIncrementalGenerator
     private void GenerateCode(
         SourceProductionContext context,
         Compilation compilation,
-        ImmutableArray<ClassDeclarationSyntax> classDeclarations)
+        ImmutableArray<ClassDeclarationSyntax> classDeclarations
+    )
     {
         var capsuleSpecResolver = new CapsuleSpecResolver();
         var exposeSpecResolver = new ExposeSpecResolver(compilation);

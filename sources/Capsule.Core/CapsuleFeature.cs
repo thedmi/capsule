@@ -20,7 +20,7 @@ public static class CapsuleFeature
     {
         Task InitializeAsync();
     }
-    
+
     /// <summary>
     /// Timer feature. By implementing this interface the capsule implementation receives a timer service during
     /// encapsulation.

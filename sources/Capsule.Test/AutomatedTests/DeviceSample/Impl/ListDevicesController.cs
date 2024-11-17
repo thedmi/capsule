@@ -1,5 +1,4 @@
-﻿
-namespace Capsule.Test.AutomatedTests.DeviceSample.Impl;
+﻿namespace Capsule.Test.AutomatedTests.DeviceSample.Impl;
 
 public class ListDevicesController(IDeviceCoordinator coordinator)
 {

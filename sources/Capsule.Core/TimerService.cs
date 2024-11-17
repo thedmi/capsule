@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-
 using Microsoft.Extensions.Logging;
 
 namespace Capsule;
@@ -15,12 +14,13 @@ namespace Capsule;
 /// <param name="logger">The logger for this service.</param>
 /// <param name="delayProvider">
 /// Optional delay provider for testing purposes. If left null, the default delay implementation will be used, which
-/// is based on Task.Delay but ensures timers don't fire early. 
+/// is based on Task.Delay but ensures timers don't fire early.
 /// </param>
 internal class TimerService(
     ICapsuleSynchronizer synchronizer,
     ILogger<TimerService> logger,
-    Func<TimeSpan, CancellationToken, Task>? delayProvider = null) : ITimerService
+    Func<TimeSpan, CancellationToken, Task>? delayProvider = null
+) : ITimerService
 {
     private readonly Func<TimeSpan, CancellationToken, Task> _delayProvider = delayProvider ?? DelayAtLeastAsync;
 
@@ -28,14 +28,14 @@ internal class TimerService(
     internal readonly TaskHandlingCollection<TimerReference> Timers = new(tr => tr.TimerTask);
 
     public int Count => Timers.Count;
-    
+
     public TimerReference StartSingleShot(TimeSpan timeout, Func<Task> callback, string? discriminator = null)
     {
         if (timeout < TimeSpan.Zero)
         {
             throw new ArgumentOutOfRangeException(nameof(timeout), timeout, "Timeout must be >= 0.");
         }
-        
+
         var cts = new CancellationTokenSource();
 
         var timerTask = EnqueueCallbackDelayed();
@@ -48,8 +48,9 @@ internal class TimerService(
                 logger.LogDebug(
                     "Existing timer with matching discriminator '{Discriminator}' found (timeout {Timeout}), cancelling existing timer...",
                     discriminator,
-                    existing.Timeout);
-            
+                    existing.Timeout
+                );
+
                 existing.Cancel();
             }
         }
@@ -59,7 +60,8 @@ internal class TimerService(
         logger.LogDebug(
             "Timer with timeout {Timeout} started & registered, {TimerCount} timers are now pending",
             timeout,
-            Timers.Count);
+            Timers.Count
+        );
 
         return timerReference;
 
@@ -73,15 +75,14 @@ internal class TimerService(
                 {
                     logger.LogDebug(
                         "Timer with timeout {Timeout} was cancelled and the associated callback dropped",
-                        timeout);
+                        timeout
+                    );
                 }
                 else
                 {
                     synchronizer.EnqueueReturn(callback);
-                    
-                    logger.LogDebug(
-                        "Timer with timeout {Timeout} has fired and its callback been enqueued",
-                        timeout);
+
+                    logger.LogDebug("Timer with timeout {Timeout} has fired and its callback been enqueued", timeout);
                 }
             }
             catch (OperationCanceledException) { }
@@ -116,7 +117,7 @@ internal class TimerService(
         await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
 
         var i = 0;
-        
+
         while (stopwatch.Elapsed < delay)
         {
             var furtherDelay = delay - stopwatch.Elapsed + TimeSpan.FromMilliseconds(2 ^ i);
@@ -124,7 +125,7 @@ internal class TimerService(
 
             i++;
         }
-        
+
         stopwatch.Stop();
     }
 }

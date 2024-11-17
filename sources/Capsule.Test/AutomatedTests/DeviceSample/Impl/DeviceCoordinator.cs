@@ -1,12 +1,12 @@
 ﻿using Capsule.Attribution;
-
 using CommunityToolkit.Diagnostics;
 
 namespace Capsule.Test.AutomatedTests.DeviceSample.Impl;
 
 [Capsule]
 public class DeviceCoordinator(Func<IReadOnlyList<IDevice>> deviceFactories)
-    : IDeviceCoordinator, CapsuleFeature.IInitializer
+    : IDeviceCoordinator,
+        CapsuleFeature.IInitializer
 {
     private IReadOnlyList<IDevice>? _devices;
 

@@ -13,7 +13,7 @@ public class FakeTimerService : ITimerService
     private readonly Dictionary<TimerReference, Func<Task>> _callbacks = new();
 
     public IReadOnlyList<TimerReference> Timers => _callbacks.Keys.ToList();
-    
+
     // ReSharper disable once MethodOverloadWithOptionalParameter
     public TimerReference StartSingleShot(TimeSpan timeout, Func<Task> callback, string? discriminator = null)
     {
@@ -27,15 +27,15 @@ public class FakeTimerService : ITimerService
                 existing.Cancel();
             }
         }
-        
+
         _callbacks.Add(timerReference, callback);
-        
+
         // Remove timers when they are cancelled. The same would happen with the real timer service.
         cancellationTokenSource.Token.Register(() => _callbacks.Remove(timerReference));
-        
+
         return timerReference;
     }
-    
+
     // Required for compatibility with Capsule.Core 3.0.0
     public TimerReference StartSingleShot(TimeSpan timeout, Func<Task> callback) =>
         StartSingleShot(timeout, callback, null);
