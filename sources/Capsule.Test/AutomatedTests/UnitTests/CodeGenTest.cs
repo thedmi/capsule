@@ -1,5 +1,4 @@
 ﻿using Capsule.Attribution;
-
 using Shouldly;
 
 namespace Capsule.Test.AutomatedTests.UnitTests;
@@ -13,39 +12,36 @@ public class CodeGenTest
     public async Task CapsuleSynchronization_AwaitEnqueuing_with_generated_interface_supports_sync_and_async_interfaces()
     {
         var sut = new SyncAsyncTest.WithGeneratedInterface().Encapsulate(TestRuntime.Create());
-        
-        await Should.NotThrowAsync(
-            async () =>
-            {
-                sut.AsyncMethod();
-                sut.SyncMethod();
-            });
+
+        await Should.NotThrowAsync(async () =>
+        {
+            sut.AsyncMethod();
+            sut.SyncMethod();
+        });
     }
-    
+
     [Test]
     public async Task CapsuleSynchronization_AwaitEnqueuing_with_provided_interface_supports_sync_and_async_interfaces()
     {
         var sut = new SyncAsyncTest.WithProvidedInterface().Encapsulate(TestRuntime.Create());
 
-        await Should.NotThrowAsync(
-            async () =>
-            {
-                await sut.AsyncMethod();
-                sut.SyncMethod();
-            });
+        await Should.NotThrowAsync(async () =>
+        {
+            await sut.AsyncMethod();
+            sut.SyncMethod();
+        });
     }
-    
+
     [Test]
     public async Task CapsuleSynchronization_AwaitEnqueuing_with_resolved_interface_supports_sync_and_async_interfaces()
     {
         var sut = new SyncAsyncTest.WithResolvedInterface().Encapsulate(TestRuntime.Create());
 
-        await Should.NotThrowAsync(
-            async () =>
-            {
-                await sut.AsyncMethod();
-                sut.SyncMethod();
-            });
+        await Should.NotThrowAsync(async () =>
+        {
+            await sut.AsyncMethod();
+            sut.SyncMethod();
+        });
     }
 }
 
@@ -70,7 +66,7 @@ public class SyncAsyncTest
     {
         [Expose(Synchronization = CapsuleSynchronization.AwaitEnqueueing)]
         public void SyncMethod() { }
-        
+
         // Generated async method will be synchronous
         [Expose(Synchronization = CapsuleSynchronization.AwaitEnqueueing)]
         public async Task AsyncMethod() { }
@@ -81,21 +77,20 @@ public class SyncAsyncTest
     {
         [Expose(Synchronization = CapsuleSynchronization.AwaitEnqueueing)]
         public void SyncMethod() { }
-        
+
         [Expose(Synchronization = CapsuleSynchronization.AwaitEnqueueing)]
         public async Task AsyncMethod() { }
     }
 
     [Capsule(InterfaceName = "IWithPredefinedInterface", InterfaceGeneration = CapsuleInterfaceGeneration.Disable)]
-    public class WithProvidedInterface 
+    public class WithProvidedInterface
     {
         [Expose(Synchronization = CapsuleSynchronization.AwaitEnqueueing)]
         public void SyncMethod() { }
-        
+
         [Expose(Synchronization = CapsuleSynchronization.AwaitEnqueueing)]
         public async Task AsyncMethod() { }
     }
-
 }
 
 public interface IWithPredefinedInterface

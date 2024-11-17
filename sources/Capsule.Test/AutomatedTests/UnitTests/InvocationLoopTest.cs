@@ -1,9 +1,6 @@
 ﻿using System.Threading.Channels;
-
 using Microsoft.Extensions.Logging;
-
 using Moq;
-
 using Shouldly;
 
 namespace Capsule.Test.AutomatedTests.UnitTests;
@@ -21,7 +18,8 @@ public class InvocationLoopTest
             status,
             typeof(object),
             Mock.Of<ILogger<InvocationLoop>>(),
-            CapsuleFailureMode.Continue);
+            CapsuleFailureMode.Continue
+        );
 
         var invocationCounter = 0;
 
@@ -38,13 +36,13 @@ public class InvocationLoopTest
 
         channel.Writer.Complete();
         await Task.Delay(100);
-        
+
         status.Terminated.ShouldBeTrue();
         invocationCounter.ShouldBe(2);
-        
+
         await loopTask;
     }
-    
+
     [Test]
     public async Task Invocation_loop_is_aborted_with_failure_mode_abort()
     {
@@ -56,7 +54,8 @@ public class InvocationLoopTest
             status,
             typeof(object),
             Mock.Of<ILogger<InvocationLoop>>(),
-            CapsuleFailureMode.Abort);
+            CapsuleFailureMode.Abort
+        );
 
         var invocationException = new Exception("the exception");
 
@@ -72,7 +71,7 @@ public class InvocationLoopTest
 
         status.Terminated.ShouldBeTrue();
         invocationCounter.ShouldBe(1);
-        
+
         var loopException = await Should.ThrowAsync<Exception>(async () => await loopTask);
         loopException.ShouldBe(invocationException);
     }

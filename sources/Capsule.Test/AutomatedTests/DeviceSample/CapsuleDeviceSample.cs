@@ -1,6 +1,5 @@
 ﻿using Capsule.DependencyInjection;
 using Capsule.Test.AutomatedTests.DeviceSample.Impl;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -16,44 +15,48 @@ public class CapsuleDeviceSample
         await app.StartAsync();
 
         var controller = app.Services.GetRequiredService<ListDevicesController>();
-        
+
         await RunExample(controller);
     }
 
     private static IHost ConfigureHost()
     {
         return Host.CreateDefaultBuilder()
-            .ConfigureServices(
-                services =>
+            .ConfigureServices(services =>
+            {
+                services.AddLogging(l =>
                 {
-                    services.AddLogging(
-                        l =>
-                        {
-                            l.AddNUnit();
-                            l.SetMinimumLevel(LogLevel.Debug);
-                        });
+                    l.AddNUnit();
+                    l.SetMinimumLevel(LogLevel.Debug);
+                });
 
-                    services.AddCapsuleHost();
+                services.AddCapsuleHost();
 
-                    services.AddSingleton<IDevice>(
-                        p => ActivatorUtilities.CreateInstance<FooDevice>(p, "foo1")
-                            .Encapsulate(p.GetRequiredService<CapsuleRuntimeContext>()));
+                services.AddSingleton<IDevice>(p =>
+                    ActivatorUtilities
+                        .CreateInstance<FooDevice>(p, "foo1")
+                        .Encapsulate(p.GetRequiredService<CapsuleRuntimeContext>())
+                );
 
-                    services.AddSingleton<IDevice>(
-                        p => ActivatorUtilities.CreateInstance<FooDevice>(p, "foo2")
-                            .Encapsulate(p.GetRequiredService<CapsuleRuntimeContext>()));
+                services.AddSingleton<IDevice>(p =>
+                    ActivatorUtilities
+                        .CreateInstance<FooDevice>(p, "foo2")
+                        .Encapsulate(p.GetRequiredService<CapsuleRuntimeContext>())
+                );
 
-                    services.AddSingleton<StateTracker>();
-                    services.AddSingleton<IStateTracker>(
-                        p => p.GetRequiredService<StateTracker>()
-                            .Encapsulate(p.GetRequiredService<CapsuleRuntimeContext>()));
+                services.AddSingleton<StateTracker>();
+                services.AddSingleton<IStateTracker>(p =>
+                    p.GetRequiredService<StateTracker>().Encapsulate(p.GetRequiredService<CapsuleRuntimeContext>())
+                );
 
-                    services.AddSingleton<IDeviceCoordinator>(
-                        p => new DeviceCoordinator(() => p.GetServices<IDevice>().ToList()).Encapsulate(
-                            p.GetRequiredService<CapsuleRuntimeContext>()));
+                services.AddSingleton<IDeviceCoordinator>(p =>
+                    new DeviceCoordinator(() => p.GetServices<IDevice>().ToList()).Encapsulate(
+                        p.GetRequiredService<CapsuleRuntimeContext>()
+                    )
+                );
 
-                    services.AddTransient<ListDevicesController>();
-                })
+                services.AddTransient<ListDevicesController>();
+            })
             .Build();
     }
 
@@ -62,11 +65,11 @@ public class CapsuleDeviceSample
         Console.WriteLine("Started");
 
         await Task.Delay(500);
-        
+
         Console.WriteLine(string.Join(", ", await controller.GetDevicesAsync()));
 
         await Task.Delay(500);
-        
+
         Console.WriteLine(string.Join(", ", await controller.GetDevicesAsync()));
     }
 }

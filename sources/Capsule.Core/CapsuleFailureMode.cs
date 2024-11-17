@@ -11,7 +11,7 @@ public enum CapsuleFailureMode
     /// Log the failed invocation, then continue with the next one.
     /// </summary>
     Continue,
-    
+
     /// <summary>
     /// Escalate and abort the invocation loop. The loop will throw the uncaught exception, pending invocations will
     /// not be processed anymore.
@@ -21,5 +21,5 @@ public enum CapsuleFailureMode
     /// <see cref="InvocationLoop"/> and its <see cref="CapsuleHost"/>. The exception then propagates to the
     /// <see cref="CapsuleBackgroundService"/>, where it will crash the app in .NET 6 and newer.
     /// </remarks>
-    Abort
+    Abort,
 }

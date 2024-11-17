@@ -1,11 +1,7 @@
 ﻿using System.Diagnostics;
-
 using Capsule.Testing;
-
 using MathNet.Numerics.Statistics;
-
 using Microsoft.Extensions.Logging.Abstractions;
-
 using Shouldly;
 
 namespace Capsule.Test.AutomatedTests.UnitTests;
@@ -29,7 +25,8 @@ public class TimerServiceTest
                 timeSpan = ts;
                 cancellationToken = ct;
                 return taskCompletionSource.Task;
-            });
+            }
+        );
 
         var callbackCalled = false;
         var callback = async Task () => callbackCalled = true;
@@ -44,7 +41,7 @@ public class TimerServiceTest
         synchronizer.InvocationQueue.ShouldBeEmpty();
         sut.Timers.ToList().ShouldBe([timerRef]);
         cancellationToken.ShouldBe(timerRef.CancellationToken);
-        
+
         // Act 2 - the delay elapsed
         taskCompletionSource.SetResult();
         await Task.Delay(100);
@@ -52,15 +49,15 @@ public class TimerServiceTest
         // Assert 2 - callback and timer management invocation enqueued
         synchronizer.InvocationQueue.Count.ShouldBe(2);
         synchronizer.InvocationQueue.ToList()[0].ShouldBe(callback);
-        
+
         // Act 3 - run enqueued invocations
         await synchronizer.ExecuteInvocationsAsync();
-        
+
         // Assert 3 - callback executed and timers cleaned up
         callbackCalled.ShouldBeTrue();
         sut.Timers.ShouldBeEmpty();
     }
-    
+
     [Test]
     public async Task Cleanup_is_triggered_even_when_timers_are_cancelled()
     {
@@ -74,7 +71,8 @@ public class TimerServiceTest
             {
                 ct.Register((_, t) => taskCompletionSource.SetCanceled(t), null);
                 return taskCompletionSource.Task;
-            });
+            }
+        );
 
         var callbackCalled = false;
         var callback = async Task () => callbackCalled = true;
@@ -87,7 +85,7 @@ public class TimerServiceTest
         callbackCalled.ShouldBeFalse();
         synchronizer.InvocationQueue.ShouldBeEmpty();
         sut.Timers.ToList().ShouldBe([timerRef]);
-        
+
         // Act 2 - cancel the timer
         timerRef.Cancel();
         await Task.Delay(100);
@@ -95,10 +93,10 @@ public class TimerServiceTest
         // Assert 2 - callback and timer management invocation enqueued
         synchronizer.InvocationQueue.Count.ShouldBe(1);
         synchronizer.InvocationQueue.ShouldNotContain(callback);
-        
+
         // Act 3 - run enqueued invocations
         await synchronizer.ExecuteInvocationsAsync();
-        
+
         // Assert 3 - callback executed and timers cleaned up
         callbackCalled.ShouldBeFalse();
         sut.Timers.ShouldBeEmpty();
@@ -108,7 +106,7 @@ public class TimerServiceTest
     public async Task Timers_dont_fire_early()
     {
         const int numberOfRuns = 200;
-        
+
         var synchronizer = new FakeSynchronizer();
         var sut = new TimerService(synchronizer, new NullLogger<TimerService>());
 
@@ -129,16 +127,17 @@ public class TimerServiceTest
                     elapsed.ShouldBeGreaterThan(TimeSpan.FromMilliseconds(5));
                     runs.Add(elapsed.TotalSeconds);
                     return Task.CompletedTask;
-                });
+                }
+            );
 
             await timerRef.TimerTask;
         }
-        
+
         Console.WriteLine("Mean: " + runs.Mean());
         Console.WriteLine("StdDev: " + runs.StandardDeviation());
         Console.WriteLine("Min: " + runs.Min());
         Console.WriteLine("Max: " + runs.Max());
-        
+
         runs.Count.ShouldBe(numberOfRuns);
     }
 
@@ -157,7 +156,7 @@ public class TimerServiceTest
         sut.StartSingleShot(TimeSpan.FromSeconds(10), async () => callback1Called = true, "d1");
         sut.StartSingleShot(TimeSpan.FromSeconds(20), async () => callback2Called = true, "d1");
         sut.StartSingleShot(TimeSpan.FromSeconds(10), async () => callback3Called = true, "d2");
-        
+
         // Act
         taskCompletionSource.SetResult();
         await Task.Delay(100);
@@ -185,21 +184,24 @@ public class TimerServiceTest
             }
         }
 
-        public async Task EnqueueAwaitResult(Func<Task> impl, bool passThroughIfQueueClosed = false) => throw new InvalidOperationException();
+        public async Task EnqueueAwaitResult(Func<Task> impl, bool passThroughIfQueueClosed = false) =>
+            throw new InvalidOperationException();
 
-        public async Task<TResult> EnqueueAwaitResult<TResult>(Func<Task<TResult>> impl, bool passThroughIfQueueClosed = false) => throw new InvalidOperationException();
+        public async Task<TResult> EnqueueAwaitResult<TResult>(
+            Func<Task<TResult>> impl,
+            bool passThroughIfQueueClosed = false
+        ) => throw new InvalidOperationException();
 
         public async Task EnqueueAwaitReception(Func<Task> impl) => throw new InvalidOperationException();
 
         public async void EnqueueReturn(Func<Task> impl) => InvocationQueue.Enqueue(impl);
 
         public void EnqueueReturn(Action impl) =>
-            EnqueueReturn(
-                () =>
-                {
-                    impl();
-                    return Task.CompletedTask;
-                });
+            EnqueueReturn(() =>
+            {
+                impl();
+                return Task.CompletedTask;
+            });
 
         public T PassThrough<T>(Func<T> impl) => throw new InvalidOperationException();
     }

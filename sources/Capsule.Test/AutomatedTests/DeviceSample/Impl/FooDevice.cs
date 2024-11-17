@@ -1,5 +1,4 @@
 ﻿using Capsule.Attribution;
-
 using Microsoft.Extensions.Logging;
 
 namespace Capsule.Test.AutomatedTests.DeviceSample.Impl;
@@ -43,7 +42,5 @@ public class FooDevice : IDevice, CapsuleFeature.IInitializer, CapsuleFeature.IT
     }
 
     [Expose]
-    public async ValueTask DisposeAsync()
-    {
-    }
+    public async ValueTask DisposeAsync() { }
 }

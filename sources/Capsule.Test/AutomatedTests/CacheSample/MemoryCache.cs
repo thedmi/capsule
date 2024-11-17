@@ -22,7 +22,8 @@ public class MemoryCache(TimeSpan staleAfter)
     [Expose(Synchronization = CapsuleSynchronization.AwaitEnqueueing)]
     public async Task RemoveStaleEntriesAsync()
     {
-        var staleEntryKeys = _cacheEntries.Where(p => p.Value.Timestamp < DateTime.UtcNow - staleAfter)
+        var staleEntryKeys = _cacheEntries
+            .Where(p => p.Value.Timestamp < DateTime.UtcNow - staleAfter)
             .Select(p => p.Key)
             .ToList();
 

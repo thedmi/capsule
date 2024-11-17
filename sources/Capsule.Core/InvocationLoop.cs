@@ -1,5 +1,4 @@
 using System.Threading.Channels;
-
 using Microsoft.Extensions.Logging;
 
 namespace Capsule;
@@ -9,8 +8,8 @@ internal class InvocationLoop(
     InvocationLoopStatus status,
     Type capsuleType,
     ILogger<InvocationLoop> logger,
-    CapsuleFailureMode failureMode)
-    : ICapsuleInvocationLoop
+    CapsuleFailureMode failureMode
+) : ICapsuleInvocationLoop
 {
     public async Task RunAsync(CancellationToken cancellationToken)
     {
@@ -43,9 +42,7 @@ internal class InvocationLoop(
                     return;
                 }
             }
-            catch (OperationCanceledException)
-            {
-            }
+            catch (OperationCanceledException) { }
 
             // Try to consume all outstanding invocations even if we've been cancelled. We expect the caller
             // to use a timeout to guarantee cancellation even if one of the functions take a long time
@@ -73,9 +70,9 @@ internal class InvocationLoop(
     private bool ShouldCatch(Exception e)
     {
         var nextStep = failureMode == CapsuleFailureMode.Abort ? " Aborting." : "";
-        
+
         logger.LogError(e, "Exception during capsule invocation loop processing." + nextStep);
-        
+
         return failureMode == CapsuleFailureMode.Continue;
     }
 }

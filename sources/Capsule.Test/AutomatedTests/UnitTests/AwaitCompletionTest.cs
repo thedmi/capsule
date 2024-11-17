@@ -1,10 +1,7 @@
 ﻿using Capsule.Attribution;
 using Capsule.GenericHosting;
-
 using Microsoft.Extensions.Logging;
-
 using Moq;
-
 using Shouldly;
 
 namespace Capsule.Test.AutomatedTests.UnitTests;
@@ -17,15 +14,16 @@ public class AwaitCompletionTest
     {
         await TestSuccessfulCompletion(s => withFallback ? s.ExecuteWithFallbackAsync() : s.ExecuteInnerAsync());
     }
-    
+
     [TestCase(true)]
     [TestCase(false)]
-    public async Task Await_completion_returns_result_when_method_ran_to_completion_successfully_value_task(bool withFallback)
+    public async Task Await_completion_returns_result_when_method_ran_to_completion_successfully_value_task(
+        bool withFallback
+    )
     {
-        await TestSuccessfulCompletion(
-            s => withFallback
-                ? s.ExecuteValueTaskWithFallbackAsync().AsTask()
-                : s.ExecuteInnerValueTaskAsync().AsTask());
+        await TestSuccessfulCompletion(s =>
+            withFallback ? s.ExecuteValueTaskWithFallbackAsync().AsTask() : s.ExecuteInnerValueTaskAsync().AsTask()
+        );
     }
 
     private static async Task TestSuccessfulCompletion(Func<IAwaitCompletionTestSubject, Task<int>> testSubjectCall)
@@ -33,10 +31,11 @@ public class AwaitCompletionTest
         var runtimeContext = TestRuntime.Create();
         var hostedService = new CapsuleBackgroundService(
             (CapsuleHost)runtimeContext.Host,
-            Mock.Of<ILogger<CapsuleBackgroundService>>());
-        
+            Mock.Of<ILogger<CapsuleBackgroundService>>()
+        );
+
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        
+
         await hostedService.StartAsync(CancellationToken.None);
 
         var sut = new TestSubject(tcs.Task, () => 42).Encapsulate(runtimeContext);
@@ -44,19 +43,19 @@ public class AwaitCompletionTest
         var sutInvocationTask = testSubjectCall(sut);
 
         await Task.Yield();
-        
+
         sutInvocationTask.IsCompleted.ShouldBeFalse();
-        
+
         tcs.SetResult();
         await sutInvocationTask;
-        
+
         sutInvocationTask.IsCompleted.ShouldBeTrue();
         sutInvocationTask.IsCompletedSuccessfully.ShouldBeTrue();
         sutInvocationTask.Result.ShouldBe(42);
-        
+
         // Ensure that the loop is still active and is able to handle a second invocation
         (await sut.SucceedAlwaysAsync()).ShouldBeTrue();
-        
+
         await hostedService.StopAsync(CancellationToken.None);
         await Task.Delay(100);
         await hostedService.ExecuteTask!;
@@ -79,12 +78,13 @@ public class AwaitCompletionTest
         var runtimeContext = TestRuntime.Create();
         var hostedService = new CapsuleBackgroundService(
             (CapsuleHost)runtimeContext.Host,
-            Mock.Of<ILogger<CapsuleBackgroundService>>());
-        
+            Mock.Of<ILogger<CapsuleBackgroundService>>()
+        );
+
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        
+
         var exception = new InvalidOperationException("oh no");
-        
+
         await hostedService.StartAsync(CancellationToken.None);
 
         var sut = new TestSubject(tcs.Task, () => throw exception).Encapsulate(runtimeContext);
@@ -92,19 +92,19 @@ public class AwaitCompletionTest
         var sutInvocationTask = testSubjectCall(sut);
 
         await Task.Yield();
-        
+
         sutInvocationTask.IsCompleted.ShouldBeFalse();
-        
+
         tcs.SetResult();
         await Should.ThrowAsync<InvalidOperationException>(async () => await sutInvocationTask);
-        
+
         sutInvocationTask.IsCompleted.ShouldBeTrue();
         sutInvocationTask.IsFaulted.ShouldBeTrue();
-        sutInvocationTask.Exception!.InnerExceptions.ShouldBe(new [] { exception });
+        sutInvocationTask.Exception!.InnerExceptions.ShouldBe(new[] { exception });
 
         // Ensure that the loop is still active and is able to handle a second invocation
         (await sut.SucceedAlwaysAsync()).ShouldBeTrue();
-        
+
         await hostedService.StopAsync(CancellationToken.None);
         await Task.Delay(100);
         await hostedService.ExecuteTask!;
@@ -115,7 +115,7 @@ public class AwaitCompletionTest
     {
         await TestCancellation(s => s.ExecuteInnerAsync());
     }
-    
+
     [Test]
     public async Task Await_completion_throws_when_method_is_cancelled_value_task()
     {
@@ -127,10 +127,11 @@ public class AwaitCompletionTest
         var runtimeContext = TestRuntime.Create();
         var hostedService = new CapsuleBackgroundService(
             (CapsuleHost)runtimeContext.Host,
-            Mock.Of<ILogger<CapsuleBackgroundService>>());
-        
+            Mock.Of<ILogger<CapsuleBackgroundService>>()
+        );
+
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        
+
         await hostedService.StartAsync(CancellationToken.None);
 
         var sut = new TestSubject(tcs.Task, () => 42).Encapsulate(runtimeContext);
@@ -138,23 +139,23 @@ public class AwaitCompletionTest
         var sutInvocationTask = testSubjectCall(sut);
 
         await Task.Yield();
-        
+
         sutInvocationTask.IsCompleted.ShouldBeFalse();
-        
+
         tcs.SetCanceled();
         await Should.ThrowAsync<OperationCanceledException>(async () => await sutInvocationTask);
-        
+
         sutInvocationTask.IsCompleted.ShouldBeTrue();
         sutInvocationTask.IsCanceled.ShouldBeTrue();
 
         // Ensure that the loop is still active and is able to handle a second invocation
         (await sut.SucceedAlwaysAsync()).ShouldBeTrue();
-        
+
         await hostedService.StopAsync(CancellationToken.None);
         await Task.Delay(100);
         await hostedService.ExecuteTask!;
     }
-    
+
     [Capsule(InterfaceName = "IAwaitCompletionTestSubject")]
     public class TestSubject(Task innerTask, Func<int> innerFunc)
     {
@@ -164,7 +165,7 @@ public class AwaitCompletionTest
             await innerTask;
             return innerFunc();
         }
-    
+
         [Expose(Synchronization = CapsuleSynchronization.AwaitCompletionOrPassThroughIfQueueClosed)]
         public async Task<int> ExecuteWithFallbackAsync()
         {
@@ -190,5 +191,4 @@ public class AwaitCompletionTest
             return true;
         }
     }
-
 }

@@ -1,5 +1,4 @@
 ﻿using Capsule.GenericHosting;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -32,14 +31,16 @@ public static class CapsuleServiceCollectionExtensions
     {
         services.AddSingleton<CapsuleHost>();
         services.AddSingleton<ICapsuleHost>(p => p.GetRequiredService<CapsuleHost>());
-        
+
         services.AddSingleton<ICapsuleSynchronizerFactory, DefaultSynchronizerFactory>();
-        services.AddSingleton<ICapsuleInvocationLoopFactory>(
-            p => new DefaultInvocationLoopFactory(p.GetRequiredService<ILoggerFactory>(), options.FailureMode));
+        services.AddSingleton<ICapsuleInvocationLoopFactory>(p => new DefaultInvocationLoopFactory(
+            p.GetRequiredService<ILoggerFactory>(),
+            options.FailureMode
+        ));
         services.AddSingleton<ICapsuleQueueFactory, DefaultQueueFactory>();
-        
+
         services.AddSingleton<CapsuleRuntimeContext>();
-        
+
         services.AddHostedService<CapsuleBackgroundService>();
 
         return services;

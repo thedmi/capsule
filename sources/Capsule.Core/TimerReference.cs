@@ -8,7 +8,12 @@ public class TimerReference
 {
     private readonly CancellationTokenSource _cancellationTokenSource;
 
-    internal TimerReference(TimeSpan timeout, Task timerTask, CancellationTokenSource cancellationTokenSource, string? discriminator = null)
+    internal TimerReference(
+        TimeSpan timeout,
+        Task timerTask,
+        CancellationTokenSource cancellationTokenSource,
+        string? discriminator = null
+    )
     {
         _cancellationTokenSource = cancellationTokenSource;
         TimerTask = timerTask;
@@ -26,7 +31,7 @@ public class TimerReference
     /// The timeout value that the timer uses.
     /// </summary>
     public TimeSpan Timeout { get; }
-    
+
     /// <summary>
     /// The discriminator that is used to identify timer duplicates. Duplicate detection is disabled if this is null.
     /// </summary>

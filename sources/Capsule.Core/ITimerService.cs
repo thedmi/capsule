@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Service that provides timers for capsule implementations. Enable timers by implementing
-/// <see cref="CapsuleFeature.ITimers"/> in the capsule implementation. 
+/// <see cref="CapsuleFeature.ITimers"/> in the capsule implementation.
 /// </summary>
 /// <remarks>
 /// This service is specifically designed for use in Capsule implementations and is not meant to be used outside of them.
@@ -28,13 +28,13 @@ public interface ITimerService
     TimerReference StartSingleShot(TimeSpan timeout, Func<Task> callback, string? discriminator = null);
 
     /// <summary>
-    /// Cancel all pending timers. 
+    /// Cancel all pending timers.
     /// </summary>
     /// <remarks>
     /// Callbacks that have already been enqueued because their timer has elapsed will remain enqueued.
     /// </remarks>
     void CancelAll();
-    
+
     /// <summary>
     /// The number of timers that this service currently manages. This may include timers that just expired.
     /// </summary>
