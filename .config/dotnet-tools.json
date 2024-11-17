@@ -7,6 +7,18 @@
       "commands": [
         "dotnet-cake"
       ]
+    },
+    "csharpier": {
+      "version": "0.30.0",
+      "commands": [
+        "csharpier"
+      ]
+    },
+    "husky": {
+      "version": "0.7.1",
+      "commands": [
+        "husky"
+      ]
     }
   }
 }
