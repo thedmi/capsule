@@ -33,11 +33,13 @@ public class ConcurrencyTest
         await hostedService.StartAsync(CancellationToken.None);
         await Task.WhenAll(taskRes1, taskRes2, taskRes3, taskRes4, taskRec1, taskRec2);
 
+#pragma warning disable VSTHRD103
         taskRes1.Result.ShouldBe(11);
         taskRes2.Result.ShouldBe(12);
 
         taskRes3.Result.ShouldBe(17);
         taskRes4.Result.ShouldBe(18);
+#pragma warning restore VSTHRD103
 
         await hostedService.StopAsync(CancellationToken.None);
         await hostedService.ExecuteTask!;

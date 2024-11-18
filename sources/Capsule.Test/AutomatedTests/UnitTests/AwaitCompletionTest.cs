@@ -51,7 +51,9 @@ public class AwaitCompletionTest
 
         sutInvocationTask.IsCompleted.ShouldBeTrue();
         sutInvocationTask.IsCompletedSuccessfully.ShouldBeTrue();
+#pragma warning disable VSTHRD103
         sutInvocationTask.Result.ShouldBe(42);
+#pragma warning restore VSTHRD103
 
         // Ensure that the loop is still active and is able to handle a second invocation
         (await sut.SucceedAlwaysAsync()).ShouldBeTrue();

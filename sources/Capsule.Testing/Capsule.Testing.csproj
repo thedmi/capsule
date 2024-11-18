@@ -36,6 +36,13 @@
     <ProjectReference Include="..\Capsule.Core\Capsule.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.12.19">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <NoWarn>1591;1701;1702;1998</NoWarn>
     <DocumentationFile>bin\Debug\Capsule.Testing.xml</DocumentationFile>
