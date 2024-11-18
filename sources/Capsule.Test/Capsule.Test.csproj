@@ -14,11 +14,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <NoWarn>1701;1702;1998;VSTHRD200;VSTHRD003</NoWarn>
+    <NoWarn>1701;1702;1998;VSTHRD200;VSTHRD003;Moq1400</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <NoWarn>1701;1702;1998;VSTHRD200;VSTHRD003</NoWarn>
+    <NoWarn>1701;1702;1998;VSTHRD200;VSTHRD003;Moq1400</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,6 +35,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Moq" Version="4.20.70" />
+    <PackageReference Include="Moq.Analyzers" Version="0.2.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="NUnit" Version="4.1.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="NUnit.Analyzers" Version="4.2.0">
