@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>Nullable</WarningsAsErrors>
@@ -14,11 +14,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <NoWarn>1701;1702;1998;VSTHRD200;VSTHRD003;Moq1400</NoWarn>
+    <NoWarn>1701;1702;1998;VSTHRD200;VSTHRD003;VSTHRD200;Moq1400</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <NoWarn>1701;1702;1998;VSTHRD200;VSTHRD003;Moq1400</NoWarn>
+    <NoWarn>1701;1702;1998;VSTHRD200;VSTHRD003;VSTHRD200;Moq1400</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,9 +26,9 @@
     <PackageReference Include="Extensions.Logging.NUnit" Version="1.0.1" />
     <PackageReference Include="JunitXml.TestLogger" Version="4.1.0" />
     <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.12.19">
       <PrivateAssets>all</PrivateAssets>
