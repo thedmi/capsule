@@ -1,0 +1,46 @@
+# This file contains our settings for markdownlint
+
+# MD003/heading-style/header-style - Heading style
+MD003:
+  # Heading style
+  style: "atx"
+
+# MD007/ul-indent - Unordered list indentation
+# Use 4 spaces to be consistent with official Markdown syntax
+MD007:
+  # Spaces for indent
+  indent: 4
+
+# MD009/no-trailing-spaces - Trailing spaces
+# Trailing space warnings are annoying and fixing them doesn't bring much benefit
+MD009: false
+
+# MD012/no-multiple-blanks - Multiple consecutive blank lines
+# Allow two consecutive blank lines, because that improves the Markdown structure in some cases
+MD012:
+  # Consecutive blank lines
+  maximum: 2
+
+# MD013/line-length - Line length
+# Don't limit line length we work with editor soft wrap
+MD013: false
+
+# MD022/blanks-around-headings/blanks-around-headers - Headings should be surrounded by blank lines
+# One blank line below headings improves readability
+MD022:
+  # Blank lines below heading
+  lines_below: 1
+
+# MD024/no-duplicate-heading/no-duplicate-header - Multiple headings with the same content
+# Allow duplicate headings in the same document if they are not siblings
+MD024:
+  # Only check sibling headings
+  siblings_only: true
+
+# MD038/no-space-in-code - Spaces inside code span elements
+# No space in code checks interfere with Mkdocs Material admonitions, so we need to disable them
+MD038: false
+
+# MD046/code-block-style - Code block style
+# Code block style checks interfere with Mkdocs Material admonitions, so we need to disable them
+MD046: false
