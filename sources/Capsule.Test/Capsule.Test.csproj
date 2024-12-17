@@ -14,11 +14,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <NoWarn>1701;1702;1998;VSTHRD200;VSTHRD003;VSTHRD200;Moq1400</NoWarn>
+    <NoWarn>1701;1702;1998;VSTHRD200;VSTHRD003;Moq1400</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <NoWarn>1701;1702;1998;VSTHRD200;VSTHRD003;VSTHRD200;Moq1400</NoWarn>
+    <NoWarn>1701;1702;1998;VSTHRD200;VSTHRD003;Moq1400</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
