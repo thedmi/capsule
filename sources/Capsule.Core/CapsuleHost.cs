@@ -17,7 +17,9 @@ public class CapsuleHost(ILogger<CapsuleHost> logger) : ICapsuleHost
 
     private readonly CancellationTokenSource _shutdownCts = new();
 
+#pragma warning disable VSTHRD003
     private readonly TaskHandlingCollection<Task> _invocationLoopTasks = new(t => t);
+#pragma warning restore VSTHRD003
 
     public async Task RunAsync(CancellationToken stoppingToken)
     {
@@ -75,7 +77,9 @@ public class CapsuleHost(ILogger<CapsuleHost> logger) : ICapsuleHost
         // This failure behavior is intentional and is consistent with how uncaught exceptions in hosted services are
         // handled in .NET 6 and newer. The rationale behind this logic is that uncaught exceptions are a major issue
         // and should never go unnoticed.
+#pragma warning disable VSTHRD003
         await task.ConfigureAwait(false);
+#pragma warning restore VSTHRD003
     }
 
     public void Register(ICapsuleInvocationLoop capsuleInvocationLoop)

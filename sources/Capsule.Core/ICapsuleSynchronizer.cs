@@ -1,5 +1,7 @@
 namespace Capsule;
 
+#pragma warning disable VSTHRD200
+
 /// <summary>
 /// The synchronizer takes the invocations and enqueues them in the thread-safe queue.
 /// </summary>
@@ -52,3 +54,5 @@ public interface ICapsuleSynchronizer
     /// </summary>
     T PassThrough<T>(Func<T> impl);
 }
+
+#pragma warning restore VSTHRD200

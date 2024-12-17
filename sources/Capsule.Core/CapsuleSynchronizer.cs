@@ -31,7 +31,7 @@ internal class CapsuleSynchronizer(
 
         var tcs = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        async Task Func()
+        async Task FuncAsync()
         {
             try
             {
@@ -44,7 +44,7 @@ internal class CapsuleSynchronizer(
             }
         }
 
-        Write(Func);
+        Write(FuncAsync);
 
         return await tcs.Task.ConfigureAwait(false);
     }
@@ -53,13 +53,13 @@ internal class CapsuleSynchronizer(
     {
         var tcs = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        async Task Func()
+        async Task FuncAsync()
         {
             tcs.SetResult(null!);
             await impl().ConfigureAwait(false);
         }
 
-        Write(Func);
+        Write(FuncAsync);
 
         await tcs.Task.ConfigureAwait(false);
     }

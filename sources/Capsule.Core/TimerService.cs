@@ -38,7 +38,7 @@ internal class TimerService(
 
         var cts = new CancellationTokenSource();
 
-        var timerTask = EnqueueCallbackDelayed();
+        var timerTask = EnqueueCallbackDelayedAsync();
         var timerReference = new TimerReference(timeout, timerTask, cts, discriminator);
 
         if (discriminator != null)
@@ -65,7 +65,7 @@ internal class TimerService(
 
         return timerReference;
 
-        async Task EnqueueCallbackDelayed()
+        async Task EnqueueCallbackDelayedAsync()
         {
             try
             {

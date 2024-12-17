@@ -180,7 +180,9 @@ public class AwaitEnqueueingTest
         public void ExecuteInnerSync()
         {
             preAction();
+#pragma warning disable VSTHRD002
             innerTask.Wait();
+#pragma warning restore VSTHRD002
         }
 
         [Expose]

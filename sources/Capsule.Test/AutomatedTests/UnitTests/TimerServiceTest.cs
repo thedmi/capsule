@@ -194,7 +194,9 @@ public class TimerServiceTest
 
         public async Task EnqueueAwaitReception(Func<Task> impl) => throw new InvalidOperationException();
 
+#pragma warning disable VSTHRD100
         public async void EnqueueReturn(Func<Task> impl) => InvocationQueue.Enqueue(impl);
+#pragma warning restore VSTHRD100
 
         public void EnqueueReturn(Action impl) =>
             EnqueueReturn(() =>

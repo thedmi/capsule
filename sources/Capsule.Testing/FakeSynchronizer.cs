@@ -8,7 +8,9 @@ public class FakeSynchronizer : ICapsuleSynchronizer
 
     public Task EnqueueAwaitReception(Func<Task> impl) => impl();
 
+#pragma warning disable VSTHRD110
     public void EnqueueReturn(Func<Task> impl) => impl();
+#pragma warning restore VSTHRD110
 
     public void EnqueueReturn(Action impl) => impl();
 
