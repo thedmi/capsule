@@ -118,7 +118,7 @@ public class AwaitEnqueueingTest
 
         await hostedService.StopAsync(CancellationToken.None);
         await Task.Delay(100);
-        await Should.ThrowAsync<InvalidOperationException>(async () => await hostedService.ExecuteTask);
+        await Should.ThrowAsync<InvalidOperationException>(async () => await hostedService.ExecuteTask!);
     }
 
     [Test]
@@ -157,7 +157,7 @@ public class AwaitEnqueueingTest
 
         await hostedService.StopAsync(CancellationToken.None);
         await Task.Delay(100);
-        await Should.ThrowAsync<OperationCanceledException>(async () => await hostedService.ExecuteTask);
+        await Should.ThrowAsync<OperationCanceledException>(async () => await hostedService.ExecuteTask!);
     }
 
     [Capsule(InterfaceName = "IAwaitEnqueueingTestSubject")]
