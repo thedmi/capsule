@@ -37,5 +37,11 @@ public class DefaultSynchronizerFactory(
         {
             synchronizer.EnqueueReturn(i.InitializeAsync);
         }
+
+        // If the implementation uses self-enqueueing, inject the enqueuer service
+        if (capsuleImpl is CapsuleFeature.ISelfEnqueueing e)
+        {
+            e.SelfInvocationEnqueuer = new SelfInvocationEnqueuer(synchronizer);
+        }
     }
 }
