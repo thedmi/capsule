@@ -43,6 +43,18 @@ public class CodeGenTest
             sut.SyncMethod();
         });
     }
+
+    [Test]
+    public async Task CapsuleSynchronization_AwaitEnqueuing_with_resolved_and_additional_interface_supports_sync_and_async_interfaces()
+    {
+        var sut = new SyncAsyncTest.WithResolvedAndAdditionalInterface().Encapsulate(TestRuntime.Create());
+
+        await Should.NotThrowAsync(async () =>
+        {
+            await sut.AsyncMethod();
+            sut.SyncMethod();
+        });
+    }
 }
 
 // Verify that deeply nested types can be used as Capsule
@@ -90,6 +102,21 @@ public class SyncAsyncTest
 
         [Expose(Synchronization = CapsuleSynchronization.AwaitEnqueueing)]
         public async Task AsyncMethod() { }
+    }
+
+    [Capsule]
+    public class WithResolvedAndAdditionalInterface : IWithPredefinedInterface, IDisposable
+    {
+        [Expose(Synchronization = CapsuleSynchronization.AwaitEnqueueing)]
+        public void SyncMethod() { }
+
+        [Expose(Synchronization = CapsuleSynchronization.AwaitEnqueueing)]
+        public async Task AsyncMethod() { }
+
+        public void Dispose()
+        {
+            // No op
+        }
     }
 }
 

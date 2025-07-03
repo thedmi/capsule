@@ -21,26 +21,26 @@ internal class CapsuleSpecResolver
                 )
         );
 
-        var singleInterface = relevantInterfaces.SingleOrDefault();
+        var firstRelevantInterface = relevantInterfaces.FirstOrDefault();
 
         var interfaceGeneration =
             DetermineInterfaceGeneration(capsuleAttribute)
-            ?? (singleInterface == null ? InterfaceGeneration.Enable : InterfaceGeneration.Disable);
+            ?? (firstRelevantInterface == null ? InterfaceGeneration.Enable : InterfaceGeneration.Disable);
 
         var interfaceName =
             capsuleAttribute.GetProperty(InterfaceNamePropertyName)?.Value as string
-            ?? singleInterface?.Name
+            ?? firstRelevantInterface?.Name
             ?? "I" + classSymbol.Name;
 
         var generateInterface =
             interfaceGeneration == InterfaceGeneration.Enable
-            || (interfaceGeneration == InterfaceGeneration.Auto && singleInterface == null);
+            || (interfaceGeneration == InterfaceGeneration.Auto && firstRelevantInterface == null);
 
         return new(
             classSymbol,
             generateInterface ? new CapsuleSpec.GeneratedInterface(interfaceName)
-                : singleInterface == null ? new CapsuleSpec.ProvidedInterface(interfaceName)
-                : new CapsuleSpec.ResolvedInterface(singleInterface)
+                : firstRelevantInterface == null ? new CapsuleSpec.ProvidedInterface(interfaceName)
+                : new CapsuleSpec.ResolvedInterface(firstRelevantInterface)
         );
     }
 
