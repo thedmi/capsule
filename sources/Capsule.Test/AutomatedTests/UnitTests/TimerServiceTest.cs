@@ -48,7 +48,6 @@ public class TimerServiceTest
 
         // Assert 2 - callback and timer management invocation enqueued
         synchronizer.InvocationQueue.Count.ShouldBe(2);
-        synchronizer.InvocationQueue.ToList()[0].ShouldBe(callback);
 
         // Act 3 - run enqueued invocations
         await synchronizer.ExecuteInvocationsAsync();
@@ -166,6 +165,31 @@ public class TimerServiceTest
         callback1Called.ShouldBeFalse();
         callback2Called.ShouldBeTrue();
         callback3Called.ShouldBeTrue();
+    }
+
+    [Test]
+    public async Task Callbacks_are_not_executed_when_the_timer_is_cancelled()
+    {
+        var taskCompletionSource = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var synchronizer = new ManualSynchronizer();
+
+        var callbackCalled = false;
+
+        var sut = new TimerService(synchronizer, new NullLogger<TimerService>(), (_, _) => taskCompletionSource.Task);
+
+        var timerRef = sut.StartSingleShot(TimeSpan.FromSeconds(10), async () => callbackCalled = true);
+
+        // Act
+        // Timer expires, callback is enqueued
+        taskCompletionSource.SetResult();
+        await Task.Delay(100);
+
+        // Now the timer is cancelled
+        timerRef.Cancel();
+        await synchronizer.ExecuteInvocationsAsync();
+
+        // Assert
+        callbackCalled.ShouldBeFalse();
     }
 
     private class ManualSynchronizer : ICapsuleSynchronizer
