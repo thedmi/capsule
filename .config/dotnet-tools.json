@@ -3,19 +3,19 @@
   "isRoot": true,
   "tools": {
     "cake.tool": {
-      "version": "4.0.0",
+      "version": "5.1.0",
       "commands": [
         "dotnet-cake"
       ]
     },
     "csharpier": {
-      "version": "0.30.0",
+      "version": "1.1.2",
       "commands": [
         "csharpier"
       ]
     },
     "husky": {
-      "version": "0.7.1",
+      "version": "0.7.2",
       "commands": [
         "husky"
       ]
