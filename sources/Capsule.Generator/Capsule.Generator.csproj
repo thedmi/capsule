@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <IsPackable>true</IsPackable>
@@ -8,12 +7,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <WarningsAsErrors>Nullable</WarningsAsErrors>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <IsRoslynComponent>true</IsRoslynComponent>
-
     <RootNamespace>Capsule.Generator</RootNamespace>
-    
     <PackageId>Capsule.Generator</PackageId>
     <Authors>Dani Michel</Authors>
     <Description>Automatic thread-safe objects</Description>
@@ -22,41 +18,59 @@
     <PackageProjectUrl>https://github.com/thedmi/capsule</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
-    
-    <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Do not include the generator as a lib dependency -->
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <!-- Do not include the generator as a lib dependency -->
   </PropertyGroup>
-
   <ItemGroup>
-    <None Include="..\..\release\nuget-readmes\Capsule.Generator.md" Pack="true" PackagePath="\README.md"/>
-    <None Include="..\..\release\nuget-readmes\icon.png" Pack="true" PackagePath="\icon.png"/>
+    <None
+      Include="..\..\release\nuget-readmes\Capsule.Generator.md"
+      Pack="true"
+      PackagePath="\README.md"
+    />
+    <None Include="..\..\release\nuget-readmes\icon.png" Pack="true" PackagePath="\icon.png" />
   </ItemGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <NoWarn>1701;1702;NU5128</NoWarn>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <NoWarn>1701;1702;NU5128</NoWarn>
   </PropertyGroup>
-  
   <ItemGroup>
     <!-- WARNING: Do not update these packages unless absolutely necessary. Upgrading them will require
          users to install a newer .NET SDK. See https://github.com/dotnet/roslyn/blob/main/docs/wiki/NuGet-packages.md 
          for more information. -->
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
+    <PackageReference
+      Include="Microsoft.CodeAnalysis.Analyzers"
+      Version="3.3.4"
+      PrivateAssets="all"
+    />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.2.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.2.0" PrivateAssets="all" />
+    <PackageReference
+      Include="Microsoft.CodeAnalysis.CSharp.Workspaces"
+      Version="4.2.0"
+      PrivateAssets="all"
+    />
   </ItemGroup>
-
   <ItemGroup>
     <!-- Conditionally reference either the project or the package. This enables integrated development of features
          that span multiple projects, while still resorting to package references for the published nuget packages. -->
-    <ProjectReference Include="..\Capsule.Core\Capsule.Core.csproj" Condition=" '$(Configuration)' == 'Debug' " />
-    <PackageReference Include="Capsule.Core" Version="3.0.0" Condition=" '$(Configuration)' == 'Release' " />
+    <ProjectReference
+      Include="..\Capsule.Core\Capsule.Core.csproj"
+      Condition=" '$(Configuration)' == 'Debug' "
+    />
+    <PackageReference
+      Include="Capsule.Core"
+      Version="3.0.0"
+      Condition=" '$(Configuration)' == 'Release' "
+    />
   </ItemGroup>
-  
   <ItemGroup>
     <!-- Package the generator in the analyzer directory of the nuget package -->
-    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None
+      Include="$(OutputPath)\$(AssemblyName).dll"
+      Pack="true"
+      PackagePath="analyzers/dotnet/cs"
+      Visible="false"
+    />
   </ItemGroup>
 </Project>

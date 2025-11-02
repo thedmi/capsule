@@ -1,26 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>Nullable</WarningsAsErrors>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    
     <RootNamespace>Capsule.Test</RootNamespace>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <NoWarn>1701;1702;1998;VSTHRD200;VSTHRD003;Moq1400</NoWarn>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <NoWarn>1701;1702;1998;VSTHRD200;VSTHRD003;Moq1400</NoWarn>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.4.0" />
     <PackageReference Include="Extensions.Logging.NUnit" Version="1.0.1" />
@@ -51,12 +45,14 @@
     </PackageReference>
     <PackageReference Include="Shouldly" Version="4.3.0" />
   </ItemGroup>
-  
   <ItemGroup>
     <ProjectReference Include="..\Capsule.Core\Capsule.Core.csproj" />
-    <ProjectReference Include="..\Capsule.Generator\Capsule.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference
+      Include="..\Capsule.Generator\Capsule.Generator.csproj"
+      OutputItemType="Analyzer"
+      ReferenceOutputAssembly="false"
+    />
   </ItemGroup>
-  
   <ItemGroup>
     <!-- Conditionally reference either the project or the package. This enables integrated development of features
          that span multiple projects, while still resorting to package references for the published nuget packages. -->
@@ -67,5 +63,4 @@
     -->
     <ProjectReference Include="..\Capsule.Testing\Capsule.Testing.csproj" />
   </ItemGroup>
-
 </Project>

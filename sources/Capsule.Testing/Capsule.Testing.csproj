@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net8.0;net9.0</TargetFrameworks>
     <Nullable>enable</Nullable>
@@ -7,9 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <WarningsAsErrors>Nullable</WarningsAsErrors>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-
     <RootNamespace>Capsule.Testing</RootNamespace>
-
     <PackageId>Capsule.Testing</PackageId>
     <Authors>Dani Michel</Authors>
     <Description>Test support library for Capsule.Core</Description>
@@ -19,12 +16,14 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
-
   <ItemGroup>
-    <None Include="..\..\release\nuget-readmes\Capsule.Testing.md" Pack="true" PackagePath="\README.md"/>
-    <None Include="..\..\release\nuget-readmes\icon.png" Pack="true" PackagePath="\icon.png"/>
+    <None
+      Include="..\..\release\nuget-readmes\Capsule.Testing.md"
+      Pack="true"
+      PackagePath="\README.md"
+    />
+    <None Include="..\..\release\nuget-readmes\icon.png" Pack="true" PackagePath="\icon.png" />
   </ItemGroup>
-
   <ItemGroup>
     <!-- Conditionally reference either the project or the package. This enables integrated development of features
          that span multiple projects, while still resorting to package references for the published nuget packages. -->
@@ -35,19 +34,16 @@
     -->
     <ProjectReference Include="..\Capsule.Core\Capsule.Core.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.15">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <NoWarn>1591;1701;1702;1998</NoWarn>
     <DocumentationFile>bin\Debug\Capsule.Testing.xml</DocumentationFile>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <NoWarn>1591;1701;1702;1998</NoWarn>
     <DocumentationFile>bin\Release\Capsule.Testing.xml</DocumentationFile>
