@@ -67,23 +67,28 @@ internal class TimerService(
 
         async Task EnqueueCallbackDelayedAsync()
         {
+            var ct = cts.Token;
+
             try
             {
-                await _delayProvider(timeout, cts.Token).ConfigureAwait(false);
+                await _delayProvider(timeout, ct).ConfigureAwait(false);
 
-                if (cts.IsCancellationRequested)
+                synchronizer.EnqueueReturn(async () =>
                 {
-                    logger.LogDebug(
-                        "Timer with timeout {Timeout} was cancelled and the associated callback dropped",
-                        timeout
-                    );
-                }
-                else
-                {
-                    synchronizer.EnqueueReturn(callback);
+                    if (ct.IsCancellationRequested)
+                    {
+                        logger.LogDebug(
+                            "Timer with timeout {Timeout} was cancelled, the callback will not be executed",
+                            timeout
+                        );
+                    }
+                    else
+                    {
+                        await callback();
+                    }
+                });
 
-                    logger.LogDebug("Timer with timeout {Timeout} has fired and its callback been enqueued", timeout);
-                }
+                logger.LogDebug("Timer with timeout {Timeout} has fired and its callback been enqueued", timeout);
             }
             catch (OperationCanceledException) { }
             finally
