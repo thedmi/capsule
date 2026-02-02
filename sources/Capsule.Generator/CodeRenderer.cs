@@ -179,10 +179,10 @@ internal class CodeRenderer(
 
         return $$"""
                     public event {{type}} {{name}}
-                    {
-                        add => _impl.{{name}} += value;
-                        remove => _impl.{{name}} -= value;
-                    }
+                        {
+                            add => _impl.{{name}} += value;
+                            remove => _impl.{{name}} -= value;
+                        }
                 """;
     }
 
