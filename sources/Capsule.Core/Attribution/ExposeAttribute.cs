@@ -7,7 +7,7 @@
 /// The synchronization mode can be customized by specifying the <see cref="Synchronization"/> property, which defaults
 /// to "await completion and return result".
 /// </summary>
-[AttributeUsage(AttributeTargets.Method | AttributeTargets.Property)]
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Event)]
 public sealed class ExposeAttribute : Attribute
 {
     public CapsuleSynchronization Synchronization { get; init; } = CapsuleSynchronization.AwaitCompletion;

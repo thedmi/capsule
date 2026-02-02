@@ -100,6 +100,7 @@ internal class CodeRenderer(
                 renderImplementation
             ),
             IPropertySymbol p => RenderHullProperty(p, exposeSpec.Synchronization, renderImplementation),
+            IEventSymbol e => RenderHullEvent(e, renderImplementation),
             _ => throw new ArgumentOutOfRangeException(nameof(exposeSpec.MemberSymbol)),
         };
     }
@@ -164,6 +165,25 @@ internal class CodeRenderer(
                         """
                     : " { get; }"
             );
+    }
+
+    private static string RenderHullEvent(IEventSymbol evt, bool renderImplementation)
+    {
+        var type = evt.Type.ToDisplayString();
+        var name = evt.Name;
+
+        if (!renderImplementation)
+        {
+            return $"public event {type} {name};";
+        }
+
+        return $$"""
+                public event {{type}} {{name}}
+                    {
+                        add => _impl.{{name}} += value;
+                        remove => _impl.{{name}} -= value;
+                    }
+            """;
     }
 
     private static bool IsValueTask(ITypeSymbol typeSymbol) =>

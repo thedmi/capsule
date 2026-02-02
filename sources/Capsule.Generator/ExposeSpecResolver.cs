@@ -26,6 +26,15 @@ internal class ExposeSpecResolver
         DiagnosticSeverity.Error,
         isEnabledByDefault: true
     );
+
+    private static readonly DiagnosticDescriptor UnexposableEventError = new(
+        id: "CAPSULEGEN0003",
+        title: "Event cannot be exposed",
+        messageFormat: "Cannot expose event '{0}': {1}",
+        category: "CapsuleGen",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true
+    );
 #pragma warning restore RS2008
 
     private readonly HashSet<INamedTypeSymbol> _taskTypeSymbols;
@@ -55,6 +64,9 @@ internal class ExposeSpecResolver
                 s.MemberSymbol is IPropertySymbol p && IsExposable(context, p, s.Synchronization)
             ),
             .. exposedSymbols.Where(s => s.MemberSymbol is IMethodSymbol m && IsExposable(context, m)),
+            .. exposedSymbols.Where(s =>
+                s.MemberSymbol is IEventSymbol e && IsExposable(context, e, s.Synchronization)
+            ),
         ];
     }
 
@@ -64,7 +76,11 @@ internal class ExposeSpecResolver
 
         var synchronizationPropertyValue = attr.GetProperty(SynchronizationPropertyName)?.Value as int?;
 
-        var synchronization = SynchronizerMethod(synchronizationPropertyValue);
+        var synchronization =
+            symbol is IEventSymbol && synchronizationPropertyValue is null
+                ? Synchronization.PassThrough
+                : SynchronizerMethod(synchronizationPropertyValue);
+
         var fallbackToPassThrough = PassThroughAsFallback(synchronizationPropertyValue);
 
         // Determine asyncness based on return type (there seems to be no better way)
@@ -152,6 +168,41 @@ internal class ExposeSpecResolver
                     property.Locations.FirstOrDefault(),
                     property.Name,
                     "Only Synchronization.PassThrough synchronization mode is supported for properties."
+                )
+            );
+
+            exposable = false;
+        }
+
+        return exposable;
+    }
+
+    private static bool IsExposable(SourceProductionContext context, IEventSymbol evt, Synchronization synchronization)
+    {
+        var exposable = true;
+
+        if (evt.DeclaredAccessibility is not Accessibility.Public and not Accessibility.Internal)
+        {
+            context.ReportDiagnostic(
+                Diagnostic.Create(
+                    UnexposableEventError,
+                    evt.Locations.FirstOrDefault(),
+                    evt.Name,
+                    "Exposed events must have public or internal accessibility."
+                )
+            );
+
+            exposable = false;
+        }
+
+        if (synchronization != Synchronization.PassThrough)
+        {
+            context.ReportDiagnostic(
+                Diagnostic.Create(
+                    UnexposableEventError,
+                    evt.Locations.FirstOrDefault(),
+                    evt.Name,
+                    "Only Synchronization.PassThrough synchronization mode is supported for events."
                 )
             );
 

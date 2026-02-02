@@ -48,12 +48,14 @@ The interface name can be customized through `CapsuleAttribute.InterfaceName`:
     If you bring your own interface, you'll need to ensure it matches the exposed methods and properties. Otherwise, the build will fail.
 
 
-### Exposing Methods & Properties
+### Exposing Methods, Properties & Events {: #exposing-methods-properties }
 
-In addition to the `[Capule]` attribute on the implementation class, you'll need to add the `[Expose]` attribute to all methods and properties that you want to make accessible through the capsule interface. The following restrictions apply:
+In addition to the `[Capsule]` attribute on the implementation class, you'll need to add the `[Expose]` attribute to all methods, properties and events that you want to make accessible through the capsule interface. The following restrictions apply:
 
 - The exposed methods must have a return type that is compatible with the chosen synchronization mode (see below).
 - Properties are restricted to immutable getters and `PassThrough` synchronization mode must be used.
+- Events are restricted to `PassThrough` synchronization mode.
+
 
 The synchronization mode defaults to `AwaitCompletion`. Different modes can be specified through the `ExposeAttribute.Synchronization` property.
 
@@ -94,7 +96,7 @@ A special case regarding sync/async is `AwaitEnqueueing` synchronization mode. T
 
 `AwaitCompletion`, `AwaitEnqueueing` and `AwaitReception` modes provide thread safety :octicons-shield-check-16:, `PassThrough` does not :octicons-shield-slash-16:.
 
-`PassThrough` is not thread-safe because it doesn't enqueue the invocation, but executes it directly. It is *only* safe for immutable operations and is typically used with get-only properties that return an immutable field of the capsule implementation (e.g. an ID).
+`PassThrough` is not thread-safe because it doesn't enqueue the invocation, but executes it directly. It is *only* safe for immutable operations and is typically used with get-only properties that return an immutable field of the capsule implementation (e.g. an ID), or for events.
 
 `AwaitCompletionOrPassThroughIfQueueClosed` is a special case synchronization mode that behaves as `AwaitCompletion`, but falls back to `PassThrough` if the invocation queue has been closed. This is useful for `DisposeAsync()` operations, where `DisposeAsync()` may be called by DI infrastructure just before shutdown. At that point, the invocation queue has already been terminated and `AwaitCompletion` would throw a `CapsuleInvocationException`. When it falls back to `PassThrough`, thread-safety is not guaranteed.
 
