@@ -64,7 +64,9 @@ internal class ExposeSpecResolver
                 s.MemberSymbol is IPropertySymbol p && IsExposable(context, p, s.Synchronization)
             ),
             .. exposedSymbols.Where(s => s.MemberSymbol is IMethodSymbol m && IsExposable(context, m)),
-            .. exposedSymbols.Where(s => s.MemberSymbol is IEventSymbol e && IsExposable(context, e, s.Synchronization)),
+            .. exposedSymbols.Where(s =>
+                s.MemberSymbol is IEventSymbol e && IsExposable(context, e, s.Synchronization)
+            ),
         ];
     }
 
@@ -175,11 +177,7 @@ internal class ExposeSpecResolver
         return exposable;
     }
 
-    private static bool IsExposable(
-        SourceProductionContext context,
-        IEventSymbol evt,
-        Synchronization synchronization
-    )
+    private static bool IsExposable(SourceProductionContext context, IEventSymbol evt, Synchronization synchronization)
     {
         var exposable = true;
 

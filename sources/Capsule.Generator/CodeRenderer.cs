@@ -178,12 +178,12 @@ internal class CodeRenderer(
         }
 
         return $$"""
-                    public event {{type}} {{name}}
-                        {
-                            add => _impl.{{name}} += value;
-                            remove => _impl.{{name}} -= value;
-                        }
-                """;
+                public event {{type}} {{name}}
+                    {
+                        add => _impl.{{name}} += value;
+                        remove => _impl.{{name}} -= value;
+                    }
+            """;
     }
 
     private static bool IsValueTask(ITypeSymbol typeSymbol) =>
