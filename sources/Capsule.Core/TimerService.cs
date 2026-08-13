@@ -125,7 +125,7 @@ internal class TimerService(
 
         while (stopwatch.Elapsed < delay)
         {
-            var furtherDelay = delay - stopwatch.Elapsed + TimeSpan.FromMilliseconds(2 ^ i);
+            var furtherDelay = delay - stopwatch.Elapsed + TimeSpan.FromMilliseconds(Math.Pow(2, i));
             await Task.Delay(furtherDelay, cancellationToken).ConfigureAwait(false);
 
             i++;
