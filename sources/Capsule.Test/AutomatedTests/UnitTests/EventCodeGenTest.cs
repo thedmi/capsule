@@ -11,8 +11,8 @@ namespace Capsule.Test.AutomatedTests.UnitTests
             var impl = new EventCapsule();
             var sut = impl.Encapsulate(TestRuntime.Create());
 
-            bool eventRaised = false;
-            sut.MyEvent += (sender, args) => eventRaised = true;
+            var eventRaised = false;
+            sut.MyEvent += (_, _) => eventRaised = true;
 
             impl.RaiseEvent();
 
