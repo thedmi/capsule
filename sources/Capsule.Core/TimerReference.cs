@@ -1,4 +1,4 @@
-﻿namespace Capsule;
+namespace Capsule;
 
 /// <summary>
 /// A reference to a timer that has been registered for delayed execution. The main purpose of this reference is to
@@ -14,10 +14,26 @@ public class TimerReference
         CancellationTokenSource cancellationTokenSource,
         string? discriminator = null
     )
+        : this(timerTask, cancellationTokenSource, discriminator)
+    {
+        Timeout = timeout;
+    }
+
+    internal TimerReference(
+        DateTimeOffset deadline,
+        Task timerTask,
+        CancellationTokenSource cancellationTokenSource,
+        string? discriminator = null
+    )
+        : this(timerTask, cancellationTokenSource, discriminator)
+    {
+        Deadline = deadline;
+    }
+
+    private TimerReference(Task timerTask, CancellationTokenSource cancellationTokenSource, string? discriminator)
     {
         _cancellationTokenSource = cancellationTokenSource;
         TimerTask = timerTask;
-        Timeout = timeout;
         Discriminator = discriminator;
     }
 
@@ -28,9 +44,21 @@ public class TimerReference
     internal Task TimerTask { get; }
 
     /// <summary>
-    /// The timeout value that the timer uses.
+    /// The timeout value that the timer uses, or null if the timer was started with a deadline (see
+    /// <see cref="Deadline"/>).
     /// </summary>
-    public TimeSpan Timeout { get; }
+    /// <remarks>
+    /// Exactly one of <see cref="Timeout"/> and <see cref="Deadline"/> is non-null.
+    /// </remarks>
+    public TimeSpan? Timeout { get; }
+
+    /// <summary>
+    /// The deadline that the timer uses, or null if the timer was started with a timeout (see <see cref="Timeout"/>).
+    /// </summary>
+    /// <remarks>
+    /// Exactly one of <see cref="Timeout"/> and <see cref="Deadline"/> is non-null.
+    /// </remarks>
+    public DateTimeOffset? Deadline { get; }
 
     /// <summary>
     /// The discriminator that is used to identify timer duplicates. Duplicate detection is disabled if this is null.
@@ -46,4 +74,6 @@ public class TimerReference
     /// The cancellation token that is associated with this timer reference.
     /// </summary>
     public CancellationToken CancellationToken => _cancellationTokenSource.Token;
+
+    public override string ToString() => Deadline.HasValue ? $"deadline {Deadline.Value:O}" : $"timeout {Timeout}";
 }

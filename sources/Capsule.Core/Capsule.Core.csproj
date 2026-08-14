@@ -37,6 +37,12 @@
     <Compile Remove="IsExternalInit.cs" Condition="'$(TargetFramework)' != 'netstandard2.0'" />
   </ItemGroup>
   <ItemGroup>
+    <!-- TimeProvider is in-box starting with net8.0, so the compatibility package is only needed for .NET standard -->
+    <PackageReference
+      Include="Microsoft.Bcl.TimeProvider"
+      Version="8.0.1"
+      Condition="'$(TargetFramework)' == 'netstandard2.0'"
+    />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.15">
