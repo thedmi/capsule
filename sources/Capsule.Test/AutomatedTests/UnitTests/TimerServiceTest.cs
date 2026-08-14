@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using Capsule.Testing;
 using MathNet.Numerics.Statistics;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -505,16 +506,18 @@ public class TimerServiceTest
 
     private class ManualSynchronizer : ICapsuleSynchronizer
     {
-        public Queue<Func<Task>> InvocationQueue { get; } = new();
+        // Timers enqueue their invocations from the thread pool, so several timers that elapse at the same time will
+        // enqueue concurrently. A non-thread-safe queue corrupts itself in that situation.
+        public ConcurrentQueue<Func<Task>> InvocationQueue { get; } = new();
 
         /// <summary>
         /// Executes and awaits enqueued invocations "in the foreground" to simplify test synchronization
         /// </summary>
         public async Task ExecuteInvocationsAsync()
         {
-            while (InvocationQueue.Count > 0)
+            while (InvocationQueue.TryDequeue(out var invocation))
             {
-                await InvocationQueue.Dequeue()();
+                await invocation();
                 await Task.Yield();
             }
         }
