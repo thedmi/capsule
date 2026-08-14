@@ -25,13 +25,9 @@
     <None Include="..\..\release\nuget-readmes\icon.png" Pack="true" PackagePath="\icon.png" />
   </ItemGroup>
   <ItemGroup>
-    <!-- Conditionally reference either the project or the package. This enables integrated development of features
-         that span multiple projects, while still resorting to package references for the published nuget packages. -->
-    <!-- TODO Restore conditional include once Capsule.Core 3.1.0 is released -->
-    <!--
-    <ProjectReference Include="..\Capsule.Core\Capsule.Core.csproj" Condition=" '$(Configuration)' == 'Debug' " />
-    <PackageReference Include="Capsule.Core" Version="3.0.0" Condition=" '$(Configuration)' == 'Release' " /> 
-    -->
+    <!-- Capsule.Testing implements Capsule infrastructure interfaces and thus needs to be built against the exact
+         Capsule.Core version it is released with. The project reference ensures the published package requires the
+         matching Capsule.Core version. -->
     <ProjectReference Include="..\Capsule.Core\Capsule.Core.csproj" />
   </ItemGroup>
   <ItemGroup>

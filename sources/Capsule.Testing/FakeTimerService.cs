@@ -1,8 +1,8 @@
 ﻿namespace Capsule.Testing;
 
 /// <summary>
-/// An <see cref="ITimerService"/> implementation that executes timers on request instead of according to their timeout.
-/// This is useful for unit testing capsules.
+/// An <see cref="ITimerService"/> implementation that executes timers on request instead of according to their timeout
+/// or deadline. This is useful for unit testing capsules.
 /// </summary>
 /// <remarks>
 /// To simulate timer expiration and execute their callbacks, use <see cref="ExecuteAsync"/> or
