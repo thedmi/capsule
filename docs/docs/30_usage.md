@@ -155,6 +155,22 @@ To work around this limitation, Capsule provides a timer service. The service ca
 
 You can then use the timer service to register callbacks with a timeout through `StartSingleShot()`. When the timeout expires, the callback will be enqueued as just another invocation. Timers thus adheres to the thread-safety guarantees of the capsule.
 
+#### Timeouts and Deadlines
+
+`StartSingleShot()` comes in two flavors that differ in the clock domain their guarantee lives in. Picking the wrong one is easy to miss, because both work identically as long as the wall clock is not adjusted:
+
+- `StartSingleShot(TimeSpan timeout, ...)` expresses *"call back after N"* and lives in the **monotonic** clock domain. The timer will not fire before `timeout` has elapsed on a monotonic clock, and it is unaffected by wall clock adjustments such as NTP steps, manual clock changes or DST transitions.
+- `StartSingleShot(DateTimeOffset deadline, ...)` expresses *"call back at instant T"* and lives in the **wall clock** domain. The timer will not fire before `DateTimeOffset.UtcNow` has reached `deadline`, even if the clock is stepped while the timer is pending.
+
+Use the deadline overload whenever the trigger is derived from a wall clock instant. Converting such an instant into a timeout yourself is lossy: If the clock is stepped backwards while the timer is pending, the callback runs at a wall clock time *before* the intended instant, and code that re-derives its next trigger inside the callback may pick the same trigger again.
+
+!!! note
+    The guarantee of deadline timers is *never early*, not *always on time*. A backward clock step costs one additional short wait. A forward clock step means the deadline has passed already, so the timer is late and fires as soon as it wakes up. Deadlines that lie in the past when the timer is started fire immediately, just like a timeout of `TimeSpan.Zero` does.
+
+Which of the two was used is visible on the returned `TimerReference`: Exactly one of `Timeout` and `Deadline` is non-null.
+
+#### Cancellation and Discriminators
+
 Pending timers can also be cancelled. Either cancel a single timer through its `TimerReference`, or cancel all timers through `ITimerService.CancelAll()`.
 
 For cases where only a single timer is needed, but that timer may be restarted multiple times, consider passing a `discriminator` to `StartSingleShot()`. The timer service will then ensure that at most one timer with the same discriminator exists, previous ones will be cancelled.
