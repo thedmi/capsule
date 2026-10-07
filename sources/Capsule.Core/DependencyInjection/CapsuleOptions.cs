@@ -11,4 +11,10 @@ public record CapsuleOptions
     /// .NET background services.
     /// </summary>
     public CapsuleFailureMode FailureMode { get; set; } = CapsuleFailureMode.Abort;
+
+    /// <summary>
+    /// How long the capsule host waits for the remaining invocation loops to terminate when an invocation loop
+    /// faulted, before the fault is propagated to the hosted service.
+    /// </summary>
+    public TimeSpan FaultShutdownTimeout { get; set; } = CapsuleHost.DefaultFaultShutdownTimeout;
 }

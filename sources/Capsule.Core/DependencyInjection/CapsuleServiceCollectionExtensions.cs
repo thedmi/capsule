@@ -29,7 +29,10 @@ public static class CapsuleServiceCollectionExtensions
     /// </remarks>
     public static IServiceCollection AddCapsuleHost(this IServiceCollection services, CapsuleOptions options)
     {
-        services.AddSingleton<CapsuleHost>();
+        services.AddSingleton<CapsuleHost>(p => new CapsuleHost(
+            p.GetRequiredService<ILogger<CapsuleHost>>(),
+            options.FaultShutdownTimeout
+        ));
         services.AddSingleton<ICapsuleHost>(p => p.GetRequiredService<CapsuleHost>());
 
         services.AddSingleton<ICapsuleSynchronizerFactory, DefaultSynchronizerFactory>();
