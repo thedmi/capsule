@@ -3,14 +3,24 @@
 /// <summary>
 /// A thread-safe class that provides information from the invocation loop back to the synchronizer.
 /// </summary>
+#pragma warning disable CS0618 // Kept until IInvocationLoopStatus is removed in v6
 public class InvocationLoopStatus : IInvocationLoopStatus
+#pragma warning restore CS0618
 {
-    private int _terminated;
+    private readonly TaskCompletionSource<object?> _termination = new(
+        TaskCreationOptions.RunContinuationsAsynchronously
+    );
 
-    public bool Terminated => Interlocked.CompareExchange(ref _terminated, 1, 1) == 1;
+    public bool Terminated => _termination.Task.IsCompleted;
+
+    /// <summary>
+    /// A task that completes when the invocation loop has terminated. The loop does not process any invocations after
+    /// that point.
+    /// </summary>
+    public Task Termination => _termination.Task;
 
     public void SetTerminated()
     {
-        Interlocked.Exchange(ref _terminated, 1);
+        _termination.TrySetResult(null);
     }
 }

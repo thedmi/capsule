@@ -114,6 +114,8 @@ Loop-owned synchronization modes throw exceptions back into the invocation loop,
 
 This behavior is consistent with how .NET background services treat uncaught exceptions in .NET 6 and newer. The rationale for this is that uncaught exceptions must not go unnoticed. Consequently, you'll need to ensure that *expected* exceptions are caught and handled in capsule implementations.
 
+When an invocation loop aborts, invocations still pending in its queue are not executed. Callers awaiting such an invocation (`AwaitCompletion`, `AwaitReception`) receive a `CapsuleInvocationException`, while `AwaitCompletionOrPassThroughIfQueueClosed` falls back to `PassThrough`. Before the exception propagates to the hosted service, the capsule host shuts down all other invocation loops, waiting at most `CapsuleOptions.FaultShutdownTimeout` (5 seconds by default) for them to terminate.
+
 Optionally, the failure mode can be changed to `Continue` through `CapsuleOptions.FailureMode`. With this failure mode, uncaught loop-owned exceptions will be logged and then ignored.
 
 

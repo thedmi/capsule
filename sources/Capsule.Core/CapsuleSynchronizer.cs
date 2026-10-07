@@ -4,7 +4,7 @@ namespace Capsule;
 
 internal class CapsuleSynchronizer(
     ChannelWriter<Func<Task>> writer,
-    IInvocationLoopStatus invocationLoopStatus,
+    InvocationLoopStatus invocationLoopStatus,
     Type capsuleType
 ) : ICapsuleSynchronizer
 {
@@ -23,12 +23,6 @@ internal class CapsuleSynchronizer(
 
     public async Task<T> EnqueueAwaitResult<T>(Func<Task<T>> impl, bool passThroughIfQueueClosed = false)
     {
-        if (passThroughIfQueueClosed && invocationLoopStatus.Terminated)
-        {
-            // Queue has been closed, enqueuing will not work
-            return await impl();
-        }
-
         var tcs = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         async Task FuncAsync()
@@ -44,9 +38,18 @@ internal class CapsuleSynchronizer(
             }
         }
 
-        Write(FuncAsync);
+        if (TryWrite(FuncAsync) && await AwaitProcessingAsync(tcs.Task).ConfigureAwait(false))
+        {
+            return await tcs.Task.ConfigureAwait(false);
+        }
 
-        return await tcs.Task.ConfigureAwait(false);
+        if (passThroughIfQueueClosed)
+        {
+            // Queue has been closed before the invocation was processed, so execute it directly
+            return await impl().ConfigureAwait(false);
+        }
+
+        throw NotProcessedException();
     }
 
     public async Task EnqueueAwaitReception(Func<Task> impl)
@@ -61,7 +64,10 @@ internal class CapsuleSynchronizer(
 
         Write(FuncAsync);
 
-        await tcs.Task.ConfigureAwait(false);
+        if (!await AwaitProcessingAsync(tcs.Task).ConfigureAwait(false))
+        {
+            throw NotProcessedException();
+        }
     }
 
     public void EnqueueReturn(Func<Task> impl)
@@ -85,11 +91,22 @@ internal class CapsuleSynchronizer(
 
     private void Write(Func<Task> func)
     {
-        if (invocationLoopStatus.Terminated)
+        if (!TryWrite(func))
         {
             throw new CapsuleInvocationException(
                 $"Unable to enqueue invocation for capsule of type {capsuleType}, invocation loop has been terminated."
             );
+        }
+    }
+
+    /// <summary>
+    /// Writes the invocation to the queue. Returns false if the invocation loop has already been terminated.
+    /// </summary>
+    private bool TryWrite(Func<Task> func)
+    {
+        if (invocationLoopStatus.Terminated)
+        {
+            return false;
         }
 
         var success = writer.TryWrite(func);
@@ -100,7 +117,28 @@ internal class CapsuleSynchronizer(
                 $"Enqueuing invocation for capsule of type {capsuleType} failed, cannot write to queue."
             );
         }
+
+        return true;
     }
+
+    /// <summary>
+    /// Awaits until the invocation loop has processed the invocation that completes <paramref name="invocationTask"/>.
+    /// Returns false if the loop terminated without processing it, e.g. because the loop aborted or the invocation was
+    /// enqueued just before termination. Without this, the caller would await <paramref name="invocationTask"/> forever.
+    /// </summary>
+    private async Task<bool> AwaitProcessingAsync(Task invocationTask)
+    {
+#pragma warning disable VSTHRD003
+        await Task.WhenAny(invocationTask, invocationLoopStatus.Termination).ConfigureAwait(false);
+#pragma warning restore VSTHRD003
+
+        // The loop does not process any invocations after termination, so an invocation that is not completed by now
+        // will never be
+        return invocationTask.IsCompleted;
+    }
+
+    private CapsuleInvocationException NotProcessedException() =>
+        new($"Invocation for capsule of type {capsuleType} was not processed, invocation loop has been terminated.");
 
     /// <summary>
     /// Ensure the invocation queue is closed when the synchronizer is finalized to avoid memory leaks on the queue
